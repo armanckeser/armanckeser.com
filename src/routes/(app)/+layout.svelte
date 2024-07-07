@@ -1,8 +1,8 @@
 <script lang="ts">
-	import Header from "$lib/components/Header.svelte"
+	import Header from "./Header.svelte"
 
 	import { ModeWatcher } from "mode-watcher"
-	import "../app.css"
+	import "../../app.css"
 
 	const { children } = $props()
 </script>
