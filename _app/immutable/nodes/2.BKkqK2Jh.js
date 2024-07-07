@@ -1,1 +1,0 @@
-import{a as n,t as r}from"../chunks/disclose-version.BGCs40Ws.js";var a=r('<h1 class="flex h-screen items-center justify-center">under construction</h1>');function s(e){var t=a();n(e,t)}export{s as component};
