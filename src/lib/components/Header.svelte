@@ -1,5 +1,4 @@
 <script lang="ts">
-	import * as Alert from "$lib/components/ui/alert/index.js"
 	import { Button } from "$lib/components/ui/button/index.js"
 	import { Terminal } from "lucide-svelte"
 	import Moon from "lucide-svelte/icons/moon"
@@ -7,12 +6,12 @@
 	import { toggleMode } from "mode-watcher"
 </script>
 
-<header class="flex items-center justify-between gap-2 p-2">
-	<Alert.Root>
-		<Terminal class="h-4 w-4" />
-		<Alert.Title class="font-mono">ENV=dev</Alert.Title>
-	</Alert.Root>
-	<Button onclick={toggleMode} variant="outline" size="icon">
+<header class="flex justify-between gap-2 p-2">
+	<Button disabled variant="outline" class="gap-2">
+		<Terminal class="h-[1.2rem] w-[1.2rem]" />
+		<span class="font-mono">ENV=dev</span>
+	</Button>
+	<Button class="aspect-square" onclick={toggleMode} variant="outline">
 		<Sun
 			class="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0"
 		/>
