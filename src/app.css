@@ -87,4 +87,10 @@
 		font-display: swap;
 		src: url("/fonts/Inter/Inter-Bold.ttf");
 	}
+	@font-face {
+		font-family: "JetBrains Mono";
+		font-weight: bold;
+		font-display: swap;
+		src: url("/fonts/JetBrainsMono/JetBrains-Mono.ttf");
+	}
 }

@@ -59,6 +59,7 @@ const config: Config = {
 			},
 			fontFamily: {
 				sans: ["Inter"],
+				mono: ["JetBrains Mono"],
 			},
 		},
 	},
