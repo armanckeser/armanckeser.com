@@ -8,7 +8,7 @@
 </script>
 
 <ModeWatcher />
-<div class="grid h-screen grid-rows-[auto_1fr] gap-2">
+<div class="grid h-dvh grid-rows-[auto_1fr] gap-2">
 	<Header />
 	<main>
 		{@render children()}
