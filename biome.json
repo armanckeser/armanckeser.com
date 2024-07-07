@@ -218,7 +218,8 @@
 			"ononline",
 			"$state",
 			"$props",
-			"$derived"
+			"$derived",
+			"$effect"
 		]
 	},
 	"overrides": [
