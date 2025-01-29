@@ -14,13 +14,13 @@
 <div
 	bind:this={container}
 	role="article"
-	class="card-container relative h-[160px] w-[360px] cursor-pointer overflow-hidden border border-[#1A1A1A] bg-[#0F0F10] p-4 font-mono transition-all duration-300 hover:border-[#2A2A2A]"
+	class="card-container relative h-[140px] w-[85vw] min-w-0 flex-shrink-0 cursor-pointer overflow-hidden border border-[#1A1A1A] bg-[#0F0F10] p-4 font-mono transition-all duration-300 hover:border-[#2A2A2A] md:h-[160px] md:w-[360px]"
 	onmouseenter={() => (isHovered = true)}
 	onmouseleave={() => (isHovered = false)}
 >
 	<!-- Header -->
 	<div class="mb-2 flex items-center justify-between">
-		<div class="flex items-center gap-3">
+		<div class="flex items-center gap-2 md:gap-3">
 			<div class="text-xs text-[#00FF9D]">{tag}</div>
 			{#if date}
 				<div class="text-xs text-[#4D4D4D]">{date}</div>
@@ -35,10 +35,10 @@
 	</div>
 
 	<!-- Content -->
-	<h3 class="mb-2 font-sans text-lg font-medium text-white/90">
+	<h3 class="mb-2 font-sans text-base font-medium text-white/90 md:text-lg">
 		{title}
 	</h3>
-	<p class="text-sm leading-relaxed text-[#888888]">
+	<p class="text-xs leading-relaxed text-[#888888] md:text-sm">
 		{description}
 	</p>
 

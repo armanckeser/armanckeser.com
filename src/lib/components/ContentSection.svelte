@@ -29,24 +29,28 @@
 
 <section class="relative w-full">
 	<!-- Section Header -->
-	<div class="mb-12 px-8">
-		<div class="mb-8 flex items-center gap-4">
-			<div class="h-px w-12 bg-white/20"></div>
-			<h2 class="text-2xl font-bold tracking-widest text-white">
+	<div class="mb-6 px-4 md:mb-6 md:px-0">
+		<div class="mb-3 flex items-center gap-3">
+			<div class="h-px w-12 bg-white/20 md:w-16"></div>
+			<h2
+				class="font-mono text-xl font-medium tracking-tight text-white md:text-2xl"
+			>
 				{title}
 			</h2>
 		</div>
 		{#if subtitle}
-			<p class="text-lg font-light text-gray-400">{subtitle}</p>
+			<p class="font-mono text-sm text-[#888] md:text-base">
+				{subtitle}
+			</p>
 		{/if}
 	</div>
 
 	<!-- Scroll Container -->
 	<div class="group relative">
-		<!-- Left Scroll Button -->
+		<!-- Left Scroll Button (Hidden on Mobile) -->
 		<button
 			onclick={scrollLeft}
-			class="absolute -left-4 top-1/2 z-10 flex h-12 w-12 -translate-y-1/2 items-center justify-center bg-[#1A1A1A] text-white opacity-0 transition-opacity duration-300 hover:bg-[#FF3E3E] group-hover:opacity-100"
+			class="hidden md:absolute md:-left-4 md:top-1/2 md:z-10 md:flex md:h-12 md:w-12 md:-translate-y-1/2 md:items-center md:justify-center md:bg-[#1A1A1A] md:text-white md:opacity-0 md:transition-opacity md:duration-300 md:hover:bg-[#2A2A2A] md:group-hover:opacity-100"
 			aria-label="Scroll left"
 		>
 			←
@@ -55,15 +59,15 @@
 		<!-- Cards Container -->
 		<div
 			bind:this={scrollContainer}
-			class="scrollbar-hide flex gap-6 overflow-x-auto px-8 pb-4"
+			class="scrollbar-hide flex gap-4 overflow-x-auto px-4 pb-4 md:gap-6 md:px-0"
 		>
 			{@render children()}
 		</div>
 
-		<!-- Right Scroll Button -->
+		<!-- Right Scroll Button (Hidden on Mobile) -->
 		<button
 			onclick={scrollRight}
-			class="absolute -right-4 top-1/2 z-10 flex h-12 w-12 -translate-y-1/2 items-center justify-center bg-[#1A1A1A] text-white opacity-0 transition-opacity duration-300 hover:bg-[#FF3E3E] group-hover:opacity-100"
+			class="hidden md:absolute md:-right-4 md:top-1/2 md:z-10 md:flex md:h-12 md:w-12 md:-translate-y-1/2 md:items-center md:justify-center md:bg-[#1A1A1A] md:text-white md:opacity-0 md:transition-opacity md:duration-300 md:hover:bg-[#2A2A2A] md:group-hover:opacity-100"
 			aria-label="Scroll right"
 		>
 			→

@@ -54,17 +54,19 @@
 	<title>Armanc Keser</title>
 </svelte:head>
 
-<main class="min-h-screen bg-[#0A0A0B] px-4 py-12">
-	<div class="mx-auto max-w-[1200px] space-y-24">
+<main class="min-h-screen bg-[#0A0A0B] px-4 py-8 md:px-8 md:py-16 lg:px-16">
+	<div class="mx-auto max-w-[1200px] space-y-8 md:space-y-16">
 		<!-- Hero Section -->
-		<header class="mb-24 px-4">
-			<div class="mb-1 font-mono text-xs text-[#4D4D4D]">
+		<header class="mb-8 md:mb-12">
+			<div class="mb-2 font-mono text-sm text-[#4D4D4D] md:text-base">
 				~/armanckeser
 			</div>
-			<h1 class="mb-4 text-4xl font-bold tracking-tight text-white/90">
+			<h1
+				class="mb-4 font-heading text-4xl font-bold tracking-tight text-white/90 md:text-6xl lg:text-7xl"
+			>
 				Armanc Keser<span class="text-[#00FF9D]">_</span>
 			</h1>
-			<p class="font-mono text-sm text-[#4D4D4D]">
+			<p class="font-mono text-base text-[#4D4D4D] md:text-lg">
 				$ Engineering efficient solutions through code
 			</p>
 		</header>

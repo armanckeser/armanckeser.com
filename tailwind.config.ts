@@ -58,8 +58,9 @@ const config: Config = {
 				sm: "calc(var(--radius) - 4px)",
 			},
 			fontFamily: {
-				sans: ["Inter"],
-				mono: ["JetBrains Mono"],
+				sans: ["Plus Jakarta Sans", "system-ui", "sans-serif"],
+				mono: ["Space Grotesk", "monospace"],
+				heading: ["Rajdhani", "sans-serif"],
 			},
 		},
 	},

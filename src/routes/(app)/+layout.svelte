@@ -1,6 +1,4 @@
 <script lang="ts">
-	import Header from "./Header.svelte"
-
 	import { ModeWatcher } from "mode-watcher"
 	import "../../app.css"
 
@@ -8,9 +6,6 @@
 </script>
 
 <ModeWatcher />
-<div class="grid h-dvh grid-rows-[auto_1fr] gap-2">
-	<Header />
-	<main>
-		{@render children()}
-	</main>
-</div>
+<main class="min-h-dvh">
+	{@render children()}
+</main>
