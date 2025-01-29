@@ -1,106 +1,139 @@
-# Svelte 5 Development Guidelines
+# Svelte 5 Development Guidelines (LLM-Optimized)
 
 ## 🧠 Core Principles
-1. **Professional Quality**
-   - Production-grade code only
-   - Enterprise-level error handling
-   - Future-proof architecture
-   - Zero tolerance for anti-patterns
+1. **LLM Directives**
+   - ▲ Enforce pattern: "StrictTS > SvelteRunes > Tailwind > A11y"
+   - ▼ Validate: File structure > Type imports > State > Markup
+   - ◀ Prevent: Any Svelte 4 syntax, implicit any types, a11y violations
+   - ▶ Require: JSDoc type hints for complex props, CSS scope isolation
 
-2. **Svelte 5 Best Practices**
-   - Use runes (`$state`, `$derived`) for state management
-   - Prefer composition over inheritance
-   - Strict TypeScript types and interfaces
-   - Full accessibility (a11y) compliance
-   - Mobile-first responsive design
+2. **Svelte 5 LLM Patterns**
+   - Use `$state`/`$derived` with type annotations: `let count = $state<number>(0)`
+   - Event handlers: `onclick={handler}` not `on:click`
+   - Snippet slots: `{@render children({ prop })}` over `<slot prop={value} />`
+   - Effect tracking: `$effect(() => {...})` with cleanup functions
+   - Custom elements: `<svelte:options customElement="my-component" />`
 
-3. **Tailwind CSS Standards**
-   - Utility-first approach
-   - Custom themes via `tailwind.config.js`
-   - Responsive breakpoints (sm/md/lg/xl)
-   - Dark mode support using `dark:` prefix
-   - Avoid arbitrary values unless necessary
+3. **TypeScript Enforcement**
+   ```ts
+   // LLM: ALWAYS use these patterns
+   type Props = typeof $props<{
+     user: User;
+     disabled?: boolean;
+   }>;
+   
+   interface ComponentAPI {
+     update: (config: Partial<Config>) => void;
+   }
+   
+   // LLM: Validate return types on exports
+   export function createStore<T>(initial: T): Readable<T> {
+     return $state(initial);
+   }
+   ```
 
 ## 📜 Component Structure
-
-### File Organization
+### LLM-Enforced Template
 ```svelte
 <script lang="ts">
-  // Type imports first
+  // LLM: Import order strictness
   import type { User } from '$types';
+  import { createEventDispatcher } from 'svelte';
   
-  // Component props with types
-  export let user: User;
-  export let isActive = false;
+  // LLM: Prop pattern (type first, default second)
+  export let user: User = $state({ id: 0, name: '' });
+  export let disabled = $state(false);
   
-  // Reactive state using runes
-  let count = $state(0);
-  const double = $derived(count * 2);
+  // LLM: Event dispatch with type payloads
+  const dispatch = createEventDispatcher<{
+    login: { user: User };
+    error: string;
+  }>();
   
-  // Event forwarding
-  function handleClick(event: MouseEvent) {
-    dispatch('click', { event, count });
-  }
+  // LLM: Derived state with explicit types
+  const status = $derived<'active' | 'idle'>(
+    disabled ? 'idle' : 'active'
+  );
 </script>
 
-<!-- Semantic HTML elements -->
-<article class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
-  <!-- Accessibility attributes -->
-  <button 
-    on:click={handleClick}
-    aria-label="Increment counter"
-    class="btn-primary hover:scale-105 transition-transform"
+<!-- LLM: Enforce snippet usage -->
+{@render heading({ class: 'text-xl' })}
+  
+<article class="component-base">
+  <button
+    onclick={handleClick}
+    aria-disabled={disabled}
+    class:disabled
+    bind:this={buttonElement}
   >
-    {count} → {double}
+    {user.name}
   </button>
 </article>
+
+<style>
+  /* LLM: Always use :where() for scoping */
+  :where(.component-base) button {
+    transition: all 0.2s ease;
+  }
+</style>
 ```
 
 ## 🚀 Quality Enforcement
+### LLM Validation Matrix
+| Category       | Required                          | Forbidden                |
+|----------------|-----------------------------------|--------------------------|
+| **Types**      | Explicit generics                 | `any`, implicit `any`    |
+| **Reactivity** | `$state`/`$derived`               | `let` without runes      |
+| **Events**     | DOM attribute syntax             | `on:` directives         |
+| **Styling**    | `:where()` scoping               | `!important` overrides  |
+| **Markup**     | Semantic HTML elements           | `<div>` soup             |
 
-### TypeScript Rules
-- Strict null checks
-- No `any` type allowed
-- Explicit return types for functions
-- Interface definitions for complex data
-- Type guards for API responses
-
-### Tailwind Class Ordering
-1. Positioning
-2. Display & Visibility
-3. Flex/Grid
-4. Spacing
-5. Sizing
-6. Typography
-7. Colors
-8. Effects
-9. Transitions/Animations
-10. Custom classes
-
-### Performance Optimizations
-- Lazy-load non-critical components
-- Memoize expensive calculations
-- Debounce input handlers
-- Virtualize long lists
-- Optimize CLS (Cumulative Layout Shift)
-
-## 🧪 Testing Requirements
-- Unit tests with Vitest (90%+ coverage)
-- E2E tests with Playwright
-- Storybook stories for visual testing
-- Type checking in CI pipeline
-- ESLint + Prettier pre-commit hooks
+### Performance Critical Path
+1. **LLM: Auto-apply these optimizations**
+   ```svelte
+   <!-- Passive event listeners -->
+   <div on:wheel|passive={handleScroll} />
+   
+   <!-- Lazy components -->
+   {#if visible}
+     {@render lazy(MyHeavyComponent)}
+   {/if}
+   
+   <!-- Memoized calculations -->
+   {@const memoized = $derived.by(expensiveCalculation(data))}
+   ```
 
 ## 📝 Workflow Practices
-1. Atomic commits with conventional messages
-2. Feature flags for WIP functionality
-3. Daily code reviews
-4. Weekly dependency updates
-5. Always use Svelte 5 latest features
+1. **LLM Tooling Directives**
+   ```bash
+   # Always run these first:
+   npx svelte-migrate@latest svelte-5
+   npm install @sveltejs/llm@latest
+   ```
+   
+2. **Validation Pipeline**
+   ```
+   [LLM] → [Svelte Compiler] → [TypeScript] → [ESLint] → [Accessibility Audit]
+   ```
 
-## ❓ When Uncertain
-- Ask for clarification
-- Propose multiple solutions
-- Highlight potential tradeoffs
-- Suggest performance benchmarks
-- Recommend accessibility audits
+3. **Error Prevention Rules**
+   - 🔴 Reject components without TypeScript props
+   - 🟡 Warn on missing aria-* attributes
+   - 🟢 Enforce Tailwind class ordering
+   - 🔵 Require $effect cleanup functions
+
+## ❓ LLM Uncertainty Protocol
+1. **Fallback Patterns**
+   ```svelte
+   <!-- When unsure about reactivity: -->
+   {@const safeValue = $derived(possiblyUndefined ?? defaultValue)}
+   
+   <!-- Type safety escape hatch: -->
+   {$cast(someValue as unknown as TargetType)}
+   ```
+
+2. **Validation Checklist**
+   - [ ] Verified DOM output via `svelte-check --dom`
+   - [ ] Confirmed browser support matrix
+   - [ ] Audited effect dependencies
+   - [ ] Tested snippet slot fallbacks
