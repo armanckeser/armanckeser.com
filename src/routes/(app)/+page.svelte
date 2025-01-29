@@ -5,96 +5,161 @@
 	// Sample data - we can move this to a separate store or API later
 	const blogPosts = [
 		{
-			title: "Svelte 5 Runes Deep Dive",
+			title: "Building Products That Matter",
 			description:
-				"Performance implications and internal workings of the new reactivity system",
-			tag: "tech",
+				"Lessons learned from shipping features that users actually want",
+			tag: "product",
 			date: "2024-03",
 		},
 		{
-			title: "Building Efficient CLIs",
+			title: "Shape Up: Book Notes",
 			description:
-				"Architecture patterns for scalable command-line applications",
-			tag: "eng",
+				"Key insights from Basecamp's product development methodology",
+			tag: "book",
 			date: "2024-02",
 		},
 		{
-			title: "TypeScript Type System",
-			description:
-				"Advanced type manipulation techniques and performance considerations",
-			tag: "tech",
+			title: "Developer Experience First",
+			description: "How focusing on DX led to better product adoption",
+			tag: "dx",
 			date: "2024-01",
 		},
 	]
 
 	const projects = [
 		{
-			title: "dev-toolkit",
-			description: "CLI utilities for accelerating development workflows",
-			tag: "cli",
-			stars: 142,
+			title: "YouTube History",
+			description: "Analyze and visualize your YouTube watching patterns",
+			tag: "app",
+			stars: 156,
 		},
 		{
-			title: "ts-codegen",
-			description: "Type-safe code generation from OpenAPI specs",
-			tag: "lib",
-			stars: 89,
-		},
-		{
-			title: "perf-analyzer",
+			title: "Easy Hang",
 			description:
-				"Runtime performance analysis for Node.js applications",
-			tag: "tool",
-			stars: 234,
+				"Never mess up measurements when hanging pictures again",
+			tag: "app",
+			stars: 92,
+		},
+		{
+			title: "Reading List",
+			description: "Track and share your reading journey with notes",
+			tag: "app",
+			stars: 178,
 		},
 	]
 </script>
 
 <svelte:head>
 	<title>Armanc Keser</title>
+	<meta
+		name="description"
+		content="Engineering efficient solutions through code"
+	/>
 </svelte:head>
 
-<main class="min-h-screen bg-[#0A0A0B] px-4 py-8 md:px-8 md:py-16 lg:px-16">
-	<div class="mx-auto max-w-[1200px] space-y-8 md:space-y-16">
+<main
+	class="relative min-h-screen bg-background px-4 py-8 md:px-8 md:py-16 lg:px-16"
+>
+	<!-- Background subtle gradient -->
+	<div class="pointer-events-none fixed inset-0 z-0">
+		<div
+			class="absolute inset-0 bg-[linear-gradient(to_bottom,transparent_0%,var(--background)_100%)]"
+		></div>
+	</div>
+
+	<div class="relative z-10 mx-auto max-w-[1200px] space-y-24">
 		<!-- Hero Section -->
-		<header class="mb-8 md:mb-12">
-			<div class="mb-2 font-mono text-sm text-[#4D4D4D] md:text-base">
-				~/armanckeser
+		<header class="animate-fade-in space-y-8">
+			<div class="group flex items-center space-x-2">
+				<div class="glass h-6 w-6 rounded-full p-1">
+					<div
+						class="h-full w-full rounded-full bg-emerald-500"
+					></div>
+				</div>
+				<div
+					class="font-mono text-sm text-muted-foreground transition-colors group-hover:text-primary md:text-base"
+				>
+					~/armanckeser
+				</div>
 			</div>
-			<h1
-				class="mb-4 font-heading text-4xl font-bold tracking-tight text-white/90 md:text-6xl lg:text-7xl"
-			>
-				Armanc Keser<span class="text-[#00FF9D]">_</span>
-			</h1>
-			<p class="font-mono text-base text-[#4D4D4D] md:text-lg">
-				$ Engineering efficient solutions through code
-			</p>
+
+			<div class="space-y-4">
+				<h1
+					class="animate-slide-in font-mono text-4xl font-bold tracking-tight text-primary md:text-6xl lg:text-7xl"
+				>
+					Armanc Keser<span class="animate-pulse text-emerald-500"
+						>_</span
+					>
+				</h1>
+
+				<p
+					class="max-w-2xl font-mono text-base text-muted-foreground md:text-lg"
+				>
+					<span class="text-emerald-500">$</span> Engineering efficient
+					solutions through code
+				</p>
+			</div>
+
+			<!-- Quick links -->
+			<div class="flex flex-wrap gap-4">
+				<a
+					href="https://github.com/armanckeser"
+					class="glass hover:sharp-shadow-md group flex items-center gap-2 rounded-lg px-4 py-2 transition-all hover:border-emerald-500/20"
+				>
+					<span class="font-mono text-sm text-primary">github</span>
+					<span
+						class="font-mono text-xs text-muted-foreground transition-colors group-hover:text-emerald-500"
+						>↗</span
+					>
+				</a>
+				<a
+					href="https://twitter.com/armanckeser"
+					class="glass hover:sharp-shadow-md group flex items-center gap-2 rounded-lg px-4 py-2 transition-all hover:border-emerald-500/20"
+				>
+					<span class="font-mono text-sm text-primary">twitter</span>
+					<span
+						class="font-mono text-xs text-muted-foreground transition-colors group-hover:text-emerald-500"
+						>↗</span
+					>
+				</a>
+			</div>
 		</header>
 
 		<!-- Blog Posts Section -->
 		<ContentSection
 			title="~/writing"
-			subtitle="Technical deep-dives and engineering notes"
+			subtitle="Product insights, book notes, and learnings"
 		>
-			{#each blogPosts as post}
-				<Card {...post} />
-			{/each}
+			<div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+				{#each blogPosts as post, i}
+					<div
+						class="animate-slide-in"
+						style="animation-delay: {i * 100}ms"
+					>
+						<Card {...post} />
+					</div>
+				{/each}
+			</div>
 		</ContentSection>
 
 		<!-- Projects Section -->
-		<ContentSection
-			title="~/projects"
-			subtitle="Open-source tools and libraries"
-		>
-			{#each projects as project}
-				<Card {...project} />
-			{/each}
+		<ContentSection title="~/projects" subtitle="Apps and tools I've built">
+			<div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+				{#each projects as project, i}
+					<div
+						class="animate-slide-in"
+						style="animation-delay: {i * 100}ms"
+					>
+						<Card {...project} />
+					</div>
+				{/each}
+			</div>
 		</ContentSection>
 	</div>
 </main>
 
-<style>
+<style lang="postcss">
 	:global(body) {
-		background-color: #0a0a0b;
+		@apply bg-background;
 	}
 </style>
