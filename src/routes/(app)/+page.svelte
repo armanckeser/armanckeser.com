@@ -94,24 +94,11 @@
 						>↗</span
 					>
 				</a>
-				<a
-					href="https://twitter.com/armanckeser"
-					class="glass hover:sharp-shadow-md group flex items-center gap-2 rounded-lg px-4 py-2 transition-all hover:border-emerald-500/20"
-				>
-					<span class="font-mono text-sm text-primary">twitter</span>
-					<span
-						class="font-mono text-xs text-muted-foreground transition-colors group-hover:text-emerald-500"
-						>↗</span
-					>
-				</a>
 			</div>
 		</header>
 
 		<!-- Blog Posts Section -->
-		<ContentSection
-			title="~/writing"
-			subtitle="Product insights, book notes, and learnings"
-		>
+		<ContentSection title="~/writing" subtitle="Insights, learnings, thoughts">
 			<div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
 				{#each posts as post, i}
 					<div
