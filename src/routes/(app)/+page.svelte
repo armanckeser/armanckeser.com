@@ -33,7 +33,7 @@
 	<title>Armanc Keser</title>
 	<meta
 		name="description"
-		content="Engineering efficient solutions through code"
+		content="Engineer learning the skills for the next steps"
 	/>
 </svelte:head>
 
@@ -75,8 +75,10 @@
 				<p
 					class="max-w-2xl font-mono text-base text-muted-foreground md:text-lg"
 				>
-					<span class="text-emerald-500">$</span> Engineering efficient
-					solutions through code
+					<code class="text-primary">
+						<span class="text-emerald-500">const</span> state =
+						<span class="text-yellow-500">'learning'</span>
+					</code>
 				</p>
 			</div>
 
