@@ -1,30 +1,10 @@
 <script lang="ts">
 	import Card from "$lib/components/Card.svelte"
 	import ContentSection from "$lib/components/ContentSection.svelte"
+	import type { PageData } from "./$types"
 
-	// Sample data - we can move this to a separate store or API later
-	const blogPosts = [
-		{
-			title: "Building Products That Matter",
-			description:
-				"Lessons learned from shipping features that users actually want",
-			tag: "product",
-			date: "2024-03",
-		},
-		{
-			title: "Shape Up: Book Notes",
-			description:
-				"Key insights from Basecamp's product development methodology",
-			tag: "book",
-			date: "2024-02",
-		},
-		{
-			title: "Developer Experience First",
-			description: "How focusing on DX led to better product adoption",
-			tag: "dx",
-			date: "2024-01",
-		},
-	]
+	const props = $props<{ data: PageData }>()
+	const posts = $derived(props.data.posts)
 
 	const projects = [
 		{
@@ -131,12 +111,17 @@
 			subtitle="Product insights, book notes, and learnings"
 		>
 			<div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-				{#each blogPosts as post, i}
+				{#each posts as post, i}
 					<div
 						class="animate-slide-in"
 						style="animation-delay: {i * 100}ms"
 					>
-						<Card {...post} />
+						<Card
+							title={post.title}
+							description={post.description}
+							date={post.date}
+							href={post.slug}
+						/>
 					</div>
 				{/each}
 			</div>
