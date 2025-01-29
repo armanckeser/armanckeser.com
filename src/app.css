@@ -72,21 +72,25 @@
 	* {
 		@apply border-border;
 	}
+
 	body {
 		@apply bg-background text-foreground;
 	}
+
 	@font-face {
 		font-family: "Inter";
 		font-weight: normal;
 		font-display: swap;
 		src: url("/fonts/Inter/Inter-Regular.ttf");
 	}
+
 	@font-face {
 		font-family: "Inter";
 		font-weight: bold;
 		font-display: swap;
 		src: url("/fonts/Inter/Inter-Bold.ttf");
 	}
+
 	@font-face {
 		font-family: "JetBrains Mono";
 		font-weight: bold;
