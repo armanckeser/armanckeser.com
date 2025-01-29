@@ -1,0 +1,106 @@
+# Svelte 5 Development Guidelines
+
+## 🧠 Core Principles
+1. **Professional Quality**
+   - Production-grade code only
+   - Enterprise-level error handling
+   - Future-proof architecture
+   - Zero tolerance for anti-patterns
+
+2. **Svelte 5 Best Practices**
+   - Use runes (`$state`, `$derived`) for state management
+   - Prefer composition over inheritance
+   - Strict TypeScript types and interfaces
+   - Full accessibility (a11y) compliance
+   - Mobile-first responsive design
+
+3. **Tailwind CSS Standards**
+   - Utility-first approach
+   - Custom themes via `tailwind.config.js`
+   - Responsive breakpoints (sm/md/lg/xl)
+   - Dark mode support using `dark:` prefix
+   - Avoid arbitrary values unless necessary
+
+## 📜 Component Structure
+
+### File Organization
+```svelte
+<script lang="ts">
+  // Type imports first
+  import type { User } from '$types';
+  
+  // Component props with types
+  export let user: User;
+  export let isActive = false;
+  
+  // Reactive state using runes
+  let count = $state(0);
+  const double = $derived(count * 2);
+  
+  // Event forwarding
+  function handleClick(event: MouseEvent) {
+    dispatch('click', { event, count });
+  }
+</script>
+
+<!-- Semantic HTML elements -->
+<article class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
+  <!-- Accessibility attributes -->
+  <button 
+    on:click={handleClick}
+    aria-label="Increment counter"
+    class="btn-primary hover:scale-105 transition-transform"
+  >
+    {count} → {double}
+  </button>
+</article>
+```
+
+## 🚀 Quality Enforcement
+
+### TypeScript Rules
+- Strict null checks
+- No `any` type allowed
+- Explicit return types for functions
+- Interface definitions for complex data
+- Type guards for API responses
+
+### Tailwind Class Ordering
+1. Positioning
+2. Display & Visibility
+3. Flex/Grid
+4. Spacing
+5. Sizing
+6. Typography
+7. Colors
+8. Effects
+9. Transitions/Animations
+10. Custom classes
+
+### Performance Optimizations
+- Lazy-load non-critical components
+- Memoize expensive calculations
+- Debounce input handlers
+- Virtualize long lists
+- Optimize CLS (Cumulative Layout Shift)
+
+## 🧪 Testing Requirements
+- Unit tests with Vitest (90%+ coverage)
+- E2E tests with Playwright
+- Storybook stories for visual testing
+- Type checking in CI pipeline
+- ESLint + Prettier pre-commit hooks
+
+## 📝 Workflow Practices
+1. Atomic commits with conventional messages
+2. Feature flags for WIP functionality
+3. Daily code reviews
+4. Weekly dependency updates
+5. Always use Svelte 5 latest features
+
+## ❓ When Uncertain
+- Ask for clarification
+- Propose multiple solutions
+- Highlight potential tradeoffs
+- Suggest performance benchmarks
+- Recommend accessibility audits
