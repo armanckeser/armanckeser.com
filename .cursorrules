@@ -1,139 +1,362 @@
-# Svelte 5 Development Guidelines (LLM-Optimized)
-
-## 🧠 Core Principles
-1. **LLM Directives**
-   - ▲ Enforce pattern: "StrictTS > SvelteRunes > Tailwind > A11y"
-   - ▼ Validate: File structure > Type imports > State > Markup
-   - ◀ Prevent: Any Svelte 4 syntax, implicit any types, a11y violations
-   - ▶ Require: JSDoc type hints for complex props, CSS scope isolation
-
-2. **Svelte 5 LLM Patterns**
-   - Use `$state`/`$derived` with type annotations: `let count = $state<number>(0)`
-   - Event handlers: `onclick={handler}` not `on:click`
-   - Snippet slots: `{@render children({ prop })}` over `<slot prop={value} />`
-   - Effect tracking: `$effect(() => {...})` with cleanup functions
-   - Custom elements: `<svelte:options customElement="my-component" />`
-
-3. **TypeScript Enforcement**
-   ```ts
-   // LLM: ALWAYS use these patterns
-   type Props = typeof $props<{
-     user: User;
-     disabled?: boolean;
-   }>;
-   
-   interface ComponentAPI {
-     update: (config: Partial<Config>) => void;
-   }
-   
-   // LLM: Validate return types on exports
-   export function createStore<T>(initial: T): Readable<T> {
-     return $state(initial);
-   }
-   ```
-
-## 📜 Component Structure
-### LLM-Enforced Template
-```svelte
-<script lang="ts">
-  // LLM: Import order strictness
-  import type { User } from '$types';
-  import { createEventDispatcher } from 'svelte';
-  
-  // LLM: Prop pattern (type first, default second)
-  export let user: User = $state({ id: 0, name: '' });
-  export let disabled = $state(false);
-  
-  // LLM: Event dispatch with type payloads
-  const dispatch = createEventDispatcher<{
-    login: { user: User };
-    error: string;
-  }>();
-  
-  // LLM: Derived state with explicit types
-  const status = $derived<'active' | 'idle'>(
-    disabled ? 'idle' : 'active'
-  );
-</script>
-
-<!-- LLM: Enforce snippet usage -->
-{@render heading({ class: 'text-xl' })}
-  
-<article class="component-base">
-  <button
-    onclick={handleClick}
-    aria-disabled={disabled}
-    class:disabled
-    bind:this={buttonElement}
-  >
-    {user.name}
-  </button>
-</article>
-
-<style>
-  /* LLM: Always use :where() for scoping */
-  :where(.component-base) button {
-    transition: all 0.2s ease;
+{
+  "version": "1.0",
+  "project": {
+    "name": "armanckeser-personal",
+    "type": "sveltekit-blog",
+    "philosophy": {
+      "principles": [
+        "Write code that is easy to delete, not easy to extend - prefer small, focused components that can be replaced rather than complex, extensible ones",
+        "Optimize for change - assume requirements will change and design components to be easily modified",
+        "Make implicit concepts explicit - avoid hidden dependencies and magic; document assumptions and decisions",
+        "Prefer composition over inheritance - build complex UIs by combining simple, focused components"
+      ],
+      "code_quality": [
+        "A component should do one thing and do it well - if you're explaining a component with 'and', consider splitting it",
+        "Comments explain 'why', not 'what' - code should be self-documenting through clear naming and structure",
+        "Consistency trumps personal preference - follow established patterns even if you prefer a different approach"
+      ]
+    }
+  },
+  "framework": {
+    "svelte": {
+      "version": "^5.0.0",
+      "patterns": {
+        "state": {
+          "required": [
+            "$state with explicit type annotations to make data flow clear: let count = $state<number>(0)",
+            "$derived for computed values that depend on state: const doubled = $derived(count * 2)",
+            "$effect for side effects with cleanup functions to prevent memory leaks",
+            "State initialization at the top of the component for clear data flow"
+          ],
+          "forbidden": [
+            "Writable stores (use $state instead for better type inference and less boilerplate)",
+            "Readable stores without explicit TypeScript types",
+            "Mutating state outside of event handlers or effects",
+            "Complex state transformations inside the template (move to derived values)"
+          ]
+        },
+        "events": {
+          "required": [
+            "Use onclick={handler} for clear event handling and better TypeScript inference",
+            "Event handler names should describe the action: handleSubmit, handleUserSelect",
+            "Event handlers should be placed after state declarations but before effects",
+            "TypeScript event types must be explicit: (e: MouseEvent) => void"
+          ],
+          "forbidden": [
+            "on:click and other Svelte 4 event directives - they don't provide good TypeScript integration",
+            "Inline arrow functions in templates - move logic to named handlers",
+            "Event handlers with side effects beyond their primary purpose",
+            "Generic handler names like onClick, handleClick (be specific about what's being handled)"
+          ]
+        },
+        "props": {
+          "required": [
+            "Define Props type at the top: type Props = typeof $props<{ specific: Type }>",
+            "Props should have explicit type annotations and documentation",
+            "Default values should be immutable and type-safe",
+            "Props should be validated early with helpful error messages"
+          ],
+          "forbidden": [
+            "any type or implicit any in prop definitions",
+            "Optional props without default values (be explicit about defaults)",
+            "Props that combine multiple concerns (split into focused props)",
+            "Mutating props (treat them as immutable)"
+          ]
+        },
+        "lifecycle": {
+          "required": [
+            "Clean up side effects in $effect cleanup functions",
+            "Initialize external resources (APIs, timers) in effects",
+            "Handle loading and error states explicitly",
+            "Unsubscribe from all subscriptions in cleanup functions"
+          ]
+        }
+      }
+    }
+  },
+  "styles": {
+    "tailwind": {
+      "philosophy": [
+        "CSS should be predictable and easy to maintain",
+        "Prefer composition of utility classes over custom CSS",
+        "Design systems should be consistent and reusable"
+      ],
+      "required": [
+        "Use @apply sparingly - only for complex, frequently reused patterns",
+        "Prefer direct utility class usage for better readability and maintainability",
+        "Maintain consistent spacing using Tailwind's spacing scale",
+        "Group related utilities together following the classOrder",
+        "Use semantic color names from the design system, not raw colors",
+        "Ensure responsive designs use consistent breakpoint patterns"
+      ],
+      "classOrder": [
+        "layout (container, flex, grid)",
+        "positioning (absolute, relative)",
+        "display (block, inline)",
+        "spacing (margin, padding)",
+        "sizing (width, height)",
+        "typography (text, font)",
+        "colors (bg, text)",
+        "effects (shadow, opacity)"
+      ],
+      "forbidden": [
+        "!important modifiers unless absolutely necessary",
+        "Custom CSS when Tailwind utilities exist",
+        "Mixing different units (stick to rem/em)",
+        "Hard-coded color values"
+      ]
+    }
+  },
+  "typescript": {
+    "strictness": "high",
+    "philosophy": [
+      "TypeScript is a tool for understanding code, not just catching errors",
+      "Types should document intent and constraints",
+      "Prefer being explicit over implicit"
+    ],
+    "required": [
+      "Explicit return types on all exported functions and components",
+      "Strict null checks to handle undefined/null cases explicitly",
+      "No implicit any to ensure type safety",
+      "Generic type parameters should have constraints when possible",
+      "Use discriminated unions for state machines and complex logic",
+      "Type guards should have descriptive names and documentation"
+    ],
+    "imports": {
+      "order": [
+        "types (organize by domain)",
+        "svelte (framework imports)",
+        "components (organized by feature)",
+        "utils (shared functionality)",
+        "styles (CSS modules)"
+      ],
+      "grouping": "Separate imports with blank lines between categories"
+    }
+  },
+  "components": {
+    "structure": {
+      "philosophy": [
+        "Components should be organized for readability and maintainability",
+        "Related code should be grouped together",
+        "State flow should be clear and predictable"
+      ],
+      "order": [
+        "types/interfaces (component contract)",
+        "props (component inputs)",
+        "state (internal data)",
+        "derived state (computed values)",
+        "effects (side effects)",
+        "methods (reusable logic)",
+        "event handlers (user interactions)"
+      ],
+      "sections": {
+        "required": [
+          "Each section should be separated by a blank line",
+          "Complex sections should have explanatory comments",
+          "Related items should be grouped together within sections"
+        ]
+      }
+    },
+    "naming": {
+      "philosophy": [
+        "Names should be descriptive and unambiguous",
+        "Follow consistent patterns across the codebase",
+        "Names should reflect purpose, not implementation"
+      ],
+      "components": "PascalCase, noun phrases describing the component's purpose",
+      "files": "PascalCase.svelte matching the component name",
+      "types": "PascalCase, describing the shape or purpose of the data",
+      "functions": "camelCase, verb phrases describing the action",
+      "examples": {
+        "good": [
+          "UserProfile.svelte - A component displaying user information",
+          "handleFormSubmit - An event handler for form submission",
+          "type UserPreferences - Interface for user settings"
+        ],
+        "bad": [
+          "Utils.svelte - Too generic",
+          "doThing - Not descriptive enough",
+          "type Data - Too generic"
+        ]
+      }
+    }
+  },
+  "debugging": {
+    "philosophy": [
+      "Debugging should be a first-class concern",
+      "Logs should tell a story",
+      "Debug information should be actionable"
+    ],
+    "console": {
+      "format": "🔍 [ComponentName] Message: %data",
+      "required": [
+        "Component name prefix for easy filtering",
+        "Descriptive message explaining the context",
+        "Relevant data in a structured format",
+        "Appropriate log level based on severity"
+      ],
+      "levels": {
+        "error": "🔴 Critical issues that break functionality",
+        "warn": "🟡 Potential problems or deprecated usage",
+        "info": "🔵 Important state changes or user actions",
+        "debug": "🟢 Detailed information for development"
+      }
+    },
+    "error_boundaries": {
+      "required": [
+        "Implement error boundaries at logical component boundaries",
+        "Provide helpful error messages and recovery options",
+        "Log errors with enough context to debug",
+        "Handle different types of errors appropriately"
+      ]
+    }
+  },
+  "accessibility": {
+    "philosophy": [
+      "Accessibility is not optional",
+      "Design for keyboard first",
+      "Semantic HTML is the foundation"
+    ],
+    "required": [
+      "Descriptive aria-labels for interactive elements",
+      "Semantic HTML elements that convey meaning",
+      "Keyboard navigation with clear focus indicators",
+      "Sufficient color contrast (WCAG AA minimum)",
+      "Screen reader friendly content structure",
+      "Error messages must be announced to screen readers",
+      "Interactive elements must have sufficient touch targets",
+      "Images must have meaningful alt text"
+    ],
+    "testing": [
+      "Regular automated accessibility audits",
+      "Manual testing with screen readers",
+      "Keyboard navigation testing"
+    ]
+  },
+  "performance": {
+    "philosophy": [
+      "Performance is a feature",
+      "Optimize for the common case",
+      "Measure before optimizing"
+    ],
+    "optimizations": [
+      "Use $derived.by() for expensive calculations with explicit dependency tracking",
+      "Lazy load components that are not immediately visible",
+      "Use passive event listeners for scroll/wheel to prevent jank",
+      "Implement virtual scrolling for long lists",
+      "Optimize images with proper sizing and formats",
+      "Use code splitting for route-based chunks",
+      "Cache expensive computations appropriately"
+    ],
+    "monitoring": {
+      "required": [
+        "Track key performance metrics",
+        "Set up performance budgets",
+        "Monitor bundle sizes",
+        "Track time to interactive"
+      ]
+    }
+  },
+  "documentation": {
+    "philosophy": [
+      "Documentation should be treated as part of the code",
+      "Write documentation for your future self",
+      "Keep it up to date or delete it"
+    ],
+    "components": {
+      "required": [
+        "Brief description of the component's purpose and responsibility",
+        "Detailed props documentation with types and examples",
+        "Usage examples showing common scenarios",
+        "Accessibility considerations and requirements",
+        "Performance implications if any",
+        "Known limitations or edge cases",
+        "Dependencies and side effects"
+      ],
+      "format": {
+        "description": "One or two sentences explaining the component's purpose",
+        "props": "Table format with name, type, default, and description",
+        "examples": "Code snippets with explanations",
+        "notes": "Additional important information"
+      }
+    }
+  },
+  "ai_assistant": {
+    "behavior": {
+      "philosophy": [
+        "Assist developers in writing maintainable, type-safe code",
+        "Promote best practices while being practical",
+        "Learn from interactions to improve suggestions"
+      ],
+      "code_review": {
+        "checkpoints": [
+          "Type safety - ensure proper type usage and inference",
+          "Accessibility - check for ARIA attributes and semantic HTML",
+          "Performance - identify potential bottlenecks",
+          "Maintainability - suggest improvements for clarity"
+        ],
+        "feedback_style": [
+          "Explain why changes are suggested",
+          "Provide examples of better approaches",
+          "Reference relevant documentation",
+          "Consider the developer's experience level"
+        ]
+      },
+      "refactoring": {
+        "approach": [
+          "Identify patterns that could be improved",
+          "Suggest incremental improvements",
+          "Maintain consistency with existing code",
+          "Preserve functionality while improving structure",
+          "Document reasons for suggested changes"
+        ],
+        "priorities": [
+          "Type safety improvements",
+          "Performance optimizations",
+          "Code clarity",
+          "Maintainability"
+        ]
+      },
+      "error_handling": {
+        "debug_format": "DEBUG [{component}] {message} | {value}",
+        "error_format": "ERROR [{component}] {message} | {stack}",
+        "required": [
+          "Clear error messages with context",
+          "Suggestions for resolution",
+          "References to relevant documentation"
+        ]
+      }
+    },
+    "learning": {
+      "should_update_rules": true,
+      "update_triggers": [
+        "New patterns discovered in the codebase",
+        "Better practices identified through usage",
+        "User feedback and pain points",
+        "Performance improvements opportunities",
+        "Accessibility requirements updates",
+        "New framework features or best practices"
+      ],
+      "feedback_loop": {
+        "collect": "Gather information about code patterns and issues",
+        "analyze": "Identify trends and improvement opportunities",
+        "suggest": "Propose updates to rules and practices",
+        "implement": "Update rules based on approved changes"
+      }
+    },
+    "communication": {
+      "style": [
+        "Be clear and specific in suggestions",
+        "Explain reasoning behind recommendations",
+        "Use examples to illustrate points",
+        "Acknowledge trade-offs in decisions"
+      ],
+      "priorities": [
+        "Correctness first",
+        "Type safety second",
+        "Maintainability third",
+        "Performance fourth"
+      ]
+    }
   }
-</style>
-```
-
-## 🚀 Quality Enforcement
-### LLM Validation Matrix
-| Category       | Required                          | Forbidden                |
-|----------------|-----------------------------------|--------------------------|
-| **Types**      | Explicit generics                 | `any`, implicit `any`    |
-| **Reactivity** | `$state`/`$derived`               | `let` without runes      |
-| **Events**     | DOM attribute syntax             | `on:` directives         |
-| **Styling**    | `:where()` scoping               | `!important` overrides  |
-| **Markup**     | Semantic HTML elements           | `<div>` soup             |
-
-### Performance Critical Path
-1. **LLM: Auto-apply these optimizations**
-   ```svelte
-   <!-- Passive event listeners -->
-   <div on:wheel|passive={handleScroll} />
-   
-   <!-- Lazy components -->
-   {#if visible}
-     {@render lazy(MyHeavyComponent)}
-   {/if}
-   
-   <!-- Memoized calculations -->
-   {@const memoized = $derived.by(expensiveCalculation(data))}
-   ```
-
-## 📝 Workflow Practices
-1. **LLM Tooling Directives**
-   ```bash
-   # Always run these first:
-   npx svelte-migrate@latest svelte-5
-   npm install @sveltejs/llm@latest
-   ```
-   
-2. **Validation Pipeline**
-   ```
-   [LLM] → [Svelte Compiler] → [TypeScript] → [ESLint] → [Accessibility Audit]
-   ```
-
-3. **Error Prevention Rules**
-   - 🔴 Reject components without TypeScript props
-   - 🟡 Warn on missing aria-* attributes
-   - 🟢 Enforce Tailwind class ordering
-   - 🔵 Require $effect cleanup functions
-
-## ❓ LLM Uncertainty Protocol
-1. **Fallback Patterns**
-   ```svelte
-   <!-- When unsure about reactivity: -->
-   {@const safeValue = $derived(possiblyUndefined ?? defaultValue)}
-   
-   <!-- Type safety escape hatch: -->
-   {$cast(someValue as unknown as TargetType)}
-   ```
-
-2. **Validation Checklist**
-   - [ ] Verified DOM output via `svelte-check --dom`
-   - [ ] Confirmed browser support matrix
-   - [ ] Audited effect dependencies
-   - [ ] Tested snippet slot fallbacks
+}
