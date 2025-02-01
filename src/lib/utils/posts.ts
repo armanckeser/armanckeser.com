@@ -4,7 +4,7 @@ export async function getPosts(): Promise<BlogPost[]> {
 	const posts = await Promise.all(
 		Object.entries(
 			import.meta.glob<{ metadata: Omit<BlogPost, "slug"> }>(
-				"/src/routes/blog/*.svx",
+				"/src/content/blog/*.svx",
 				{ eager: true }
 			)
 		).map(([path, post]) => {

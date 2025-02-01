@@ -5,7 +5,7 @@ import type { PageLoad } from "./$types"
 export const load: PageLoad = async ({ params }) => {
 	try {
 		const [post, posts] = await Promise.all([
-			import(`../${params.slug}.svx`),
+			import(`../../../content/blog/${params.slug}.svx`),
 			getPosts(),
 		])
 

@@ -5,4 +5,4 @@ const props = $props<{ data: PageData }>()
 const Component = $derived(props.data.content)
 </script>
 
-<svelte:component this={Component} />
+<Component />
