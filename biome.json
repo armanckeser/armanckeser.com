@@ -1,5 +1,17 @@
 {
-	"$schema": "https://biomejs.dev/schemas/1.8.3/schema.json",
+	"$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
+	"formatter": {
+		"enabled": true,
+		"useEditorconfig": true,
+		"formatWithErrors": false,
+		"indentStyle": "tab",
+		"indentWidth": 4,
+		"lineEnding": "lf",
+		"lineWidth": 80,
+		"attributePosition": "auto",
+		"bracketSpacing": true,
+		"ignore": ["**/package-lock.json", "**/pnpm-lock.yaml", "**/yarn.lock"]
+	},
 	"organizeImports": {
 		"enabled": true,
 		"ignore": [".svelte-kit", ".vscode"]
@@ -84,13 +96,13 @@
 		"formatter": {
 			"jsxQuoteStyle": "double",
 			"quoteProperties": "asNeeded",
-			"trailingCommas": "none",
+			"trailingCommas": "es5",
 			"semicolons": "asNeeded",
-			"arrowParentheses": "always",
-			"bracketSpacing": true,
+			"arrowParentheses": "asNeeded",
 			"bracketSameLine": false,
 			"quoteStyle": "double",
-			"attributePosition": "auto"
+			"attributePosition": "auto",
+			"bracketSpacing": true
 		},
 		"globals": [
 			"onscrollend",
@@ -227,10 +239,11 @@
 			"include": ["*.svelte"],
 			"linter": {
 				"rules": {
-					"style": { "useConst": "off" },
-					"correctness": { "noUnusedVariables": "off" }
+					"correctness": { "noUnusedVariables": "off" },
+					"style": { "useConst": "off" }
 				}
 			}
-		}
+		},
+		{ "include": ["*.svelte"] }
 	]
 }

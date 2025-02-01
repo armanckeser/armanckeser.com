@@ -1,15 +1,8 @@
-import type { PageLoad } from './$types';
-import { getPosts } from '$lib/utils/posts';
-
-interface BlogPost {
-  title: string;
-  description: string;
-  date: string;
-  slug: string;
-}
+import { getPosts } from "$lib/utils/posts"
+import type { PageLoad } from "./$types"
 
 export const load: PageLoad = async () => {
-  return {
-    posts: await getPosts()
-  };
-}; 
+	return {
+		posts: await getPosts(),
+	}
+}

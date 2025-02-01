@@ -1,30 +1,30 @@
 <script lang="ts">
-	const {
-		title,
-		description,
-		tag = "blog",
-		date,
-		stars,
-		href,
-	} = $props<{
-		title: string
-		description: string
-		tag?: string
-		date?: string
-		stars?: number
-		href?: string
-	}>()
+const {
+	title,
+	description,
+	tag = "blog",
+	date,
+	stars,
+	href,
+} = $props<{
+	title: string
+	description: string
+	tag?: string
+	date?: string
+	stars?: number
+	href?: string
+}>()
 
-	let container = $state<HTMLDivElement | null>(null)
-	let isHovered = $state(false)
+let container = $state<HTMLDivElement | null>(null)
+let isHovered = $state(false)
 
-	function handleMouseEnter() {
-		isHovered = true
-	}
+function handleMouseEnter() {
+	isHovered = true
+}
 
-	function handleMouseLeave() {
-		isHovered = false
-	}
+function handleMouseLeave() {
+	isHovered = false
+}
 </script>
 
 {#if href}

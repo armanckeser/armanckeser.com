@@ -1,27 +1,27 @@
 <script lang="ts">
-	import { page } from "$app/state"
-	import Breadcrumbs from "$lib/components/Breadcrumbs.svelte"
-	import PostSidebar from "$lib/components/PostSidebar.svelte"
-	import type { BlogPost } from "../../types"
+import { page } from "$app/state"
+import Breadcrumbs from "$lib/components/Breadcrumbs.svelte"
+import PostSidebar from "$lib/components/PostSidebar.svelte"
+import type { BlogPost } from "../../types"
 
-	const props = $props<{
-		title?: string
-		date?: string
-		description?: string
-		children?: () => any
-	}>()
+const props = $props<{
+	title?: string
+	date?: string
+	description?: string
+	children?: () => any
+}>()
 
-	const isPostPage = $derived(page.url.pathname !== "/blog")
+const isPostPage = $derived(page.url.pathname !== "/blog")
 
-	const formattedDate = $derived(
-		props.date
-			? new Date(props.date).toLocaleDateString("en-US", {
-					year: "numeric",
-					month: "long",
-					day: "numeric",
-				})
-			: null
-	)
+const formattedDate = $derived(
+	props.date
+		? new Date(props.date).toLocaleDateString("en-US", {
+				year: "numeric",
+				month: "long",
+				day: "numeric",
+			})
+		: null
+)
 </script>
 
 <svelte:head>

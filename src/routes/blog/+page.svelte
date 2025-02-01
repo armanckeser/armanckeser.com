@@ -1,12 +1,12 @@
 <script lang="ts">
-	import type { PageData } from "./$types"
-	import { page } from "$app/state"
-	import Card from "$lib/components/Card.svelte"
-	import Breadcrumbs from "$lib/components/Breadcrumbs.svelte"
+import { page } from "$app/state"
+import Breadcrumbs from "$lib/components/Breadcrumbs.svelte"
+import Card from "$lib/components/Card.svelte"
+import type { PageData } from "./$types"
 
-	const props = $props<{ data: PageData }>()
-	const posts = $derived(props.data.posts)
-	const isPostPage = $derived(page.url.pathname !== "/blog")
+const props = $props<{ data: PageData }>()
+const posts = $derived(props.data.posts)
+const isPostPage = $derived(page.url.pathname !== "/blog")
 </script>
 
 <svelte:head>

@@ -1,30 +1,30 @@
 <script lang="ts">
-	import { page } from "$app/state"
+import { page } from "$app/state"
 
-	interface Segment {
-		text: string
-		href: string
-		isLast: boolean
-	}
+interface Segment {
+	text: string
+	href: string
+	isLast: boolean
+}
 
-	const props = $props<{
-		path: string
-		isPostPage: boolean
-		title?: string
-	}>()
+const props = $props<{
+	path: string
+	isPostPage: boolean
+	title?: string
+}>()
 
-	const segments = $derived(() => {
-		const parts = props.path.split("/").filter(Boolean)
-		let accumulatedPath = ""
-		return parts.map((part: string, index: number) => {
-			accumulatedPath += `/${part}`
-			return {
-				text: part === "blog" ? "writing" : part,
-				href: accumulatedPath,
-				isLast: index === parts.length - 1,
-			}
-		})
+const segments = $derived(() => {
+	const parts = props.path.split("/").filter(Boolean)
+	let accumulatedPath = ""
+	return parts.map((part: string, index: number) => {
+		accumulatedPath += `/${part}`
+		return {
+			text: part === "blog" ? "writing" : part,
+			href: accumulatedPath,
+			isLast: index === parts.length - 1,
+		}
 	})
+})
 </script>
 
 <nav class="flex items-center space-x-2 font-mono text-sm">
