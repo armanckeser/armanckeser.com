@@ -2,12 +2,13 @@
   import { page } from '$app/state';
   import Breadcrumbs from '$lib/components/Breadcrumbs.svelte';
   import PostSidebar from '$lib/components/PostSidebar.svelte';
+  import type { Component } from 'svelte';
   import type { BlogPost } from '../../types';
 
   const props = $props<
     {
       /** MDX content */
-      children?: () => any;
+      children?: () => Component;
     } & BlogPost
   >();
 
