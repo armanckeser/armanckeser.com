@@ -1,31 +1,32 @@
 <script lang="ts">
-import Card from "$lib/components/Card.svelte"
-import ContentSection from "$lib/components/ContentSection.svelte"
-import type { PageData } from "./$types"
+  import Card from '$lib/components/Card.svelte';
+  import ContentSection from '$lib/components/ContentSection.svelte';
+  import type { PageData } from './$types';
+  import ThemeSwitcher from '$lib/components/ThemeSwitcher.svelte';
 
-const props = $props<{ data: PageData }>()
-const posts = $derived(props.data.posts)
+  const props = $props<{ data: PageData }>();
+  const posts = $derived(props.data.posts);
 
-const projects = [
-	{
-		title: "YouTube History",
-		description: "Analyze and visualize your YouTube watching patterns",
-		tag: "app",
-		stars: 156,
-	},
-	{
-		title: "Easy Hang",
-		description: "Never mess up measurements when hanging pictures again",
-		tag: "app",
-		stars: 92,
-	},
-	{
-		title: "Reading List",
-		description: "Track and share your reading journey with notes",
-		tag: "app",
-		stars: 178,
-	},
-]
+  const projects = [
+    {
+      title: 'YouTube History',
+      description: 'Analyze and visualize your YouTube watching patterns',
+      tag: 'app',
+      stars: 156,
+    },
+    {
+      title: 'Easy Hang',
+      description: 'Never mess up measurements when hanging pictures again',
+      tag: 'app',
+      stars: 92,
+    },
+    {
+      title: 'Reading List',
+      description: 'Track and share your reading journey with notes',
+      tag: 'app',
+      stars: 178,
+    },
+  ];
 </script>
 
 <svelte:head>
@@ -58,6 +59,7 @@ const projects = [
         >
           ~/armanckeser
         </div>
+        <ThemeSwitcher />
       </div>
 
       <div class="space-y-4">
