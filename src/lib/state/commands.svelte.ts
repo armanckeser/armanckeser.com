@@ -12,8 +12,8 @@ export const CommandSchema = z.object({
 
 export type Command = z.infer<typeof CommandSchema>
 
-export const commands = $state<Command[]>([])
-export const commandHistory = $state<string[]>([])
+export const commands: Command[] = []
+export const commandHistory: string[] = []
 
 export function registerCommand(command: Command) {
 	commands.push(command)
@@ -37,9 +37,8 @@ export function executeCommand(input: string) {
 // Register default commands
 registerCommand({
 	id: "theme-toggle",
-	name: "theme",
+	name: "toggle-theme",
 	description: "Toggle between light and dark theme",
-	aliases: ["set-theme"],
 	action: (args: string[]) => {
 		toggleMode()
 	},
