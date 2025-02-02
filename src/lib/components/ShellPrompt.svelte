@@ -1,104 +1,113 @@
 <!-- Combined terminal header with shell prompt functionality -->
 <script lang="ts">
-import { mode, toggleMode } from "mode-watcher"
+import { toggleMode } from "mode-watcher"
 import { GitBranch, ChevronUp, Clock, Computer } from "lucide-svelte"
 import ShellInput from "./ShellInput.svelte"
 import Breadcrumbs from "./Breadcrumbs.svelte"
 import { cn } from "$lib/utils"
 
-// Shell state
-const gitInfo = $derived({
-	branch: $mode === "dark" ? "nightly" : "stable",
-	ahead: $mode === "dark" ? 1 : 0,
+type GitInfo = {
+	ahead: number
+	modified: number
+	untracked: number
+}
+
+// Static configuration
+const GIT_INFO: GitInfo = $state({
+	ahead: 1,
 	modified: 0,
 	untracked: 0,
 })
 
-let currentTime = $state(
-	new Date().toLocaleTimeString("en-US", {
-		hour12: false,
-		hour: "2-digit",
-		minute: "2-digit",
-		second: "2-digit",
-	})
-)
+// Time management
+let currentTime = $state<string>("")
+let timeInterval = $state<ReturnType<typeof setInterval>>()
 
-// Time update effect
+// Lifecycle management
 $effect(() => {
-	const interval = setInterval(() => {
+	const updateTime = () => {
 		currentTime = new Date().toLocaleTimeString("en-US", {
 			hour12: false,
 			hour: "2-digit",
 			minute: "2-digit",
 			second: "2-digit",
 		})
-	}, 1000)
+	}
 
-	return () => clearInterval(interval)
+	updateTime() // Initial call
+	timeInterval = setInterval(updateTime, 1000)
+
+	return () => {
+		timeInterval && clearInterval(timeInterval)
+	}
 })
-
-function toggleTheme() {
-	toggleMode()
-}
 </script>
 
 <header
   class={cn(
     'sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur',
-    'supports-[backdrop-filter]:bg-background/75',
-    'overflow-visible',
+    'supports-[backdrop-filter]:bg-background/75 overflow-visible',
+    'transition-colors duration-300 ease-in-out',
   )}
+  aria-label="Application header"
 >
-  <div class="container flex items-center h-14 px-4 sm:px-8">
+  <div class="container flex h-14 items-center px-4 sm:px-8">
     <div
-      class="flex gap-2 flex-row lg:items-center lg:gap-4 font-mono text-sm w-full"
+      class="flex w-full flex-row gap-2 font-mono text-sm lg:items-center lg:gap-4"
     >
       <!-- Left section -->
-      <div class="flex items-start gap-2 w-full md:flex-1">
-        <div class="flex items-center gap-2 text-muted-foreground shrink-0">
-          <Computer class="h-4 w-4" />
-          <span class="text-emerald-500">│</span>
+      <div class="flex w-full items-start gap-2 md:flex-1">
+        <div
+          class="flex shrink-0 items-center gap-2 text-muted-foreground"
+          aria-label="Current location"
+        >
+          <Computer class="h-4 w-4" aria-hidden="true" />
+          <span class="text-emerald-500" aria-hidden="true">│</span>
           <Breadcrumbs />
         </div>
-        <div class="hidden md:block flex-1">
+        <div class="hidden flex-1 md:block">
           <ShellInput />
         </div>
       </div>
 
       <!-- Right section -->
-      <div class="flex items-center gap-2 ml-auto">
-        <div class="flex items-center gap-2 text-yellow-500">
-          <GitBranch class="h-4 w-4 text-yellow-500 dark:text-yellow-400" />
+      <div class="ml-auto flex items-center gap-2">
+        <div
+          class="flex items-center gap-2 text-yellow-500 dark:text-yellow-400"
+        >
+          <GitBranch class="h-4 w-4" aria-hidden="true" />
           <button
-            class="hover:text-emerald-500 transition-colors"
-            onclick={toggleTheme}
+            class="transition-colors hover:text-emerald-500"
+            onclick={toggleMode}
+            aria-label="Toggle theme"
           >
             <span class="dark:hidden">stable</span>
             <span class="hidden dark:inline">nightly</span>
           </button>
-          <!-- Hide git status details on mobile -->
-          <div class="hidden md:flex items-center gap-1">
-            {#if gitInfo.ahead > 0}
-              <ChevronUp class="h-3 w-3" />
-              <span>{gitInfo.ahead}</span>
+
+          <!-- Git status indicators -->
+          <div class="hidden items-center gap-1 md:flex">
+            {#if GIT_INFO.ahead > 0}
+              <ChevronUp class="h-3 w-3" aria-hidden="true" />
+              <span>{GIT_INFO.ahead}</span>
+            {/if}
+            {#if GIT_INFO.modified > 0}
+              <span class="text-red-400">!{GIT_INFO.modified}</span>
+            {/if}
+            {#if GIT_INFO.untracked > 0}
+              <span class="text-blue-400">?{GIT_INFO.untracked}</span>
             {/if}
           </div>
-          {#if gitInfo.modified > 0}
-            <span class="hidden md:inline text-red-400"
-              >!{gitInfo.modified}</span
-            >
-          {/if}
-          {#if gitInfo.untracked > 0}
-            <span class="hidden md:inline text-blue-400"
-              >?{gitInfo.untracked}</span
-            >
-          {/if}
         </div>
 
-        <!-- Time display - hidden on mobile -->
-        <div class="hidden md:flex items-center gap-2">
-          <span class="text-emerald-500">│</span>
-          <Clock class="h-4 w-4" />
+        <!-- Time display -->
+        <div
+          class="hidden items-center gap-2 md:flex"
+          aria-live="off"
+          aria-label="Current time"
+        >
+          <span class="text-emerald-500" aria-hidden="true">│</span>
+          <Clock class="h-4 w-4" aria-hidden="true" />
           <span>{currentTime}</span>
         </div>
       </div>
