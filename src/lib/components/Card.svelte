@@ -1,99 +1,36 @@
 <script lang="ts">
-  const {
-    title,
-    description,
-    tag = 'blog',
-    date,
-    stars,
-    href,
-  } = $props<{
-    title: string;
-    description: string;
-    tag?: string;
-    date?: string;
-    stars?: number;
-    href?: string;
-  }>();
+const {
+	title,
+	description,
+	tag = "blog",
+	date,
+	stars,
+	href,
+} = $props<{
+	title: string
+	description: string
+	tag?: string
+	date?: string
+	stars?: number
+	href?: string
+}>()
 
-  let container = $state<HTMLDivElement | null>(null);
-  let isHovered = $state(false);
+import { getTagClasses } from "$lib/state/tags.svelte"
+const tagClasses = $derived(getTagClasses(tag))
 
-  function handleMouseEnter() {
-    isHovered = true;
-  }
-
-  function handleMouseLeave() {
-    isHovered = false;
-  }
+const Component = $derived(href ? "a" : "div")
+const componentProps = $derived(href ? { href, class: "block" } : {})
 </script>
 
-{#if href}
-  <a {href} class="block">
-    <div
-      bind:this={container}
-      role="article"
-      class="glass hover:sharp-shadow-md group relative flex h-[180px] w-full flex-col justify-between overflow-hidden rounded-lg border border-border/40 bg-white/5 dark:bg-black/5 p-5 transition-all duration-300 hover:border-emerald-500/20"
-      onmouseenter={handleMouseEnter}
-      onmouseleave={handleMouseLeave}
-    >
-      <!-- Header -->
-      <div>
-        <div class="mb-3 flex items-center gap-3">
-          <div
-            class="rounded bg-emerald-500/10 px-2 py-0.5 font-mono text-xs text-emerald-500"
-          >
-            {tag}
-          </div>
-          {#if date}
-            <div class="font-mono text-xs text-muted-foreground">
-              {date}
-            </div>
-          {/if}
-          {#if stars !== undefined}
-            <div
-              class="flex items-center gap-1 font-mono text-xs text-muted-foreground"
-            >
-              <span class="text-emerald-500">★</span>
-              <span>{stars}</span>
-            </div>
-          {/if}
-        </div>
-
-        <!-- Content -->
-        <h3
-          class="mb-2 font-mono text-base font-medium text-primary md:text-lg"
-        >
-          {title}
-        </h3>
-        <p class="text-xs leading-relaxed text-muted-foreground md:text-sm">
-          {description}
-        </p>
-      </div>
-
-      <!-- Hover Indicator -->
-      <div class="flex items-center justify-end">
-        <div
-          class="font-mono text-xs text-emerald-500 opacity-0 transition-all duration-300 group-hover:translate-x-1 group-hover:opacity-100"
-        >
-          →
-        </div>
-      </div>
-    </div>
-  </a>
-{:else}
+<svelte:element this={Component} {...componentProps}>
   <div
-    bind:this={container}
     role="article"
     class="glass hover:sharp-shadow-md group relative flex h-[180px] w-full flex-col justify-between overflow-hidden rounded-lg border border-border/40 bg-white/5 dark:bg-black/5 p-5 transition-all duration-300 hover:border-emerald-500/20"
-    onmouseenter={handleMouseEnter}
-    onmouseleave={handleMouseLeave}
   >
     <!-- Header -->
     <div>
       <div class="mb-3 flex items-center gap-3">
-        <div
-          class="rounded bg-emerald-500/10 px-2 py-0.5 font-mono text-xs text-emerald-500"
-        >
+        <div class={`rounded px-2 py-0.5 font-mono text-xs ${tagClasses}`}>
           {tag}
         </div>
         {#if date}
@@ -101,7 +38,7 @@
             {date}
           </div>
         {/if}
-        {#if stars !== undefined}
+        {#if stars && stars > 0}
           <div
             class="flex items-center gap-1 font-mono text-xs text-muted-foreground"
           >
@@ -121,15 +58,17 @@
     </div>
 
     <!-- Hover Indicator -->
-    <div class="flex items-center justify-end">
-      <div
-        class="font-mono text-xs text-emerald-500 opacity-0 transition-all duration-300 group-hover:translate-x-1 group-hover:opacity-100"
-      >
-        →
+    {#if href}
+      <div class="flex items-center justify-end">
+        <div
+          class="font-mono text-xs text-emerald-500 opacity-0 transition-all duration-300 group-hover:translate-x-1 group-hover:opacity-100"
+        >
+          →
+        </div>
       </div>
-    </div>
+    {/if}
   </div>
-{/if}
+</svelte:element>
 
 <style>
   .glass {
