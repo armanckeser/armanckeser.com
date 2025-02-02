@@ -11,24 +11,30 @@ let inputRef = $state<HTMLDivElement>(null!)
 let isFocused = $state(false)
 let isComposing = $state(false)
 let showSuggestions = $state(false)
+let tabInitiated = $state(false)
 
 const isDark = $derived($mode === "dark")
 const filteredCommands = $derived(
-	input.length > 0
-		? commands.filter(
-				cmd =>
-					cmd.name.toLowerCase().startsWith(input.toLowerCase()) ||
-					cmd.aliases?.some(a =>
-						a.toLowerCase().startsWith(input.toLowerCase())
-					)
-			)
-		: commands // Show all commands when empty
+	tabInitiated
+		? commands // Show all commands when tab-initiated
+		: input.length > 0
+			? commands.filter(
+					cmd =>
+						cmd.name
+							.toLowerCase()
+							.startsWith(input.toLowerCase()) ||
+						cmd.aliases?.some(a =>
+							a.toLowerCase().startsWith(input.toLowerCase())
+						)
+				)
+			: []
 )
 
 function handleInput() {
 	if (isComposing) return
 	input = inputRef.textContent?.trim() || ""
-	showSuggestions = input.length > 0
+	if (input.length === 0) tabInitiated = false
+	showSuggestions = input.length > 0 || tabInitiated
 }
 
 function handleKeydown(e: KeyboardEvent) {
@@ -37,16 +43,26 @@ function handleKeydown(e: KeyboardEvent) {
 	switch (e.key) {
 		case "Tab":
 			e.preventDefault()
-			if (filteredCommands.length === 0) return
-			showSuggestions = true
-			selectedIndex = (selectedIndex + 1) % filteredCommands.length
-			input = filteredCommands[selectedIndex].name
+			if (commands.length === 0) return
+
+			if (input.length === 0 && !tabInitiated) {
+				tabInitiated = true
+				showSuggestions = true
+				selectedIndex = 0
+			} else {
+				selectedIndex = (selectedIndex + 1) % filteredCommands.length
+			}
+
+			if (filteredCommands[selectedIndex]) {
+				input = filteredCommands[selectedIndex].name
+			}
 			break
 
 		case "Enter":
 			e.preventDefault()
 			if (executeCommand(input)) input = ""
 			selectedIndex = -1
+			showSuggestions = false
 			break
 
 		case "Escape":
@@ -97,77 +113,88 @@ $effect(() => {
 })
 </script>
 
-<div class="flex items-center gap-2 group flex-1 font-mono text-sm">
+<div class="relative flex items-center gap-2 group flex-1 font-mono text-sm">
   <!-- Shell prompt -->
   <div class={cn('shrink-0', isDark ? 'text-blue-400' : 'text-blue-600')}>
     ❯
   </div>
 
-  <!-- Input container with focus-based placeholder -->
-  <div
-    bind:this={inputRef}
-    role="textbox"
-    tabindex="0"
-    aria-haspopup="listbox"
-    aria-controls="command-suggestions"
-    class={cn(
-      'caret-container relative flex-1 outline-none',
-      'border-0 focus:border-0 focus:ring-0',
-      'empty:before:content-[attr(placeholder)] before:text-zinc-400',
-      isDark ? 'text-zinc-200' : 'text-zinc-800',
-      isFocused ? 'before:opacity-40' : 'before:opacity-100',
-      'appearance-none ring-0',
-    )}
-    contenteditable="true"
-    {placeholder}
-    spellcheck={false}
-    oninput={handleInput}
-    onkeydown={handleKeydown}
-    oncompositionstart={() => (isComposing = true)}
-    oncompositionend={() => (isComposing = false)}
-    onfocus={() => (isFocused = true)}
-    onblur={() => {
-      isFocused = false;
-      showSuggestions = false;
-    }}
-  ></div>
+  <!-- Input container with relative positioning -->
+  <div class="relative flex-1">
+    <div
+      bind:this={inputRef}
+      role="textbox"
+      tabindex="0"
+      aria-haspopup="listbox"
+      aria-controls="command-suggestions"
+      class={cn(
+        'caret-container relative flex-1 outline-none',
+        'border-0 focus:border-0 focus:ring-0',
+        'empty:before:content-[attr(placeholder)] before:text-zinc-400',
+        isDark ? 'text-zinc-200' : 'text-zinc-800',
+        isFocused ? 'before:opacity-40' : 'before:opacity-100',
+        'appearance-none ring-0',
+      )}
+      contenteditable="true"
+      {placeholder}
+      spellcheck={false}
+      oninput={handleInput}
+      onkeydown={handleKeydown}
+      oncompositionstart={() => (isComposing = true)}
+      oncompositionend={() => (isComposing = false)}
+      onfocus={() => (isFocused = true)}
+      onblur={() => {
+        isFocused = false;
+        showSuggestions = false;
+        tabInitiated = false;
+      }}
+    ></div>
 
-  <!-- Enhanced TUI suggestions -->
-  {#if showSuggestions && filteredCommands.length > 0}
-    <ul
-      id="command-suggestions"
-      role="listbox"
-      class="absolute left-0 top-full w-full mt-1 max-h-[50vh] overflow-y-auto bg-white dark:bg-zinc-800 rounded-md shadow-lg border border-zinc-200 dark:border-zinc-700"
-    >
-      {#each filteredCommands as cmd, i (cmd.id)}
-        <li
-          role="option"
-          aria-selected={i === selectedIndex}
-          class={cn(
-            'px-3 py-2 cursor-pointer flex justify-between items-center',
-            i === selectedIndex
-              ? 'bg-blue-50 dark:bg-zinc-700'
-              : 'hover:bg-zinc-50 dark:hover:bg-zinc-700',
-            isDark ? 'text-zinc-100' : 'text-zinc-800',
-          )}
-          onmousedown={() => {
-            input = cmd.name;
-            executeCommand(cmd.name);
-          }}
-        >
-          <div class="flex items-center gap-2">
-            <span class="font-medium">{cmd.name}</span>
-            {#if cmd.aliases && cmd.aliases.length > 0}
-              <span class="text-xs opacity-60">
-                ({cmd.aliases.join(', ')})
-              </span>
-            {/if}
-          </div>
-          <span class="text-sm opacity-70">{cmd.description}</span>
-        </li>
-      {/each}
-    </ul>
-  {/if}
+    <!-- Updated suggestions positioning and styling -->
+    {#if showSuggestions && filteredCommands.length > 0}
+      <ul
+        id="command-suggestions"
+        role="listbox"
+        class={cn(
+          'absolute left-0 top-full w-full mt-1 max-h-[50vh] overflow-y-auto',
+          'font-mono rounded-lg border shadow-lg',
+          'bg-white border-zinc-200 text-zinc-800',
+          'dark:bg-zinc-900 dark:border-zinc-700 dark:text-zinc-200',
+          'divide-y divide-zinc-200/50 dark:divide-zinc-700/50',
+          'backdrop-blur-sm',
+        )}
+      >
+        {#each filteredCommands as cmd, i (cmd.id)}
+          <li
+            role="option"
+            aria-selected={i === selectedIndex}
+            class={cn(
+              'px-4 py-2 cursor-pointer flex justify-between items-center',
+              'transition-colors group',
+              i === selectedIndex
+                ? 'bg-blue-50/80 dark:bg-zinc-800 ring-2 ring-blue-200 dark:ring-zinc-600'
+                : 'hover:bg-zinc-100/80 dark:hover:bg-zinc-800',
+              isDark ? 'text-zinc-100' : 'text-zinc-800',
+            )}
+            onmousedown={() => {
+              input = cmd.name;
+              executeCommand(cmd.name);
+            }}
+          >
+            <div class="flex items-center gap-2">
+              <span class="font-medium">{cmd.name}</span>
+              {#if cmd.aliases && cmd.aliases.length > 0}
+                <span class="text-xs opacity-60">
+                  ({cmd.aliases.join(', ')})
+                </span>
+              {/if}
+            </div>
+            <span class="text-sm opacity-70">{cmd.description}</span>
+          </li>
+        {/each}
+      </ul>
+    {/if}
+  </div>
 </div>
 
 <style>
