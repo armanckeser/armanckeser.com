@@ -2,7 +2,6 @@
 import Card from "$lib/components/Card.svelte"
 import ContentSection from "$lib/components/ContentSection.svelte"
 import type { PageData } from "./$types"
-import ThemeSwitcher from "$lib/components/ThemeSwitcher.svelte"
 
 const props = $props<{ data: PageData }>()
 const posts = $derived(props.data.posts)

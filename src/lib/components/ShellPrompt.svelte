@@ -54,14 +54,12 @@ function toggleTheme() {
       class="flex flex-col gap-2 lg:flex-row lg:items-center lg:gap-4 font-mono text-sm w-full"
     >
       <!-- Left section -->
-      <div
-        class="flex items-center gap-4 overflow-x-auto scrollbar-none flex-1"
-      >
+      <div class="flex items-start gap-2 w-full">
         <div class="flex items-center gap-2 text-muted-foreground shrink-0">
           <Computer class="h-4 w-4" />
           <span class="text-emerald-500">│</span>
+          <Breadcrumbs />
         </div>
-        <Breadcrumbs />
         <ShellInput />
       </div>
 
