@@ -50,18 +50,6 @@ const projects = [
   <div class="relative z-10 mx-auto max-w-[1200px] space-y-24">
     <!-- Hero Section -->
     <header class="animate-fade-in space-y-8">
-      <div class="group flex items-center space-x-2">
-        <div class="glass h-6 w-6 rounded-full p-1">
-          <div class="h-full w-full rounded-full bg-emerald-500"></div>
-        </div>
-        <div
-          class="font-mono text-sm text-muted-foreground transition-colors group-hover:text-primary md:text-base"
-        >
-          ~/armanckeser
-        </div>
-        <ThemeSwitcher />
-      </div>
-
       <div class="space-y-4">
         <h1
           class="animate-slide-in font-mono text-4xl font-bold tracking-tight text-primary md:text-6xl lg:text-7xl"

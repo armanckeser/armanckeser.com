@@ -1,6 +1,5 @@
 <script lang="ts">
 import { page } from "$app/state"
-import { Folder } from "lucide-svelte"
 import { cn } from "$lib/utils"
 
 const segments = $derived(() => {
@@ -18,8 +17,12 @@ const segments = $derived(() => {
 </script>
 
 <nav class="flex items-center space-x-2 font-mono text-sm">
-  <Folder class="h-4 w-4 text-blue-400" />
-  <a href="/" class="text-primary transition-colors hover:text-emerald-500">~</a
+  <div class="glass h-6 w-6 rounded-full p-1">
+    <div class="h-full w-full rounded-full bg-emerald-500"></div>
+  </div>
+  <a
+    href="/"
+    class="text-muted-foreground transition-colors hover:text-emerald-500">~</a
   >
 
   {#each segments() as segment}
