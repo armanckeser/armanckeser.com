@@ -56,7 +56,7 @@ $effect(() => {
       class="flex w-full flex-row gap-2 font-mono text-sm lg:items-center lg:gap-4"
     >
       <!-- Left section -->
-      <div class="flex w-full items-start gap-2 md:flex-1">
+      <div class="flex w-full gap-2 items-center md:flex-1">
         <div
           class="flex shrink-0 items-center gap-2 text-muted-foreground"
           aria-label="Current location"

@@ -5,190 +5,199 @@ import { mode } from "mode-watcher"
 import { cn } from "$lib/utils"
 
 let input = $state("")
-let selectedIndex = $state(0)
-let inputRef = $state<HTMLInputElement>(null!)
+let placeholder = $state("type a command...")
+let selectedIndex = $state(-1)
+let inputRef = $state<HTMLDivElement>(null!)
+let isFocused = $state(false)
+let isComposing = $state(false)
 let showSuggestions = $state(false)
 
 const isDark = $derived($mode === "dark")
-
-// Filter commands with fuzzy matching for better shell-like completion
 const filteredCommands = $derived(
-	commands
-		.filter(cmd => {
-			if (!input) return true
-			const searchStr = input.toLowerCase()
-			return (
-				cmd.name.toLowerCase().includes(searchStr) ||
-				cmd.aliases?.some(a => a.toLowerCase().includes(searchStr)) ||
-				cmd.description.toLowerCase().includes(searchStr)
+	input.length > 0
+		? commands.filter(
+				cmd =>
+					cmd.name.toLowerCase().startsWith(input.toLowerCase()) ||
+					cmd.aliases?.some(a =>
+						a.toLowerCase().startsWith(input.toLowerCase())
+					)
 			)
-		})
-		.sort((a, b) => {
-			// Prioritize exact matches and starts-with matches
-			const aName = a.name.toLowerCase()
-			const bName = b.name.toLowerCase()
-			const searchStr = input.toLowerCase()
-			if (aName === searchStr) return -1
-			if (bName === searchStr) return 1
-			if (aName.startsWith(searchStr) && !bName.startsWith(searchStr))
-				return -1
-			if (bName.startsWith(searchStr) && !aName.startsWith(searchStr))
-				return 1
-			return 0
-		})
+		: commands // Show all commands when empty
 )
 
-function handleKeyDown(e: KeyboardEvent) {
+function handleInput() {
+	if (isComposing) return
+	input = inputRef.textContent?.trim() || ""
+	showSuggestions = input.length > 0
+}
+
+function handleKeydown(e: KeyboardEvent) {
+	if (isComposing) return
+
 	switch (e.key) {
-		case "ArrowDown":
-			e.preventDefault()
-			selectedIndex = (selectedIndex + 1) % filteredCommands.length
-			break
-		case "ArrowUp":
-			e.preventDefault()
-			selectedIndex =
-				selectedIndex - 1 < 0
-					? filteredCommands.length - 1
-					: selectedIndex - 1
-			break
-		case "Enter":
-			e.preventDefault()
-			const command = filteredCommands[selectedIndex]
-			if (command) {
-				executeCommand(command.name)
-				input = ""
-				showSuggestions = false
-			}
-			break
 		case "Tab":
 			e.preventDefault()
-			const selected = filteredCommands[selectedIndex]
-			if (selected) {
-				input = selected.name
-				selectedIndex = 0
-			}
+			if (filteredCommands.length === 0) return
+			showSuggestions = true
+			selectedIndex = (selectedIndex + 1) % filteredCommands.length
+			input = filteredCommands[selectedIndex].name
 			break
+
+		case "Enter":
+			e.preventDefault()
+			if (executeCommand(input)) input = ""
+			selectedIndex = -1
+			break
+
 		case "Escape":
-			showSuggestions = false
+			input = ""
+			selectedIndex = -1
 			break
-		case "c":
-			if (e.ctrlKey) {
-				input = ""
-				showSuggestions = false
-			}
+
+		case "ArrowDown":
+			e.preventDefault()
+			showSuggestions = true
+			selectedIndex = Math.min(
+				filteredCommands.length - 1,
+				selectedIndex + 1
+			)
+			break
+
+		case "ArrowUp":
+			e.preventDefault()
+			showSuggestions = true
+			selectedIndex = Math.max(0, selectedIndex - 1)
 			break
 	}
 }
 
-function selectCommand(command: string) {
-	executeCommand(command)
-	input = ""
-	showSuggestions = false
-	inputRef?.focus()
+function syncCaretPosition() {
+	if (!inputRef) return
+	const range = document.createRange()
+	const sel = window.getSelection()!
+	range.selectNodeContents(inputRef)
+	range.collapse(false)
+	sel.removeAllRanges()
+	sel.addRange(range)
 }
 
-// Add this key handler
-function handleGlobalKey(e: KeyboardEvent) {
-	if (e.key === ":" && document.activeElement !== inputRef) {
-		e.preventDefault()
-		inputRef.focus()
+$effect(() => {
+	if (inputRef) {
+		inputRef.textContent = input
+		syncCaretPosition()
 	}
-}
+})
+
+$effect(() => {
+	if (isFocused) {
+		placeholder = ""
+	} else {
+		placeholder = "type a command..."
+	}
+})
 </script>
 
-<div class="relative flex items-center gap-2 group flex-1 font-mono">
+<div class="flex items-center gap-2 group flex-1 font-mono text-sm">
   <!-- Shell prompt -->
-  <div class="flex items-center gap-1.5 text-[13px] shrink-0">
-    <span class={isDark ? 'text-blue-400' : 'text-blue-600'}>❯</span>
+  <div class={cn('shrink-0', isDark ? 'text-blue-400' : 'text-blue-600')}>
+    ❯
   </div>
 
-  <!-- Command input -->
-  <div class="relative flex-1">
-    <input
-      bind:this={inputRef}
-      bind:value={input}
-      class={cn(
-        'w-full min-w-[300px] bg-transparent',
-        'text-[13px] leading-none tracking-tight',
-        'focus:outline-none border-none focus:ring-0 px-0 py-[3px]',
-        'placeholder:text-muted-foreground/30',
-        isDark ? 'text-zinc-200' : 'text-zinc-800',
-      )}
-      placeholder="type a command..."
-      spellcheck="false"
-      autocomplete="off"
-      onkeydown={handleKeyDown}
-      onfocus={() => (showSuggestions = true)}
-      onblur={() => setTimeout(() => (showSuggestions = false), 100)}
-    />
+  <!-- Input container with focus-based placeholder -->
+  <div
+    bind:this={inputRef}
+    role="textbox"
+    tabindex="0"
+    aria-haspopup="listbox"
+    aria-controls="command-suggestions"
+    class={cn(
+      'caret-container relative flex-1 outline-none border-0',
+      'empty:before:content-[attr(placeholder)] before:text-zinc-400',
+      isDark ? 'text-zinc-200' : 'text-zinc-800',
+      isFocused ? 'before:opacity-40' : 'before:opacity-100',
+    )}
+    contenteditable="true"
+    {placeholder}
+    spellcheck={false}
+    oninput={handleInput}
+    onkeydown={handleKeydown}
+    oncompositionstart={() => (isComposing = true)}
+    oncompositionend={() => (isComposing = false)}
+    onfocus={() => (isFocused = true)}
+    onblur={() => {
+      isFocused = false;
+      showSuggestions = false;
+    }}
+  ></div>
 
-    <!-- Command suggestions -->
-    {#if showSuggestions && filteredCommands.length > 0}
-      <div
-        class={cn(
-          'absolute top-full left-0 mt-1 z-50',
-          'w-full max-w-[500px] overflow-hidden',
-          'border-[1.5px] shadow-lg',
-          isDark
-            ? 'bg-[#1a1b26] border-zinc-700/50'
-            : 'bg-[#fafafa] border-zinc-300/50',
-        )}
-      >
-        <div class="max-h-[300px] overflow-y-auto py-1">
-          {#each filteredCommands as command, i}
-            <button
-              class={cn(
-                'w-full px-3 py-1.5 text-left',
-                'flex items-center gap-4',
-                isDark
-                  ? [
-                      'hover:bg-zinc-800/80',
-                      selectedIndex === i && 'bg-zinc-800',
-                    ]
-                  : ['hover:bg-zinc-100', selectedIndex === i && 'bg-zinc-100'],
-              )}
-              onmousedown={() => selectCommand(command.name)}
-            >
-              <!-- Command name -->
-              <span
-                class={cn(
-                  'font-medium flex-none',
-                  isDark
-                    ? [
-                        'text-zinc-300',
-                        selectedIndex === i && 'text-emerald-400',
-                      ]
-                    : [
-                        'text-zinc-700',
-                        selectedIndex === i && 'text-emerald-600',
-                      ],
-                )}
-              >
-                {command.name}
+  <!-- Enhanced TUI suggestions -->
+  {#if showSuggestions}
+    <ul
+      id="command-suggestions"
+      role="listbox"
+      class="absolute left-0 top-full w-full mt-1 max-h-[50vh] overflow-y-auto bg-white dark:bg-zinc-800 rounded-md shadow-lg border border-zinc-200 dark:border-zinc-700"
+    >
+      {#each filteredCommands as cmd, i (cmd.id)}
+        <li
+          role="option"
+          aria-selected={i === selectedIndex}
+          class={cn(
+            'px-3 py-2 cursor-pointer flex justify-between items-center',
+            i === selectedIndex
+              ? 'bg-blue-50 dark:bg-zinc-700'
+              : 'hover:bg-zinc-50 dark:hover:bg-zinc-700',
+            isDark ? 'text-zinc-100' : 'text-zinc-800',
+          )}
+          onmousedown={() => {
+            input = cmd.name;
+            executeCommand(cmd.name);
+          }}
+        >
+          <div class="flex items-center gap-2">
+            <span class="font-medium">{cmd.name}</span>
+            {#if cmd.aliases && cmd.aliases.length > 0}
+              <span class="text-xs opacity-60">
+                ({cmd.aliases.join(', ')})
               </span>
-
-              <!-- Command description -->
-              <span
-                class={cn(
-                  'text-[11px] truncate opacity-70',
-                  isDark ? 'text-zinc-400' : 'text-zinc-600',
-                )}
-              >
-                {command.description}
-              </span>
-            </button>
-          {/each}
-        </div>
-      </div>
-    {/if}
-  </div>
+            {/if}
+          </div>
+          <span class="text-sm opacity-70">{cmd.description}</span>
+        </li>
+      {/each}
+    </ul>
+  {/if}
 </div>
 
-<!-- Add this window listener at the bottom of the file -->
-<svelte:window onkeydown={handleGlobalKey} />
-
 <style>
-  /* Simple block caret styling like the example */
+  .caret-container {
+    caret-color: transparent;
+    min-height: 1.5em;
+    white-space: pre;
+    border: none !important;
+  }
+
+  .caret-container:focus::after {
+    content: '';
+    position: absolute;
+    width: 0.6em;
+    height: 1.2em;
+    background: currentColor;
+    animation: blink 1s step-end infinite;
+    margin-bottom: -0.6em;
+    border: none !important;
+  }
+
+  @keyframes blink {
+    0%,
+    50% {
+      opacity: 1;
+    }
+    51%,
+    100% {
+      opacity: 0;
+    }
+  }
+
   /* Scrollbar styling */
   div::-webkit-scrollbar {
     width: 8px;
@@ -202,5 +211,20 @@ function handleGlobalKey(e: KeyboardEvent) {
     background-color: rgba(155, 155, 155, 0.5);
     border-radius: 20px;
     border: transparent;
+  }
+
+  .caret-container:focus::before {
+    opacity: 0.4 !important; /* Dimmed placeholder when focused */
+  }
+
+  .caret-container:not(:empty):focus::before {
+    content: none !important; /* Hide placeholder when focused and has content */
+  }
+
+  /* Add focus state for the container */
+  .caret-container:focus {
+    outline: none !important;
+    box-shadow: none !important;
+    border: none !important;
   }
 </style>
