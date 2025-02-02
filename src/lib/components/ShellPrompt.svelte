@@ -68,12 +68,13 @@ function toggleTheme() {
       <!-- Right section -->
       <div class="flex items-center gap-2 ml-auto">
         <div class="flex items-center gap-2 text-yellow-500">
-          <GitBranch class="h-4 w-4" />
+          <GitBranch class="h-4 w-4 text-yellow-500 dark:text-yellow-400" />
           <button
             class="hover:text-emerald-500 transition-colors"
             onclick={toggleTheme}
           >
-            {gitInfo.branch}
+            <span class="dark:hidden">stable</span>
+            <span class="hidden dark:inline">nightly</span>
           </button>
           <!-- Hide git status details on mobile -->
           <div class="hidden md:flex items-center gap-1">
