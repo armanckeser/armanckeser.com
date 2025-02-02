@@ -51,23 +51,23 @@ function toggleTheme() {
 >
   <div class="container flex items-center h-14 px-4 sm:px-8">
     <div
-      class="flex flex-col gap-2 lg:flex-row lg:items-center lg:gap-4 font-mono text-sm w-full"
+      class="flex gap-2 flex-row lg:items-center lg:gap-4 font-mono text-sm w-full"
     >
       <!-- Left section -->
-      <div class="flex items-start gap-2 w-full">
+      <div class="flex items-start gap-2 w-full md:flex-1">
         <div class="flex items-center gap-2 text-muted-foreground shrink-0">
           <Computer class="h-4 w-4" />
           <span class="text-emerald-500">│</span>
           <Breadcrumbs />
         </div>
-        <ShellInput />
+        <div class="hidden md:block flex-1">
+          <ShellInput />
+        </div>
       </div>
 
       <!-- Right section -->
-      <div
-        class="flex items-center gap-2 text-muted-foreground ml-auto shrink-0"
-      >
-        <div class="flex items-center gap-2 text-yellow-500 shrink-0">
+      <div class="flex items-center gap-2 ml-auto">
+        <div class="flex items-center gap-2 text-yellow-500">
           <GitBranch class="h-4 w-4" />
           <button
             class="hover:text-emerald-500 transition-colors"
@@ -75,23 +75,31 @@ function toggleTheme() {
           >
             {gitInfo.branch}
           </button>
-          {#if gitInfo.ahead > 0}
-            <div class="flex items-center gap-1">
+          <!-- Hide git status details on mobile -->
+          <div class="hidden md:flex items-center gap-1">
+            {#if gitInfo.ahead > 0}
               <ChevronUp class="h-3 w-3" />
               <span>{gitInfo.ahead}</span>
-            </div>
-          {/if}
+            {/if}
+          </div>
           {#if gitInfo.modified > 0}
-            <span class="text-red-400">!{gitInfo.modified}</span>
+            <span class="hidden md:inline text-red-400"
+              >!{gitInfo.modified}</span
+            >
           {/if}
           {#if gitInfo.untracked > 0}
-            <span class="text-blue-400">?{gitInfo.untracked}</span>
+            <span class="hidden md:inline text-blue-400"
+              >?{gitInfo.untracked}</span
+            >
           {/if}
-          <span class="text-emerald-500">│</span>
         </div>
 
-        <Clock class="h-4 w-4" />
-        <span>{currentTime}</span>
+        <!-- Time display - hidden on mobile -->
+        <div class="hidden md:flex items-center gap-2">
+          <span class="text-emerald-500">│</span>
+          <Clock class="h-4 w-4" />
+          <span>{currentTime}</span>
+        </div>
       </div>
     </div>
   </div>
