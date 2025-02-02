@@ -133,7 +133,7 @@ $effect(() => {
   ></div>
 
   <!-- Enhanced TUI suggestions -->
-  {#if showSuggestions}
+  {#if showSuggestions && filteredCommands.length > 0}
     <ul
       id="command-suggestions"
       role="listbox"
