@@ -1,25 +1,25 @@
 <script lang="ts">
-  import { page } from '$app/state';
-  import { getPosts } from '$lib/utils/posts';
-  import type { BlogPost } from '../../types';
+import { page } from "$app/state"
+import { getPosts } from "$lib/utils/posts"
+import type { BlogPost } from "../../types"
 
-  const props = $props<{
-    currentSlug?: string;
-  }>();
+const props = $props<{
+	currentSlug?: string
+}>()
 
-  let posts = $state<BlogPost[]>([]);
+let posts = $state<BlogPost[]>([])
 
-  $effect(() => {
-    getPosts().then((fetchedPosts) => {
-      posts = fetchedPosts;
-    });
-  });
+$effect(() => {
+	getPosts().then(fetchedPosts => {
+		posts = fetchedPosts
+	})
+})
 
-  const formatDate = (date: string) =>
-    new Date(date).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-    });
+const formatDate = (date: string) =>
+	new Date(date).toLocaleDateString("en-US", {
+		month: "short",
+		day: "numeric",
+	})
 </script>
 
 <aside

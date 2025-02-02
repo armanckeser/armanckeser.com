@@ -111,10 +111,12 @@ $effect(() => {
     aria-haspopup="listbox"
     aria-controls="command-suggestions"
     class={cn(
-      'caret-container relative flex-1 outline-none border-0',
+      'caret-container relative flex-1 outline-none',
+      'border-0 focus:border-0 focus:ring-0',
       'empty:before:content-[attr(placeholder)] before:text-zinc-400',
       isDark ? 'text-zinc-200' : 'text-zinc-800',
       isFocused ? 'before:opacity-40' : 'before:opacity-100',
+      'appearance-none ring-0',
     )}
     contenteditable="true"
     {placeholder}
@@ -173,7 +175,9 @@ $effect(() => {
     caret-color: transparent;
     min-height: 1.5em;
     white-space: pre;
-    border: none !important;
+    border: 0 !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
   }
 
   .caret-container:focus::after {
@@ -184,7 +188,6 @@ $effect(() => {
     background: currentColor;
     animation: blink 1s step-end infinite;
     margin-bottom: -0.6em;
-    border: none !important;
   }
 
   @keyframes blink {
@@ -214,17 +217,10 @@ $effect(() => {
   }
 
   .caret-container:focus::before {
-    opacity: 0.4 !important; /* Dimmed placeholder when focused */
+    opacity: 0.4; /* Dimmed placeholder when focused */
   }
 
   .caret-container:not(:empty):focus::before {
-    content: none !important; /* Hide placeholder when focused and has content */
-  }
-
-  /* Add focus state for the container */
-  .caret-container:focus {
-    outline: none !important;
-    box-shadow: none !important;
-    border: none !important;
+    content: none; /* Hide placeholder when focused and has content */
   }
 </style>

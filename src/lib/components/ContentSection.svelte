@@ -1,11 +1,11 @@
 <script lang="ts">
-  import type { Snippet } from 'svelte';
+import type { Snippet } from "svelte"
 
-  const { title, subtitle, children } = $props<{
-    title: string;
-    subtitle?: string;
-    children: Snippet;
-  }>();
+const { title, subtitle, children } = $props<{
+	title: string
+	subtitle?: string
+	children: Snippet
+}>()
 </script>
 
 <section class="relative w-full space-y-6">

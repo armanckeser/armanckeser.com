@@ -110,7 +110,6 @@
 }
 
 @layer utilities {
-
 	/* Sharp modern utilities */
 	.glass {
 		@apply border border-border/50 bg-background/80 backdrop-blur-lg;
@@ -126,7 +125,8 @@
 	}
 
 	.sharp-shadow-lg {
-		box-shadow: 0 0 0 1px rgb(0 0 0 / 0.1), 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+		box-shadow: 0 0 0 1px rgb(0 0 0 / 0.1), 0 10px 15px -3px
+			rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
 	}
 
 	.text-balance {
@@ -134,9 +134,13 @@
 	}
 
 	.gradient-border {
-		--gradient-border: linear-gradient(to right,
-				theme("colors.border") / 30%,
-				theme("colors.border") / 10%);
+		--gradient-border: linear-gradient(
+			to right,
+			theme("colors.border") /
+			30%,
+			theme("colors.border") /
+			10%
+		);
 		border-image: var(--gradient-border) 1;
 	}
 }
