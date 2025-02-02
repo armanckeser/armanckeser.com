@@ -86,6 +86,14 @@ function selectCommand(command: string) {
 	showSuggestions = false
 	inputRef?.focus()
 }
+
+// Add this key handler
+function handleGlobalKey(e: KeyboardEvent) {
+	if (e.key === ":" && document.activeElement !== inputRef) {
+		e.preventDefault()
+		inputRef.focus()
+	}
+}
 </script>
 
 <div class="relative flex items-center gap-2 group flex-1 font-mono">
@@ -175,6 +183,9 @@ function selectCommand(command: string) {
     {/if}
   </div>
 </div>
+
+<!-- Add this window listener at the bottom of the file -->
+<svelte:window onkeydown={handleGlobalKey} />
 
 <style>
   /* Simple block caret styling like the example */
