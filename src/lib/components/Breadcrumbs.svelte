@@ -20,9 +20,13 @@ const segments = $derived(() => {
   <div class="glass h-6 w-6 rounded-full p-1">
     <div class="h-full w-full rounded-full bg-emerald-500"></div>
   </div>
+  <span class="text-muted-foreground">/</span>
   <a
     href="/"
-    class="text-muted-foreground transition-colors hover:text-emerald-500">/ home</a
+    class={cn(
+      'transition-colors hover:text-emerald-500',
+      segments().length === 0 ? 'text-muted-foreground' : 'text-primary'
+    )}>home</a
   >
 
   {#each segments() as segment}

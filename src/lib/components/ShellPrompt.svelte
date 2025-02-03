@@ -71,7 +71,7 @@ $effect(() => {
         >
           <GitBranch class="h-4 w-4" aria-hidden="true" />
           <button
-            class="transition-colors hover:text-emerald-500"
+            class="transition-colors hover:text-emerald-500 outline outline-[0.5px] outline-zinc-200 dark:outline-zinc-800 rounded-md px-1 py-0.5"
             onclick={toggleMode}
             aria-label="Toggle theme"
           >
