@@ -5,14 +5,27 @@ import { cn } from "$lib/utils"
 const segments = $derived(() => {
 	const parts = page.url.pathname.split("/").filter(Boolean)
 	let accumulatedPath = ""
-	return parts.map((part: string, index: number) => {
-		accumulatedPath += `/${part}`
-		return {
-			text: part,
-			href: accumulatedPath,
-			isLast: index === parts.length - 1,
-		}
-	})
+
+	// Start with home as the first segment
+	const allSegments = [
+		{
+			text: "home",
+			href: "/",
+			isLast: parts.length === 0,
+		},
+	]
+
+	// Add remaining segments
+	return allSegments.concat(
+		parts.map((part: string, index: number) => {
+			accumulatedPath += `/${part}`
+			return {
+				text: part,
+				href: accumulatedPath,
+				isLast: index === parts.length - 1,
+			}
+		})
+	)
 })
 </script>
 
@@ -20,24 +33,16 @@ const segments = $derived(() => {
   <div class="glass h-6 w-6 rounded-full p-1">
     <div class="h-full w-full rounded-full bg-emerald-500"></div>
   </div>
-  <span class="text-muted-foreground">/</span>
-  <a
-    href="/"
-    class={cn(
-      'transition-colors hover:text-emerald-500',
-      segments().length === 0 ? 'text-muted-foreground' : 'text-primary'
-    )}>home</a
-  >
-
-  {#each segments() as segment}
+  
+  {#each segments() as segment, index}
     <span class="text-muted-foreground">/</span>
     <a
       href={segment.href}
       class={cn(
-        'transition-colors',
+        'transition-colors  border-zinc-200 dark:border-zinc-800',
         segment.isLast
           ? 'text-muted-foreground'
-          : 'text-primary hover:text-emerald-500',
+          : 'border-b text-primary hover:text-emerald-500',
       )}
     >
       {segment.text}
