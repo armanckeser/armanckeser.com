@@ -8,7 +8,7 @@ const segments = $derived(() => {
 	return parts.map((part: string, index: number) => {
 		accumulatedPath += `/${part}`
 		return {
-			text: part === "blog" ? "writing" : part,
+			text: part,
 			href: accumulatedPath,
 			isLast: index === parts.length - 1,
 		}
@@ -22,7 +22,7 @@ const segments = $derived(() => {
   </div>
   <a
     href="/"
-    class="text-muted-foreground transition-colors hover:text-emerald-500">~</a
+    class="text-muted-foreground transition-colors hover:text-emerald-500">/ home</a
   >
 
   {#each segments() as segment}

@@ -53,25 +53,19 @@ $effect(() => {
 >
   <div class="container flex h-14 items-center px-4 sm:px-8">
     <div
-      class="flex w-full flex-row gap-2 font-mono text-sm lg:items-center lg:gap-4"
+      class="flex justify-between w-full flex-row gap-2 font-mono text-sm lg:items-center lg:gap-4"
     >
       <!-- Left section -->
-      <div class="flex w-full gap-2 items-center md:flex-1">
-        <div
-          class="flex shrink-0 items-center gap-2 text-muted-foreground"
-          aria-label="Current location"
-        >
+      <div class="inline-flex gap-2 items-center">
           <Computer class="h-4 w-4" aria-hidden="true" />
           <span class="text-emerald-500" aria-hidden="true">│</span>
           <Breadcrumbs />
-        </div>
-        <div class="hidden flex-1 md:block">
-          <ShellInput />
-        </div>
       </div>
-
+      <div class="hidden sm:block ">
+        <ShellInput />
+      </div>
       <!-- Right section -->
-      <div class="ml-auto flex items-center gap-2">
+      <div class="inline-flex gap-2 items-center">
         <div
           class="flex items-center gap-2 text-yellow-500 dark:text-yellow-400"
         >
@@ -87,16 +81,10 @@ $effect(() => {
 
           <!-- Git status indicators -->
           <div class="hidden items-center gap-1 md:flex">
-            {#if GIT_INFO.ahead > 0}
               <ChevronUp class="h-3 w-3" aria-hidden="true" />
-              <span>{GIT_INFO.ahead}</span>
-            {/if}
-            {#if GIT_INFO.modified > 0}
-              <span class="text-red-400">!{GIT_INFO.modified}</span>
-            {/if}
-            {#if GIT_INFO.untracked > 0}
-              <span class="text-blue-400">?{GIT_INFO.untracked}</span>
-            {/if}
+              <span class="hidden md:inline">{GIT_INFO.ahead}</span>
+              <span class="hidden md:inline text-red-400">!{GIT_INFO.modified}</span>
+              <span class="hidden md:inline text-blue-400">?{GIT_INFO.untracked}</span>
           </div>
         </div>
 
