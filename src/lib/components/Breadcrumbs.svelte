@@ -16,7 +16,7 @@ const segments = $derived(() => {
 })
 </script>
 
-<nav class="flex items-center space-x-2 font-mono text-sm">
+<nav class="flex text-nowrap items-center space-x-2 font-mono text-sm">
   <div class="glass h-6 w-6 rounded-full p-1">
     <div class="h-full w-full rounded-full bg-emerald-500"></div>
   </div>

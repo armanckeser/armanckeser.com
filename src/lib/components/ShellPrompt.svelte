@@ -20,7 +20,7 @@ const GIT_INFO: GitInfo = $state({
 })
 
 // Time management
-let currentTime = $state<string>("")
+let currentTime = $state<string>("00:00:00")
 let timeInterval = $state<ReturnType<typeof setInterval>>()
 
 // Lifecycle management
@@ -51,17 +51,17 @@ $effect(() => {
   )}
   aria-label="Application header"
 >
-  <div class="container flex h-14 items-center px-4 sm:px-8">
+  <div class="container flex text-nowrap h-14 items-center px-4 sm:px-8">
     <div
       class="flex justify-between w-full flex-row gap-2 font-mono text-sm lg:items-center lg:gap-4"
     >
       <!-- Left section -->
-      <div class="inline-flex gap-2 items-center">
+      <div class="flex flex-row gap-2 items-center">
           <Computer class="h-4 w-4" aria-hidden="true" />
           <span class="text-emerald-500" aria-hidden="true">│</span>
           <Breadcrumbs />
       </div>
-      <div class="hidden sm:block ">
+      <div class="hidden sm:block w-[50%]">
         <ShellInput />
       </div>
       <!-- Right section -->
@@ -96,7 +96,7 @@ $effect(() => {
         >
           <span class="text-emerald-500" aria-hidden="true">│</span>
           <Clock class="h-4 w-4" aria-hidden="true" />
-          <span>{currentTime}</span>
+          <span class="animate-fade-in">{currentTime}</span>
         </div>
       </div>
     </div>

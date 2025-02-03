@@ -208,7 +208,7 @@ function getAvailablePaths(currentPath: string): string[] {
   </div>
 
   <!-- Input container with relative positioning -->
-  <div class="relative flex-1">
+  <div class="relative flex-1 translate-y-[0.05em]">
     <div
       bind:this={inputRef}
       role="textbox"
@@ -219,6 +219,7 @@ function getAvailablePaths(currentPath: string): string[] {
         'caret-container relative flex-1 outline-none',
         'border-0 focus:border-0 focus:ring-0',
         'empty:before:content-[attr(placeholder)] before:text-zinc-400',
+        'focus:after:translate-y-[0.1em]',
         isDark ? 'text-zinc-200' : 'text-zinc-800',
         isFocused ? 'before:opacity-40' : 'before:opacity-100',
         'appearance-none ring-0',
@@ -297,7 +298,6 @@ function getAvailablePaths(currentPath: string): string[] {
     height: 1.2em;
     background: currentColor;
     animation: blink 1s step-end infinite;
-    margin-bottom: -0.6em;
   }
 
   @keyframes blink {
@@ -326,11 +326,4 @@ function getAvailablePaths(currentPath: string): string[] {
     border: transparent;
   }
 
-  .caret-container:focus::before {
-    opacity: 0.4; /* Dimmed placeholder when focused */
-  }
-
-  .caret-container:not(:empty):focus::before {
-    content: none; /* Hide placeholder when focused and has content */
-  }
 </style>
