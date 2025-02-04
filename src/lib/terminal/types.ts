@@ -1,15 +1,3 @@
-import type { SvelteComponent } from "svelte"
-
-export type RouteManifest = Record<
-	string,
-	{
-		isPage: boolean
-		children: RouteManifest
-		params?: string[]
-		path: string
-	}
->
-
 export type ContentNode = {
 	slug: string
 	title: string
@@ -32,7 +20,7 @@ export type CommandResult = {
 }
 
 export type CommandHandler = {
-	execute: (args: string[]) => Promise<CommandResult> | CommandResult
+	execute: Function
 	complete?: (input: string) => string[]
 	help?: string
 }
