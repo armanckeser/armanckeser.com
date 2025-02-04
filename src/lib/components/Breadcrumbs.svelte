@@ -1,5 +1,6 @@
 <script lang="ts">
 import { page } from "$app/state"
+import { base } from "$app/paths"
 import { cn } from "$lib/utils"
 
 const segments = $derived(() => {
@@ -10,7 +11,7 @@ const segments = $derived(() => {
 	const allSegments = [
 		{
 			text: "home",
-			href: "/",
+			href: `${base}/`,
 			isLast: parts.length === 0,
 		},
 	]

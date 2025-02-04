@@ -1,3 +1,4 @@
+import { base } from "$app/paths"
 import type { BlogPost } from "../../types"
 
 export function getPosts(): BlogPost[] {
@@ -16,7 +17,7 @@ export function getPosts(): BlogPost[] {
 
 		return {
 			...post.metadata,
-			slug: `/${section}/${slug}`, // Auto-detect section from path
+			slug: `${base}/${section}/${slug}`, // Auto-detect section from path
 		}
 	})
 
