@@ -1,6 +1,5 @@
 <!-- Modern shell-style command input with oh-my-posh inspired design -->
 <script lang="ts">
-import { mode } from "mode-watcher"
 import { cn } from "$lib/utils"
 
 let input = $state("")
@@ -11,7 +10,7 @@ let isComposing = $state(false)
 $inspect(`input: ${input}`)
 $inspect(`isComposing: ${isComposing}`)
 
-const isDark = $derived($mode === "dark")
+// FIXME: when the user selects text the after pseudo-element does not move to the selection
 
 function handleInput() {
 	if (isComposing) return
@@ -58,7 +57,7 @@ $effect(() => {
 
 <div class="relative flex items-center gap-2 group flex-1 font-mono text-sm">
   <!-- Shell prompt -->
-  <div class={cn('shrink-0', isDark ? 'text-blue-400' : 'text-blue-600')}>
+  <div class="shrink-0 text-blue-600 dark:text-blue-400">
     ❯
   </div>
 
@@ -75,7 +74,7 @@ $effect(() => {
         'border-0 focus:border-0 focus:ring-0',
         'empty:before:content-[attr(placeholder)] before:text-zinc-400',
         'focus:after:translate-y-[0.1em]',
-        isDark ? 'text-zinc-200' : 'text-zinc-800',
+        'text-zinc-800 dark:text-zinc-200',
         isFocused ? 'before:opacity-40' : 'before:opacity-100',
         'appearance-none ring-0',
       )}
@@ -99,9 +98,7 @@ $effect(() => {
     caret-color: transparent;
     min-height: 1.5em;
     white-space: nowrap;
-    border: 0 !important;
-    border-color: transparent !important;
-    box-shadow: none !important;
+    box-shadow: none;
     display: inline-block;
     line-height: 1.2em;
   }
