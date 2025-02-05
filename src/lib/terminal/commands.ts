@@ -15,3 +15,15 @@ commands.set("cd", {
 	},
 	help: "Change the current directory. Usage: cd [path]",
 })
+
+commands.set("ls", {
+	execute: async () => {
+		// TODO: Implement ls command
+		return []
+	},
+	complete: (input: string) => {
+		// TODO: Implement path completion
+		return []
+	},
+	help: "List the contents of the current directory. Usage: ls",
+})

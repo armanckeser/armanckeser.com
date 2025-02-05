@@ -13,7 +13,7 @@ let isComposing = $state(false)
 
 // Dropdown state
 let isDropdownVisible = $state(false)
-let filteredCommands = $state<[string, CommandHandler][]>([])
+let filteredCommands = $derived(Array.from(commands.entries()))
 let selectedIndex = $state(0)
 
 // FIXME: when the user selects text the after pseudo-element does not move to the selection
@@ -27,13 +27,20 @@ function handleKeydown(e: KeyboardEvent) {
 	if (isComposing) return
 
 	switch (e.key) {
-		case "Tab": {
+		case "Tab":
+		case "Shift+Tab": {
 			e.preventDefault()
 			if (!isDropdownVisible) {
-				filteredCommands = Array.from(commands.entries())
 				isDropdownVisible = true
+				break
+			}
+
+			if (e.key === "Tab") {
+				selectedIndex = (selectedIndex + 1) % filteredCommands.length
 			} else {
-				// TODO: Handle selection
+				selectedIndex =
+					(selectedIndex - 1 + filteredCommands.length) %
+					filteredCommands.length
 			}
 			break
 		}
