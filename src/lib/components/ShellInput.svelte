@@ -1,14 +1,20 @@
 <!-- Modern shell-style command input with oh-my-posh inspired design -->
 <script lang="ts">
+import { commands } from "$lib/terminal/commands"
+import type { CommandHandler } from "$lib/terminal/types"
 import { cn } from "$lib/utils"
 
+// Input state
 let input = $state("")
 let placeholder = $state("type a command...")
 let inputRef = $state<HTMLDivElement>(null!)
 let isFocused = $state(false)
 let isComposing = $state(false)
-$inspect(`input: ${input}`)
-$inspect(`isComposing: ${isComposing}`)
+
+// Dropdown state
+let isDropdownVisible = $state(false)
+let filteredCommands = $state<[string, CommandHandler][]>([])
+let selectedIndex = $state(0)
 
 // FIXME: when the user selects text the after pseudo-element does not move to the selection
 
@@ -23,12 +29,17 @@ function handleKeydown(e: KeyboardEvent) {
 	switch (e.key) {
 		case "Tab": {
 			e.preventDefault()
+			if (!isDropdownVisible) {
+				filteredCommands = Array.from(commands.entries())
+				isDropdownVisible = true
+			} else {
+				// TODO: Handle selection
+			}
 			break
 		}
 
 		case "Enter":
 			e.preventDefault()
-
 			break
 
 		case " ":
@@ -38,11 +49,20 @@ function handleKeydown(e: KeyboardEvent) {
 		case "Escape":
 			break
 
-		case "ArrowDown":
+		case "ArrowDown": {
+			e.preventDefault()
+			selectedIndex = Math.min(
+				selectedIndex + 1,
+				filteredCommands.length - 1
+			)
 			break
+		}
 
-		case "ArrowUp":
+		case "ArrowUp": {
+			e.preventDefault()
+			selectedIndex = Math.max(selectedIndex - 1, 0)
 			break
+		}
 	}
 }
 
@@ -93,8 +113,47 @@ $effect(() => {
       onfocus={() => (isFocused = true)}
       onblur={() => {
         isFocused = false;
+		isDropdownVisible = false;
       }}
     ></div>
+
+    {#if isDropdownVisible}
+      <div
+        class={cn(
+          // Positioning
+          "absolute left-0 top-full z-50 mt-1",
+          // Sizing
+          "w-full overflow-hidden",
+          // Borders and shadows
+          "border border-border shadow-lg",
+          // Background and text
+          "bg-background font-mono text-sm"
+        )}
+      >
+        {#each filteredCommands as [command, handler], i}
+          <button
+            class={cn(
+              // Layout
+              "flex items-center w-full px-4 py-2",
+              // Interaction
+              "cursor-pointer transition-colors",
+              // Hover state
+              "hover:bg-accent/10 hover:text-accent-foreground",
+              // Selected state
+              i === selectedIndex 
+                ? "bg-accent/20 text-accent-foreground border-l-4 border-emerald-500" 
+                : "bg-transparent",
+              // Animation
+              "duration-200 ease-in-out"
+            )}
+          >
+            <span class="text-primary">{command}</span>
+            <div class="flex-1 mx-2 border-b border-border"></div>
+            <span class="text-right text-muted-foreground">{handler.help}</span>
+          </button>
+        {/each}
+      </div>
+    {/if}
   </div>
 </div>
 

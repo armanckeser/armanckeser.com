@@ -6,12 +6,6 @@ export type ContentNode = {
 	path: string
 }
 
-export type CommandResult = {
-	success: boolean
-	message?: string
-	data?: unknown
-}
-
 export type CommandHandler = {
 	execute: Function
 	complete?: (input: string) => string[]
