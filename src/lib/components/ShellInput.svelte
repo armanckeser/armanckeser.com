@@ -70,13 +70,18 @@ $effect(() => {
       aria-haspopup="listbox"
       aria-controls="command-suggestions"
       class={cn(
+        // Layout and positioning
         'caret-container relative flex-1 outline-none',
-        'border-0 focus:border-0 focus:ring-0',
-        'empty:before:content-[attr(placeholder)] before:text-zinc-400',
-        'focus:after:translate-y-[0.1em]',
+        
+        // Borders and focus states
+        'border-0 focus:border-0 focus:ring-0 appearance-none ring-0',
+        
+        // Text colors
         'text-zinc-800 dark:text-zinc-200',
-        isFocused ? 'before:opacity-40' : 'before:opacity-100',
-        'appearance-none ring-0',
+        
+        // Placeholder styling
+        'empty:before:content-[attr(placeholder)] before:text-zinc-400',
+        'before:opacity-100 focus:before:opacity-40',
       )}
       contenteditable="true"
       {placeholder}
@@ -110,8 +115,6 @@ $effect(() => {
     height: 1.2em;
     background: currentColor;
     animation: blink 1s step-end infinite;
-    margin-top: 0;
-    vertical-align: top;
   }
 
   @keyframes blink {
