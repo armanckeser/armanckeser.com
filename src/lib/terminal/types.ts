@@ -6,16 +6,9 @@ export type ContentNode = {
 	path: string
 }
 
-export type TerminalError = {
-	code: string
-	message: string
-	details?: Record<string, unknown>
-}
-
 export type CommandResult = {
 	success: boolean
 	message?: string
-	error?: TerminalError
 	data?: unknown
 }
 

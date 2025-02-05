@@ -4,25 +4,32 @@
 		{
 			"name": "Launch server",
 			"request": "launch",
-			"runtimeArgs": ["run", "dev"],
+			"runtimeArgs": [
+				"run",
+				"dev"
+			],
 			"runtimeExecutable": "bun",
-			"skipFiles": ["<node_internals>/**"],
+			"skipFiles": [
+				"<node_internals>/**"
+			],
 			"type": "node",
 			"console": "internalConsole"
 		},
-
 		{
 			"type": "msedge",
 			"request": "launch",
 			"name": "Launch Edge",
-			"url": "http://127.0.0.1:5173",
+			"url": "http://127.0.0.1:4000",
 			"webRoot": "${workspaceFolder}"
 		}
 	],
 	"compounds": [
 		{
 			"name": "Both",
-			"configurations": ["Launch server", "Launch Edge"]
+			"configurations": [
+				"Launch server",
+				"Launch Edge"
+			]
 		}
 	]
 }

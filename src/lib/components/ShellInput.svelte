@@ -8,6 +8,8 @@ let placeholder = $state("type a command...")
 let inputRef = $state<HTMLDivElement>(null!)
 let isFocused = $state(false)
 let isComposing = $state(false)
+$inspect(`input: ${input}`)
+$inspect(`isComposing: ${isComposing}`)
 
 const isDark = $derived($mode === "dark")
 
@@ -44,23 +46,6 @@ function handleKeydown(e: KeyboardEvent) {
 			break
 	}
 }
-
-function syncCaretPosition() {
-	if (!inputRef) return
-	const range = document.createRange()
-	const sel = window.getSelection()!
-	range.selectNodeContents(inputRef)
-	range.collapse(false)
-	sel.removeAllRanges()
-	sel.addRange(range)
-}
-
-$effect(() => {
-	if (inputRef) {
-		inputRef.textContent = input
-		syncCaretPosition()
-	}
-})
 
 $effect(() => {
 	if (isFocused) {
@@ -113,10 +98,12 @@ $effect(() => {
   .caret-container {
     caret-color: transparent;
     min-height: 1.5em;
-    white-space: pre;
+    white-space: nowrap;
     border: 0 !important;
     border-color: transparent !important;
     box-shadow: none !important;
+    display: inline-block;
+    line-height: 1.2em;
   }
 
   .caret-container:focus::after {
@@ -126,6 +113,8 @@ $effect(() => {
     height: 1.2em;
     background: currentColor;
     animation: blink 1s step-end infinite;
+    margin-top: 0;
+    vertical-align: top;
   }
 
   @keyframes blink {

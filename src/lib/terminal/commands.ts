@@ -5,8 +5,8 @@ export const commands: CommandRegistry = new Map()
 
 // cd command implementation
 commands.set("cd", {
-	execute: async (args: string[]) => {
-		await goto("/")
+	execute: async (path: string) => {
+		await goto(path)
 		return
 	},
 	complete: (input: string) => {
