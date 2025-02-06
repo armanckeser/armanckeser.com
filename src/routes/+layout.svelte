@@ -8,9 +8,7 @@ const { children } = $props()
 
 <ModeWatcher />
 
-<div class="flex min-h-dvh flex-col">
-  <ShellPrompt />
-  <main class="flex-1 container py-8">
-    {@render children()}
-  </main>
-</div>
+<ShellPrompt />
+<main>
+  {@render children()}
+</main>
