@@ -52,6 +52,11 @@ const config: Config = {
 					DEFAULT: "hsl(var(--accent) / <alpha-value>)",
 					foreground: "hsl(var(--accent-foreground) / <alpha-value>)",
 				},
+				highlight: {
+					DEFAULT: "hsl(var(--highlight) / <alpha-value>)",
+					foreground:
+						"hsl(var(--highlight-foreground) / <alpha-value>)",
+				},
 				popover: {
 					DEFAULT: "hsl(var(--popover) / <alpha-value>)",
 					foreground:
