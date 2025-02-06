@@ -6,19 +6,6 @@ import ShellInput from "./ShellInput.svelte"
 import Breadcrumbs from "./Breadcrumbs.svelte"
 import { cn } from "$lib/utils"
 
-type GitInfo = {
-	ahead: number
-	modified: number
-	untracked: number
-}
-
-// Static configuration
-const GIT_INFO: GitInfo = $state({
-	ahead: 1,
-	modified: 0,
-	untracked: 0,
-})
-
 // Time management
 let currentTime = $state<string>("00:00:00")
 let timeInterval = $state<ReturnType<typeof setInterval>>()
@@ -81,10 +68,13 @@ $effect(() => {
 
           <!-- Git status indicators -->
           <div class="hidden items-center gap-1 md:flex">
-              <ChevronUp class="h-3 w-3" aria-hidden="true" />
-              <span class="hidden md:inline">{GIT_INFO.ahead}</span>
-              <span class="hidden md:inline text-red-400">!{GIT_INFO.modified}</span>
-              <span class="hidden md:inline text-blue-400">?{GIT_INFO.untracked}</span>
+            <div class="flex items-center">
+              <ChevronUp class="h-3 w-3 p-0" aria-hidden="true" />
+              <span class="dark:hidden">0</span>
+              <span class="hidden dark:inline">1</span>
+            </div>
+            <span class="text-red-400">!0</span>
+            <span class="text-blue-400">?0</span>
           </div>
         </div>
 
