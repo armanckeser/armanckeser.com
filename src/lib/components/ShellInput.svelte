@@ -1,4 +1,17 @@
 <!-- Modern shell-style command input with oh-my-posh inspired design -->
+/*
+TODO: [ ] **Focus Effects**
+  - Change background to screenlike background when focused
+
+TODO: [ ] **Command Completion**
+  - Show preview of completed command in muted text
+  - Accept completion on:
+    - Right arrow key
+    - Tab key
+    - Click/tap on suggestion
+  - Handle partial matches
+  - Support command history navigation
+*/
 <script lang="ts">
 import { commands } from "$lib/terminal/commands"
 import { cn } from "$lib/utils"
@@ -7,6 +20,8 @@ class CommandState {
 	ref = $state<HTMLDivElement>(null!)
 
 	full_command = $state("")
+	command = $derived(this.full_command.split(" ")[0])
+	arguments = $derived(this.full_command.split(" ").slice(1))
 
 	isComposing = $state(false)
 
@@ -21,8 +36,14 @@ class CommandState {
 			this.offsets.end === (this.ref?.textContent || "").length
 	)
 
-	command = $derived(this.full_command.split(" ")[0])
-	arguments = $derived(this.full_command.split(" ").slice(1))
+	reset = () => {
+		this.full_command = ""
+		this.ref.textContent = ""
+		this.offsets = {
+			start: 0,
+			end: 0,
+		}
+	}
 
 	updateSelection() {
 		const sel = window.getSelection()
@@ -45,15 +66,6 @@ class CommandState {
 			end: preCaretRangeEnd,
 		}
 	}
-
-	reset = () => {
-		this.full_command = ""
-		this.ref.textContent = ""
-		this.offsets = {
-			start: 0,
-			end: 0,
-		}
-	}
 }
 
 class DropdownState {
@@ -70,12 +82,13 @@ class DropdownState {
 		this.commandState = commandState
 	}
 
-	show = () => (this.isVisible = true)
-	hide = () => (this.isVisible = false)
 	reset = () => {
 		this.selectedIndex = 0
 		this.hide()
 	}
+
+	show = () => (this.isVisible = true)
+	hide = () => (this.isVisible = false)
 
 	incrementIndex = () => {
 		this.selectedIndex =
