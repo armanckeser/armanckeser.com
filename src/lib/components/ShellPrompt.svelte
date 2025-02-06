@@ -58,7 +58,7 @@ $effect(() => {
       <!-- Left section -->
       <div class="flex flex-row gap-2 items-center">
           <Computer class="h-4 w-4" aria-hidden="true" />
-          <span class="text-emerald-500" aria-hidden="true">│</span>
+          <span class="text-accent" aria-hidden="true">│</span>
           <Breadcrumbs />
       </div>
       <div class="hidden sm:block w-[50%]">
@@ -67,11 +67,11 @@ $effect(() => {
       <!-- Right section -->
       <div class="inline-flex gap-2 items-center">
         <div
-          class="flex items-center gap-2 text-yellow-500 dark:text-yellow-400"
+          class="flex items-center gap-2 text-highlight dark:text-highlight"
         >
           <GitBranch class="h-4 w-4" aria-hidden="true" />
           <button
-            class="transition-colors hover:text-emerald-500 outline outline-[0.5px] outline-zinc-200 dark:outline-zinc-800 rounded-md px-1 py-0.5"
+            class="transition-colors hover:text-accent outline outline-[0.5px] outline-zinc-200 dark:outline-zinc-800 rounded-md px-1 py-0.5"
             onclick={toggleMode}
             aria-label="Toggle theme"
           >
@@ -94,7 +94,7 @@ $effect(() => {
           aria-live="off"
           aria-label="Current time"
         >
-          <span class="text-emerald-500" aria-hidden="true">│</span>
+          <span class="text-accent" aria-hidden="true">│</span>
           <Clock class="h-4 w-4" aria-hidden="true" />
           <span class="animate-fade-in">{currentTime}</span>
         </div>

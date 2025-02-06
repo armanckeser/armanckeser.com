@@ -33,12 +33,12 @@ const formatDate = (date: string) =>
     {#if post.slug !== page.url.pathname}
       <a
         href={post.slug}
-        class="group flex items-center justify-between py-2 text-primary dark:text-primary transition-colors hover:text-emerald-500 dark:hover:text-emerald-500"
+        class="group flex items-center justify-between py-2 text-primary dark:text-primary transition-colors hover:text-accent dark:hover:text-accent"
       >
         <span class="truncate text-sm">{post.title}</span>
         {#if post.date}
           <span
-            class="ml-4 text-xs text-muted-foreground dark:text-muted-foreground group-hover:text-emerald-500 dark:group-hover:text-emerald-500"
+            class="ml-4 text-xs text-muted-foreground dark:text-muted-foreground group-hover:text-accent dark:group-hover:text-accent"
           >
             {formatDate(post.date)}
           </span>

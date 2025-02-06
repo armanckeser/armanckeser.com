@@ -184,8 +184,8 @@ function handleKeydown(e: KeyboardEvent) {
 				'text-zinc-800 dark:text-zinc-200',
 
 				// Selection colors
-				'[&::selection]:text-emerald-500',
-				'[&::selection]:bg-emerald-500/20',
+				'[&::selection]:text-accent',
+				'[&::selection]:bg-accent/20',
 				
 				// Placeholder
 				'empty:before:content-[attr(placeholder)] before:text-zinc-400',
@@ -235,7 +235,7 @@ function handleKeydown(e: KeyboardEvent) {
 							"hover:bg-accent/10 hover:text-accent-foreground",
 							// Selected state
 							i === dropdown.selectedIndex 
-								? "bg-accent/20 text-accent-foreground border-l-4 border-emerald-500" 
+								? "bg-accent/20 text-accent-foreground border-l-4 border-accent" 
 								: "bg-transparent",
 							// Animation
 							"duration-200 ease-in-out"

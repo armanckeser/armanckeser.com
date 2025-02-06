@@ -32,7 +32,7 @@ const segments = $derived(() => {
 
 <nav class="flex text-nowrap items-center space-x-2 font-mono text-sm">
   <div class="glass h-6 w-6 rounded-full p-1">
-    <div class="h-full w-full rounded-full bg-emerald-500"></div>
+    <div class="h-full w-full rounded-full bg-accent"></div>
   </div>
   
   {#each segments() as segment, index}
@@ -43,7 +43,7 @@ const segments = $derived(() => {
         'transition-colors  border-zinc-200 dark:border-zinc-800',
         segment.isLast
           ? 'text-muted-foreground'
-          : 'border-b text-primary hover:text-emerald-500',
+          : 'border-b text-primary hover:text-accent',
       )}
     >
       {segment.text}

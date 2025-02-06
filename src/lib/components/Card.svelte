@@ -25,7 +25,7 @@ const componentProps = $derived(href ? { href, class: "block" } : {})
 <svelte:element this={Component} {...componentProps}>
   <div
     role="article"
-    class="glass hover:sharp-shadow-md group relative flex h-[180px] w-full flex-col justify-between overflow-hidden rounded-lg border border-border/40 bg-white/5 dark:bg-black/5 p-5 transition-all duration-300 hover:border-emerald-500/20"
+    class="glass hover:sharp-shadow-md group relative flex h-[180px] w-full flex-col justify-between overflow-hidden rounded-lg border border-border/40 bg-white/5 dark:bg-black/5 p-5 transition-all duration-300 hover:border-accent/20"
   >
     <!-- Header -->
     <div>
@@ -42,7 +42,7 @@ const componentProps = $derived(href ? { href, class: "block" } : {})
           <div
             class="flex items-center gap-1 font-mono text-xs text-muted-foreground"
           >
-            <span class="text-emerald-500">★</span>
+            <span class="text-accent">★</span>
             <span>{stars}</span>
           </div>
         {/if}
@@ -61,7 +61,7 @@ const componentProps = $derived(href ? { href, class: "block" } : {})
     {#if href}
       <div class="flex items-center justify-end">
         <div
-          class="font-mono text-xs text-emerald-500 opacity-0 transition-all duration-300 group-hover:translate-x-1 group-hover:opacity-100"
+          class="font-mono text-xs text-accent opacity-0 transition-all duration-300 group-hover:translate-x-1 group-hover:opacity-100"
         >
           →
         </div>

@@ -56,15 +56,15 @@ const projects = [
         <h1
           class="animate-slide-in font-mono text-4xl font-bold tracking-tight text-primary md:text-6xl lg:text-7xl"
         >
-          Armanc Keser<span class="animate-pulse text-emerald-500">_</span>
+          Armanc Keser<span class="animate-pulse text-accent">_</span>
         </h1>
 
         <p
           class="max-w-2xl font-mono text-base text-muted-foreground md:text-lg"
         >
           <code class="text-primary">
-            <span class="text-emerald-500">const</span> state =
-            <span class="text-yellow-500">'learning'</span>
+            <span class="text-accent">const</span> state =
+            <span class="text-highlight">'learning'</span>
           </code>
         </p>
       </div>
@@ -73,11 +73,11 @@ const projects = [
       <div class="flex flex-wrap gap-4">
         <a
           href="https://github.com/armanckeser"
-          class="glass hover:sharp-shadow-md group flex items-center gap-2 rounded-lg px-4 py-2 transition-all hover:border-emerald-500/20"
+          class="glass hover:sharp-shadow-md group flex items-center gap-2 rounded-lg px-4 py-2 transition-all hover:border-accent/20"
         >
           <span class="font-mono text-sm text-primary">github</span>
           <span
-            class="font-mono text-xs text-muted-foreground transition-colors group-hover:text-emerald-500"
+            class="font-mono text-xs text-muted-foreground transition-colors group-hover:text-accent"
             >↗</span
           >
         </a>

@@ -13,7 +13,7 @@ const { title, subtitle, children } = $props<{
   <div class="space-y-3">
     <div class="flex items-center gap-3">
       <div
-        class="h-px w-12 bg-emerald-500/20 dark:bg-emerald-500/10 md:w-16"
+        class="h-px w-12 bg-accent/20 dark:bg-accent/10 md:w-16"
       ></div>
       <h2
         class="font-mono text-xl font-medium tracking-tight text-primary dark:text-primary md:text-2xl"
