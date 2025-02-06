@@ -40,18 +40,12 @@ const projects = [
 </svelte:head>
 
 <main
-  class="relative min-h-screen bg-background px-4 py-8 md:px-8 md:py-16 lg:px-16"
+  class="relative bg-background px-4 py-8 md:px-8 md:py-16 lg:px-16"
 >
-  <!-- Background subtle gradient -->
-  <div class="pointer-events-none fixed inset-0 z-0">
-    <div
-      class="absolute inset-0 bg-[linear-gradient(to_bottom,transparent_0%,var(--background)_100%)]"
-    ></div>
-  </div>
 
   <div class="relative z-10 mx-auto max-w-[1200px] space-y-24">
     <!-- Hero Section -->
-    <header class="animate-fade-in space-y-8">
+    <section aria-label="Personal introduction" class="animate-fade-in space-y-8">
       <div class="space-y-4">
         <h1
           class="animate-slide-in font-mono text-4xl font-bold tracking-tight text-primary md:text-6xl lg:text-7xl"
@@ -82,10 +76,10 @@ const projects = [
           >
         </a>
       </div>
-    </header>
+    </section>
 
     <!-- Blog Posts Section -->
-    <ContentSection title="~/writing" subtitle="Insights, learnings, thoughts">
+    <ContentSection title="~/writing" subtitle="Insights, learnings, thoughts" id="writing">
       <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {#each posts as post, i}
           <div class="animate-slide-in" style="animation-delay: {i * 100}ms">
@@ -101,7 +95,7 @@ const projects = [
     </ContentSection>
 
     <!-- Projects Section -->
-    <ContentSection title="~/projects" subtitle="Apps and tools I've built">
+    <ContentSection title="~/projects" subtitle="Apps and tools I've built" id="projects">
       <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {#each projects as project, i}
           <div class="animate-slide-in" style="animation-delay: {i * 100}ms">

@@ -1,14 +1,15 @@
 <script lang="ts">
 import type { Snippet } from "svelte"
 
-const { title, subtitle, children } = $props<{
+const { title, subtitle, children, id } = $props<{
 	title: string
 	subtitle?: string
 	children: Snippet
+	id: string
 }>()
 </script>
 
-<section class="relative w-full space-y-6">
+<section class="relative w-full space-y-6" aria-labelledby={id}>
   <!-- Section Header -->
   <div class="space-y-3">
     <div class="flex items-center gap-3">
@@ -16,6 +17,7 @@ const { title, subtitle, children } = $props<{
         class="h-px w-12 bg-accent/20 dark:bg-accent/10 md:w-16"
       ></div>
       <h2
+        id={id}
         class="font-mono text-xl font-medium tracking-tight text-primary dark:text-primary md:text-2xl"
       >
         {title}
