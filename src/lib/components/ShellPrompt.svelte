@@ -48,9 +48,7 @@ $effect(() => {
           <span class="text-accent" aria-hidden="true">│</span>
           <Breadcrumbs />
       </div>
-      <div class="block w-[50%]">
-        <ShellInput />
-      </div>
+      <ShellInput />
       <!-- Right section -->
       <div class="inline-flex gap-2 items-center">
         <div

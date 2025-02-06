@@ -166,90 +166,118 @@ function handleKeydown(e: KeyboardEvent) {
 		❯
 	</div>
 
-	<!-- Input container with relative positioning -->
-	<div class="relative flex-1 translate-y-[0.05em]">
-		<div
-			bind:this={commandState.ref}
-			role="textbox"
-			tabindex="0"
-			aria-haspopup="listbox"
-			aria-controls="command-suggestions"
-			class={cn(
-				// Layout and positioning
-				'caret-container relative flex-1 outline-none min-h-[1.5em] whitespace-nowrap inline-block line-height-[1.2em]',
+	<div
+		bind:this={commandState.ref}
+		role="textbox"
+		tabindex="0"
+		aria-haspopup="listbox"
+		aria-controls="command-suggestions"
+		class={cn(
+			// Layout and positioning
+			'caret-container relative flex-1 outline-none min-h-[1.5em] whitespace-nowrap text-nowrap inline-block line-height-[1.2em]',
 
-				'focus:[box-shadow:none]',
+			'focus:[box-shadow:none]',
 
-				// Text colors
-				'text-foreground dark:text-foreground',
+			// Text colors
+			'text-foreground dark:text-foreground',
 
-				// Placeholder
-				'empty:before:content-[attr(placeholder)] before:text-muted-foreground',
-				'before:opacity-100 empty:focus:before:content-[""]',
+			// Placeholder
+			'empty:before:content-[attr(placeholder)] before:text-muted-foreground',
+			'before:opacity-100 empty:focus:before:content-[""]',
 
-				// Cursor
-				commandState.needsBlinkingCursor ? 'focus:after:inline' : 'focus:after:hidden  caret-accent',
-				
-				'focus:after:animate-[blink_1s_step-end_infinite] focus:after:content-[""] focus:after:absolute focus:after:w-[0.6em] focus:after:h-[1.2em] focus:after:bg-accent',
+			// Cursor
+			commandState.needsBlinkingCursor ? 'focus:after:inline' : 'focus:after:hidden  caret-accent',
+			
+			'focus:after:animate-[blink_1s_step-end_infinite] focus:after:content-[""] focus:after:absolute focus:after:top-[0.2em] focus:after:w-[0.6em] focus:after:h-[1.2em] focus:after:bg-accent',
 
-			)}
-			contenteditable="true"
-			placeholder="type a command..."
-			spellcheck={false}
-			onkeydown={handleKeydown}
-			oncompositionstart={() => (commandState.isComposing = true)}
-			oncompositionend={() => (commandState.isComposing = false)}
-			onblur={() => {
-				dropdown.hide()
-			}}
-			oninput={() => {
-				commandState.full_command = commandState.ref.textContent?.trim() || ""
-			}}
-		></div>
-
-		{#if dropdown.isVisible}
-			<div
-				class={cn(
-					// Positioning
-					"absolute left-0 top-full z-50 mt-1",
-					// Sizing
-					"w-full overflow-hidden",
-					// Borders and shadows
-					"border border-border shadow-lg",
-					// Background and text
-					"bg-background font-mono text-sm"
-				)}
-			>
-				{#each dropdown.filteredCommands as [command, handler], i}
-					<button
-						class={cn(
-							// Layout
-							"flex items-center w-full px-4 py-2",
-							// Interaction
-							"cursor-pointer transition-colors",
-							// Hover state
-							"hover:bg-accent/10 hover:text-accent-foreground",
-							// Selected state
-							i === dropdown.selectedIndex 
-								? "bg-accent/20 text-accent-foreground border-l-4 border-accent" 
-								: "bg-transparent",
-							// Animation
-							"duration-200 ease-in-out"
-						)}
-					>
-						<span class="text-primary">{command}</span>
-						<div class="flex-1 mx-2 border-b border-border"></div>
-						<span class="text-right text-muted-foreground">{handler.help}</span>
-					</button>
-				{/each}
-			</div>
-		{/if}
+			// Add these to prevent <br> insertion
+			'[&>br]:hidden',
+		)}
+		contenteditable="true"
+		placeholder="type a command..."
+		spellcheck={false}
+		onkeydown={handleKeydown}
+		oncompositionstart={() => (commandState.isComposing = true)}
+		oncompositionend={() => (commandState.isComposing = false)}
+		onblur={() => {
+			dropdown.hide()
+		}}
+		oninput={() => {
+			commandState.full_command = commandState.ref.textContent?.trim() || ""
+		}}
+	>
 	</div>
 </div>
+
+{#if dropdown.isVisible}
+	<div
+		class={cn(
+			// Positioning
+			"absolute left-0 right-0 top-full z-50",
+			"sm:left-auto sm:right-auto",
+			// Sizing
+			"w-full sm:w-[30vw] overflow-y-auto overflow-x-auto",
+			// Borders and shadows
+			"border border-border shadow-lg",
+			// Background and text
+			"bg-background font-mono text-sm",
+			// Scroll container
+			"scroll-container"
+		)}
+	>
+		{#each dropdown.filteredCommands as [command, handler], i}
+			<button
+				class={cn(
+					// Layout
+					"flex items-center w-full px-4 py-2",
+					// Interaction
+					"cursor-pointer transition-colors",
+					// Hover state
+					"hover:bg-accent/10 hover:text-accent-foreground",
+					// Selected state
+					i === dropdown.selectedIndex 
+						? "bg-accent/20 text-accent-foreground border-l-4 border-accent" 
+						: "bg-transparent",
+					// Animation
+					"duration-200 ease-in-out"
+				)}
+			>
+				<span class="text-primary">{command}</span>
+				<div class="flex-1 mx-2 border-b border-border"></div>
+				<span class="text-right text-muted-foreground">{handler.help}</span>
+			</button>
+		{/each}
+	</div>
+{/if}
 
 <style>
 	.caret-container {
 		box-shadow: none;
 		caret-color: transparent;
+	}
+
+	/* Custom scrollbars */
+	.scroll-container::-webkit-scrollbar {
+		width: 4px;
+		height: 4px;
+	}
+
+	.scroll-container::-webkit-scrollbar-track {
+		background: transparent;
+	}
+
+	.scroll-container::-webkit-scrollbar-thumb {
+		background: hsl(var(--accent));
+		opacity: 0.3;
+		border-radius: 2px;
+	}
+
+	.scroll-container::-webkit-scrollbar-thumb:hover {
+		opacity: 0.6;
+	}
+
+	.scroll-container {
+		scrollbar-width: thin;
+		scrollbar-color: hsl(var(--accent)) transparent;
 	}
 </style>
