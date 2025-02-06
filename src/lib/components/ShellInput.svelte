@@ -160,7 +160,7 @@ function handleKeydown(e: KeyboardEvent) {
 }
 </script>
 
-<div class="relative flex items-center gap-2 group flex-1 font-mono text-sm">
+<div class="relative flex items-center gap-2 group flex-1 font-mono text-sm max-w-[30rem]">
 	<!-- Shell prompt -->
 	<div class="shrink-0 text-blue-600 dark:text-blue-400">
 		❯
@@ -211,48 +211,47 @@ function handleKeydown(e: KeyboardEvent) {
 		}}
 	>
 	</div>
+	{#if dropdown.isVisible}
+		<div
+			class={cn(
+				"flex flex-col",
+				// Positioning
+				"fixed sm:absolute left-0 top-full z-50",
+				"sm:mx-auto",
+				// Sizing
+				"w-[100vw] sm:w-full sm:min-w-[25rem] sm:max-w-[60vw] overflow-y-auto overflow-x-auto",
+				// Borders and shadows
+				"border border-border shadow-lg",
+				// Background and text
+				"bg-background font-mono text-sm",
+			)}
+		>
+			{#each dropdown.filteredCommands as [command, handler], i}
+				<button
+					class={cn(
+						// Layout
+						"flex items-center w-full px-4 py-2",
+						// Interaction
+						"cursor-pointer transition-colors",
+						// Hover state
+						"hover:bg-accent/10 hover:text-accent-foreground",
+						// Selected state
+						i === dropdown.selectedIndex 
+							? "bg-accent/20 text-accent-foreground border-l-4 border-accent" 
+							: "bg-transparent",
+						// Animation
+						"duration-200 ease-in-out"
+					)}
+				>
+					<span class="text-primary">{command}</span>
+					<div class="flex-1 mx-2 border-b border-border"></div>
+					<span class="text-right text-muted-foreground">{handler.help}</span>
+				</button>
+			{/each}
+		</div>
+	{/if}
 </div>
 
-{#if dropdown.isVisible}
-	<div
-		class={cn(
-			// Positioning
-			"absolute left-0 right-0 top-full z-50",
-			"sm:left-auto sm:right-auto",
-			// Sizing
-			"w-full sm:w-[30vw] overflow-y-auto overflow-x-auto",
-			// Borders and shadows
-			"border border-border shadow-lg",
-			// Background and text
-			"bg-background font-mono text-sm",
-			// Scroll container
-			"scroll-container"
-		)}
-	>
-		{#each dropdown.filteredCommands as [command, handler], i}
-			<button
-				class={cn(
-					// Layout
-					"flex items-center w-full px-4 py-2",
-					// Interaction
-					"cursor-pointer transition-colors",
-					// Hover state
-					"hover:bg-accent/10 hover:text-accent-foreground",
-					// Selected state
-					i === dropdown.selectedIndex 
-						? "bg-accent/20 text-accent-foreground border-l-4 border-accent" 
-						: "bg-transparent",
-					// Animation
-					"duration-200 ease-in-out"
-				)}
-			>
-				<span class="text-primary">{command}</span>
-				<div class="flex-1 mx-2 border-b border-border"></div>
-				<span class="text-right text-muted-foreground">{handler.help}</span>
-			</button>
-		{/each}
-	</div>
-{/if}
 
 <style>
 	.caret-container {
@@ -260,28 +259,7 @@ function handleKeydown(e: KeyboardEvent) {
 		caret-color: transparent;
 	}
 
-	/* Custom scrollbars */
-	.scroll-container::-webkit-scrollbar {
-		width: 4px;
-		height: 4px;
-	}
-
-	.scroll-container::-webkit-scrollbar-track {
-		background: transparent;
-	}
-
-	.scroll-container::-webkit-scrollbar-thumb {
-		background: hsl(var(--accent));
-		opacity: 0.3;
-		border-radius: 2px;
-	}
-
-	.scroll-container::-webkit-scrollbar-thumb:hover {
-		opacity: 0.6;
-	}
-
-	.scroll-container {
-		scrollbar-width: thin;
-		scrollbar-color: hsl(var(--accent)) transparent;
+	div {
+		scrollbar-width: none;
 	}
 </style>

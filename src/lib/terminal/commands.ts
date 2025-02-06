@@ -13,7 +13,7 @@ commands.set("cd", {
 		// TODO: Implement path completion
 		return []
 	},
-	help: "Change the current directory. Usage: cd [path]",
+	help: "Change current page. Usage: cd [path]",
 })
 
 commands.set("ls", {
@@ -25,5 +25,5 @@ commands.set("ls", {
 		// TODO: Implement path completion
 		return []
 	},
-	help: "List the contents of the current directory. Usage: ls",
+	help: "List possible pages. Usage: ls",
 })
