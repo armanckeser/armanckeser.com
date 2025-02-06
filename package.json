@@ -54,6 +54,8 @@
 		"zod": "^3.24.1"
 	},
 	"lint-staged": {
-		"*.{ts,js,svelte}": ["biome format --fix"]
+		"*.{ts,js,svelte}": [
+			"biome format --fix"
+		]
 	}
 }

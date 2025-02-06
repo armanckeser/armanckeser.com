@@ -1,5 +1,4 @@
-<!-- Modern shell-style command input with oh-my-posh inspired design -->
-/*
+<!--
 TODO: [ ] **Focus Effects**
   - Change background to screenlike background when focused
 
@@ -12,6 +11,7 @@ TODO: [ ] **Command Completion**
   - Handle partial matches
   - Support command history navigation
 */
+-->
 <script lang="ts">
 import { commands } from "$lib/terminal/commands"
 import { cn } from "$lib/utils"
@@ -112,8 +112,6 @@ class DropdownState {
 // State instances
 const commandState = new CommandState()
 const dropdown = new DropdownState(commandState)
-
-$inspect(commandState.full_command)
 
 $effect(() => {
 	const update = () => commandState.updateSelection()

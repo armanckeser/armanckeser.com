@@ -10,9 +10,7 @@ const props = $props<{
 let posts = $state<BlogPost[]>([])
 
 $effect(() => {
-	getPosts().then(fetchedPosts => {
-		posts = fetchedPosts
-	})
+	posts = getPosts()
 })
 
 const formatDate = (date: string) =>

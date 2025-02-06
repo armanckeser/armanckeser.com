@@ -1,3 +1,6 @@
+<!--
+- TODO: [ ] Make everything more compact
+-->
 <script lang="ts">
 import Card from "$lib/components/Card.svelte"
 import ContentSection from "$lib/components/ContentSection.svelte"
