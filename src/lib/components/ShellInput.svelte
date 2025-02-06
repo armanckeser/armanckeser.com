@@ -38,7 +38,7 @@ class CommandState {
 
 	reset = () => {
 		this.full_command = ""
-		this.ref.textContent = ""
+		this.ref.innerHTML = ""
 		this.offsets = {
 			start: 0,
 			end: 0,
@@ -201,6 +201,10 @@ function handleKeydown(e: KeyboardEvent) {
 		oncompositionend={() => (commandState.isComposing = false)}
 		onblur={() => {
 			dropdown.hide()
+			// to fix a stupid bug where the browser inserts a <br> when the input is empty
+			if (commandState.ref.textContent?.trim() === "") {
+				commandState.ref.innerHTML = ""
+			}
 		}}
 		oninput={() => {
 			commandState.full_command = commandState.ref.textContent?.trim() || ""
