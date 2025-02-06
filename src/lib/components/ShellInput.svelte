@@ -183,16 +183,12 @@ function handleKeydown(e: KeyboardEvent) {
 				// Text colors
 				'text-zinc-800 dark:text-zinc-200',
 
-				// Selection colors
-				'[&::selection]:text-accent',
-				'[&::selection]:bg-accent/20',
-				
 				// Placeholder
 				'empty:before:content-[attr(placeholder)] before:text-zinc-400',
 				'before:opacity-100 empty:focus:before:content-[""]',
 
 				// Cursor
-				commandState.needsBlinkingCursor ? 'focus:after:inline' : 'focus:after:hidden  caret-green-300',
+				commandState.needsBlinkingCursor ? 'focus:after:inline' : 'focus:after:hidden  caret-accent',
 				
 				'focus:after:animate-[blink_1s_step-end_infinite] focus:after:content-[""] focus:after:absolute focus:after:w-[0.6em] focus:after:h-[1.2em] focus:after:bg-current',
 

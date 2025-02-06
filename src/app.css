@@ -81,6 +81,11 @@
 		@apply bg-background text-foreground antialiased;
 	}
 
+	/* Selection styles */
+	::selection {
+		@apply bg-accent/20 text-accent;
+	}
+
 	/* Modern Typography */
 	h1,
 	h2,
