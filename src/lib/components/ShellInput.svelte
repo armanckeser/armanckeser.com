@@ -1,7 +1,6 @@
 <!-- Modern shell-style command input with oh-my-posh inspired design -->
 <script lang="ts">
 import { commands } from "$lib/terminal/commands"
-import type { CommandHandler } from "$lib/terminal/types"
 import { cn } from "$lib/utils"
 
 class CommandState {
@@ -9,28 +8,67 @@ class CommandState {
 
 	full_command = $state("")
 
-	isFocused = $state(false)
 	isComposing = $state(false)
 
-	placeholder = $derived(this.isFocused ? "" : "type a command...")
+	// Selection tracking
+	offsets = $state({
+		start: 0,
+		end: 0,
+	})
+	hasSelection = $derived(this.offsets.start < this.offsets.end)
+	needsBlinkingCursor = $derived(
+		!this.hasSelection &&
+			this.offsets.end === (this.ref?.textContent || "").length
+	)
 
 	command = $derived(this.full_command.split(" ")[0])
 	arguments = $derived(this.full_command.split(" ").slice(1))
 
+	updateSelection() {
+		const sel = window.getSelection()
+		if (!sel || !this.ref.contains(sel.anchorNode)) return
+
+		const range = sel.getRangeAt(0)
+		const preCaretRange = range.cloneRange()
+		preCaretRange.selectNodeContents(this.ref)
+
+		preCaretRange.setEnd(range.startContainer, range.startOffset)
+		const preCaretRangeStart = preCaretRange.toString().length
+
+		preCaretRange.setEnd(range.endContainer, range.endOffset)
+		const preCaretRangeEnd = preCaretRange.toString().length
+
+		if (preCaretRangeStart > preCaretRangeEnd) return
+
+		this.offsets = {
+			start: preCaretRangeStart,
+			end: preCaretRangeEnd,
+		}
+	}
+
 	reset = () => {
 		this.full_command = ""
 		this.ref.textContent = ""
+		this.offsets = {
+			start: 0,
+			end: 0,
+		}
 	}
 }
 
 class DropdownState {
+	commandState: CommandState
 	isVisible = $state(false)
 	selectedIndex = $state(0)
 	filteredCommands = $derived(
-		Array.from(commands.entries()).filter(([command, handler]) =>
-			command.startsWith(inputState.full_command)
+		Array.from(commands.entries()).filter(([command]) =>
+			command.startsWith(commandState.full_command)
 		)
 	)
+
+	constructor(commandState: CommandState) {
+		this.commandState = commandState
+	}
 
 	show = () => (this.isVisible = true)
 	hide = () => (this.isVisible = false)
@@ -59,16 +97,19 @@ class DropdownState {
 }
 
 // State instances
-const inputState = new CommandState()
-const dropdown = new DropdownState()
+const commandState = new CommandState()
+const dropdown = new DropdownState(commandState)
 
-function handleInput() {
-	if (inputState.isComposing) return
-	inputState.full_command = inputState.ref.textContent?.trim() || ""
-}
+$inspect(commandState.full_command)
+
+$effect(() => {
+	const update = () => commandState.updateSelection()
+	document.addEventListener("selectionchange", update)
+	return () => document.removeEventListener("selectionchange", update)
+})
 
 function handleKeydown(e: KeyboardEvent) {
-	if (inputState.isComposing) return
+	if (commandState.isComposing) return
 
 	switch (e.key) {
 		case "Tab":
@@ -84,11 +125,11 @@ function handleKeydown(e: KeyboardEvent) {
 				? dropdown.incrementIndex()
 				: dropdown.decrementIndex()
 			const command = dropdown.filteredCommands[dropdown.selectedIndex][0]
-			inputState.ref.textContent = command
+			commandState.ref.textContent = command
 			// Move cursor to end of input
 			const range = document.createRange()
 			const selection = window.getSelection()
-			range.selectNodeContents(inputState.ref)
+			range.selectNodeContents(commandState.ref)
 			range.collapse(false)
 			selection?.removeAllRanges()
 			selection?.addRange(range)
@@ -97,25 +138,15 @@ function handleKeydown(e: KeyboardEvent) {
 
 		case "Enter": {
 			e.preventDefault()
-			const [, handler] =
-				dropdown.filteredCommands[dropdown.selectedIndex]
-			handler.execute(inputState.full_command)
-			inputState.reset()
+			const handler = commands.get(commandState.command)
+			handler?.execute(...commandState.arguments)
+			commandState.reset()
 			dropdown.reset()
 			break
 		}
 	}
-
 	dropdown.clampIndex()
 }
-
-$effect(() => {
-	if (inputState.isFocused) {
-		inputState.placeholder = ""
-	} else {
-		inputState.placeholder = "type a command..."
-	}
-})
 </script>
 
 <div class="relative flex items-center gap-2 group flex-1 font-mono text-sm">
@@ -127,35 +158,45 @@ $effect(() => {
 	<!-- Input container with relative positioning -->
 	<div class="relative flex-1 translate-y-[0.05em]">
 		<div
-			bind:this={inputState.ref}
+			bind:this={commandState.ref}
 			role="textbox"
 			tabindex="0"
 			aria-haspopup="listbox"
 			aria-controls="command-suggestions"
 			class={cn(
 				// Layout and positioning
-				'caret-container relative flex-1 outline-none',
-				
-				// Borders and focus states
-				'border-0 focus:border-0 focus:ring-0 appearance-none ring-0',
-				
+				'caret-container relative flex-1 outline-none min-h-[1.5em] whitespace-nowrap inline-block line-height-[1.2em]',
+
+				'focus:[box-shadow:none]',
+
 				// Text colors
 				'text-zinc-800 dark:text-zinc-200',
+
+				// Selection colors
+				'[&::selection]:text-emerald-500',
+				'[&::selection]:bg-emerald-500/20',
 				
+				// Placeholder
 				'empty:before:content-[attr(placeholder)] before:text-zinc-400',
-				'before:opacity-100 focus:before:opacity-40',
+				'before:opacity-100 empty:focus:before:content-[""]',
+
+				// Cursor
+				commandState.needsBlinkingCursor ? 'focus:after:inline' : 'focus:after:hidden  caret-green-300',
+				
+				'focus:after:animate-[blink_1s_step-end_infinite] focus:after:content-[""] focus:after:absolute focus:after:w-[0.6em] focus:after:h-[1.2em] focus:after:bg-current',
+
 			)}
 			contenteditable="true"
-			placeholder={inputState.placeholder}
+			placeholder="type a command..."
 			spellcheck={false}
-			oninput={handleInput}
 			onkeydown={handleKeydown}
-			oncompositionstart={() => (inputState.isComposing = true)}
-			oncompositionend={() => (inputState.isComposing = false)}
-			onfocus={() => (inputState.isFocused = true)}
+			oncompositionstart={() => (commandState.isComposing = true)}
+			oncompositionend={() => (commandState.isComposing = false)}
 			onblur={() => {
-				inputState.isFocused = false;
 				dropdown.hide()
+			}}
+			oninput={() => {
+				commandState.full_command = commandState.ref.textContent?.trim() || ""
 			}}
 		></div>
 
@@ -201,47 +242,7 @@ $effect(() => {
 
 <style>
 	.caret-container {
-		caret-color: transparent;
-		min-height: 1.5em;
-		white-space: nowrap;
 		box-shadow: none;
-		display: inline-block;
-		line-height: 1.2em;
+		caret-color: transparent;
 	}
-
-	.caret-container:focus::after {
-		content: '';
-		position: absolute;
-		width: 0.6em;
-		height: 1.2em;
-		background: currentColor;
-		animation: blink 1s step-end infinite;
-	}
-
-	@keyframes blink {
-		0%,
-		50% {
-			opacity: 1;
-		}
-		51%,
-		100% {
-			opacity: 0;
-		}
-	}
-
-	/* Scrollbar styling */
-	div::-webkit-scrollbar {
-		width: 8px;
-	}
-
-	div::-webkit-scrollbar-track {
-		background: transparent;
-	}
-
-	div::-webkit-scrollbar-thumb {
-		background-color: rgba(155, 155, 155, 0.5);
-		border-radius: 20px;
-		border: transparent;
-	}
-
 </style>
