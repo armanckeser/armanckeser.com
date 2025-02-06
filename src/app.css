@@ -146,8 +146,13 @@
 }
 
 @keyframes blink {
-	from, to { opacity: 0 }
-	50% { opacity: 1 }
+	from,
+	to {
+		opacity: 0;
+	}
+	50% {
+		opacity: 1;
+	}
 }
 
 /* Modern Scrollbar */
