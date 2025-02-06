@@ -145,16 +145,6 @@
 	}
 }
 
-@keyframes blink {
-	from,
-	to {
-		opacity: 0;
-	}
-	50% {
-		opacity: 1;
-	}
-}
-
 /* Modern Scrollbar */
 ::-webkit-scrollbar {
 	@apply w-1.5;

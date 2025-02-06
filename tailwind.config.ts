@@ -2,6 +2,14 @@ import typography from "@tailwindcss/typography"
 import type { Config } from "tailwindcss"
 import animate from "tailwindcss-animate"
 
+/**
+ * @type {import('tailwindcss').Config}
+ * @see https://tailwindcss.com/docs/configuration
+ *
+ * Design system integrates CSS custom properties from app.css
+ * - Color variables defined in :root and .dark selectors
+ * - Animation system extends base Tailwind with project-specific motions
+ */
 const config: Config = {
 	darkMode: ["class"],
 	content: ["./src/**/*.{html,js,svelte,ts}"],
@@ -89,6 +97,10 @@ const config: Config = {
 					"0%": { transform: "translateY(0)", opacity: "1" },
 					"100%": { transform: "translateY(10px)", opacity: "0" },
 				},
+				blink: {
+					"from, to": { opacity: "0" },
+					"50%": { opacity: "1" },
+				},
 			},
 			animation: {
 				"accordion-down": "accordion-down 0.2s ease-out",
@@ -97,6 +109,7 @@ const config: Config = {
 				"fade-out": "fade-out 0.2s ease-out",
 				"slide-in": "slide-in 0.2s ease-out",
 				"slide-out": "slide-out 0.2s ease-out",
+				blink: "blink 1s ease-in-out infinite",
 			},
 			transitionTimingFunction: {
 				"in-expo": "cubic-bezier(0.95, 0.05, 0.795, 0.035)",
