@@ -4,7 +4,7 @@
 
 @layer base {
 	:root {
-		--background: 0 0% 100%;
+		--background: 210 8% 95%;
 		--foreground: 240 10% 3.9%;
 
 		--muted: 240 4.8% 95.9%;
@@ -25,10 +25,10 @@
 		--secondary: 240 4.8% 95.9%;
 		--secondary-foreground: 240 5.9% 10%;
 
-		--accent: 152.6 76.9% 36.3%;  /* emerald-500 */
+		--accent: 98 68% 31%;  
 		--accent-foreground: 0 0% 98%;  /* High contrast text */
 
-		--highlight: 45.7 93.4% 47.5%;  /* yellow-500 */
+		--highlight: 338 95% 41%;  
 		--highlight-foreground: 240 5.9% 10%;
 
 		--destructive: 0 84.2% 60.2%;

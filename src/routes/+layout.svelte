@@ -9,6 +9,6 @@ const { children } = $props()
 <ModeWatcher />
 
 <ShellPrompt />
-<main>
+<main class="bg-background">
   {@render children()}
 </main>
