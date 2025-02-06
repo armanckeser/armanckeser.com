@@ -181,16 +181,16 @@ function handleKeydown(e: KeyboardEvent) {
 				'focus:[box-shadow:none]',
 
 				// Text colors
-				'text-zinc-800 dark:text-zinc-200',
+				'text-foreground dark:text-foreground',
 
 				// Placeholder
-				'empty:before:content-[attr(placeholder)] before:text-zinc-400',
+				'empty:before:content-[attr(placeholder)] before:text-muted-foreground',
 				'before:opacity-100 empty:focus:before:content-[""]',
 
 				// Cursor
 				commandState.needsBlinkingCursor ? 'focus:after:inline' : 'focus:after:hidden  caret-accent',
 				
-				'focus:after:animate-[blink_1s_step-end_infinite] focus:after:content-[""] focus:after:absolute focus:after:w-[0.6em] focus:after:h-[1.2em] focus:after:bg-current',
+				'focus:after:animate-[blink_1s_step-end_infinite] focus:after:content-[""] focus:after:absolute focus:after:w-[0.6em] focus:after:h-[1.2em] focus:after:bg-accent',
 
 			)}
 			contenteditable="true"
