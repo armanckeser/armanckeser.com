@@ -5,6 +5,7 @@
 import Card from "$lib/components/Card.svelte"
 import ContentSection from "$lib/components/ContentSection.svelte"
 import type { PageData } from "./$types"
+import ExternalLink from "$lib/components/ExternalLink.svelte"
 
 const props = $props<{ data: PageData }>()
 const posts = $derived(props.data.posts)
@@ -65,16 +66,18 @@ const projects = [
 
       <!-- Quick links -->
       <div class="flex flex-wrap gap-4">
-        <a
+        <ExternalLink
           href="https://github.com/armanckeser"
-          class="glass hover:sharp-shadow-md group flex items-center gap-2 rounded-lg px-4 py-2 transition-all hover:border-accent/20"
-        >
-          <span class="font-mono text-sm text-primary">github</span>
-          <span
-            class="font-mono text-xs text-muted-foreground transition-colors group-hover:text-accent"
-            >↗</span
-          >
-        </a>
+          label="github"
+        />
+        <ExternalLink
+          href="https://www.linkedin.com/in/armanckeser/"
+          label="linkedin"
+        />
+        <ExternalLink
+          href="https://bsky.app/profile/armanckeser.com"
+          label="bluesky"
+        />
       </div>
     </section>
 
