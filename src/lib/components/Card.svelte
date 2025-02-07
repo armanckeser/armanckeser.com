@@ -22,11 +22,37 @@ const Component = $derived(href ? "a" : "div")
 const componentProps = $derived(href ? { href, class: "block" } : {})
 </script>
 
-<svelte:element this={Component} {...componentProps}>
-  <div
-    role="article"
-    class="glass hover:sharp-shadow-md group relative flex h-[180px] w-full flex-col justify-between overflow-hidden rounded-lg border border-border/40 bg-white/5 dark:bg-black/5 p-5 transition-all duration-300 hover:border-accent/20"
-  >
+<svelte:element this={Component} {...componentProps} class="glass hover:sharp-shadow-md group relative flex md:h-[180px] w-full flex-col justify-between overflow-hidden rounded-lg border border-border/40 bg-white/5 dark:bg-black/5 p-3 transition-all duration-300 hover:border-accent/20">
+  <div class="flex md:hidden h-full flex-col ">
+    <div class="flex-1 space-y-1.5">
+      <div class="flex items-center justify-between gap-1.5 -mt-2 -ml-1.5">
+        <div class={`rounded px-1.5 py-0.5 font-mono text-[0.65rem] ${tagClasses} relative z-10`}>
+          {tag}
+        </div>
+        <div class="flex items-center gap-1">
+        {#if date}
+          <div class="font-mono text-[0.65rem] text-muted-foreground relative z-10">
+            {date}
+          </div>
+        {/if}
+        {#if stars && stars > 0}
+          <div class="flex items-center gap-1 text-xs text-muted-foreground">
+            <span class="text-accent">★</span>
+            <span>{stars}</span>
+          </div>
+        {/if}
+        </div>
+      </div>
+      <h3 class="line-clamp-1 font-mono text-sm font-medium text-primary">
+        {title}
+      </h3>
+      <p class="line-clamp-2 text-xs leading-snug text-muted-foreground">
+        {description}
+      </p>
+    </div>
+  </div>
+
+  <div class="hidden md:flex p-3">
     <!-- Header -->
     <div>
       <div class="mb-3 flex items-center gap-3">
@@ -59,13 +85,11 @@ const componentProps = $derived(href ? { href, class: "block" } : {})
 
     <!-- Hover Indicator -->
     {#if href}
-      <div class="flex items-center justify-end">
         <div
-          class="font-mono text-xs text-accent opacity-0 transition-all duration-300 group-hover:translate-x-1 group-hover:opacity-100"
+          class="absolute bottom-2 right-4 font-mono text-xs text-accent opacity-0 transition-all duration-300 group-hover:translate-x-1 group-hover:opacity-100"
         >
           →
         </div>
-      </div>
     {/if}
   </div>
 </svelte:element>
