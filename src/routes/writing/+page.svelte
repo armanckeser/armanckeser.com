@@ -1,39 +1,84 @@
 <script lang="ts">
-import Card from "$lib/components/Card.svelte"
+import CompactCard from "$lib/components/CompactCard.svelte"
 import type { PageData } from "./$types"
 
 const props = $props<{ data: PageData }>()
 const posts = $derived(props.data.posts)
+
+let selectedPost = $state<string | null>(null)
+
+function handlePostClick(slug: string) {
+	selectedPost = selectedPost === slug ? null : slug
+}
+
+$effect(() => {
+	const handleKeydown = (e: KeyboardEvent) => {
+		if (e.key === "j" || e.key === "ArrowDown") {
+			e.preventDefault()
+			const currentIndex = selectedPost
+				? posts.findIndex(
+						(p: { slug: string | null }) => p.slug === selectedPost
+					)
+				: -1
+			const nextIndex =
+				currentIndex < posts.length - 1 ? currentIndex + 1 : 0
+			selectedPost = posts[nextIndex].slug
+			document.querySelector(`[href="${selectedPost}"]`)?.scrollIntoView({
+				behavior: "smooth",
+				block: "nearest",
+			})
+		} else if (e.key === "k" || e.key === "ArrowUp") {
+			e.preventDefault()
+			const currentIndex = selectedPost
+				? posts.findIndex(
+						(p: { slug: string | null }) => p.slug === selectedPost
+					)
+				: 0
+			const prevIndex =
+				currentIndex > 0 ? currentIndex - 1 : posts.length - 1
+			selectedPost = posts[prevIndex].slug
+			document.querySelector(`[href="${selectedPost}"]`)?.scrollIntoView({
+				behavior: "smooth",
+				block: "nearest",
+			})
+		} else if (e.key === "Enter" && selectedPost) {
+			e.preventDefault()
+			window.location.href = selectedPost
+		}
+	}
+
+	window.addEventListener("keydown", handleKeydown)
+	return () => window.removeEventListener("keydown", handleKeydown)
+})
 </script>
 
 <svelte:head>
-  <title>Blog - Armanc Keser</title>
+  <title>~/writing - Armanc Keser</title>
   <meta
     name="description"
     content="Product insights, book notes, and learnings"
   />
 </svelte:head>
 
-<div class="relative mx-auto max-w-7xl px-4">
-  <article class="mx-auto max-w-3xl py-16">
-    <header class="mb-12">
-      <h1 class="text-4xl font-bold">~/writing</h1>
-      <p class="mt-4 text-xl text-muted-foreground">
-        Product insights, book notes, and learnings
-      </p>
-    </header>
-
-    <div class="grid gap-4 sm:grid-cols-2">
-      {#each posts as post, i}
-        <div class="animate-slide-in" style="animation-delay: {i * 100}ms">
-          <Card
-            title={post.title}
-            description={post.description}
-            date={post.date}
-            href={post.slug}
-          />
-        </div>
-      {/each}
+<div class="relative mx-auto max-w-3xl px-2 sm:px-4 py-12 sm:py-16">
+  <header class="mb-8 space-y-4">
+    <div class="flex items-center gap-2 font-mono text-lg text-muted-foreground">
+      <span>$</span>
+      <span class="text-primary">~/writing</span>
+      <span class="animate-pulse text-accent">▋</span>
     </div>
-  </article>
+    <p class="font-mono text-base text-muted-foreground">
+      Product insights, book notes, and learnings. Use <kbd class="px-1.5 py-0.5 text-xs bg-accent/10 rounded">j</kbd>/<kbd class="px-1.5 py-0.5 text-xs bg-accent/10 rounded">k</kbd> to navigate, <kbd class="px-1.5 py-0.5 text-xs bg-accent/10 rounded">Enter</kbd> to read.
+    </p>
+  </header>
+
+  <div class="space-y-px">
+    {#each posts as post (post.slug)}
+      <CompactCard
+        {...post}
+        isSelected={selectedPost === post.slug}
+        on:click={() => handlePostClick(post.slug)}
+      />
+    {/each}
+  </div>
 </div>
