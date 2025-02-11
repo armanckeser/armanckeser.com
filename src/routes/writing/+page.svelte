@@ -73,7 +73,7 @@ $effect(() => {
       <span class="animate-pulse text-accent">▋</span>
     </div>
     <p class="font-mono text-base text-muted-foreground">
-      Product insights, book notes, and learnings. Use <kbd class="px-1.5 py-0.5 text-xs bg-accent/10 rounded">j</kbd>/<kbd class="px-1.5 py-0.5 text-xs bg-accent/10 rounded">k</kbd> to navigate, <kbd class="px-1.5 py-0.5 text-xs bg-accent/10 rounded">Enter</kbd> to read.
+      Product insights, book notes, and learnings. <br>Use <kbd class="px-1.5 py-0.5 text-xs bg-accent/10 rounded">j</kbd>/<kbd class="px-1.5 py-0.5 text-xs bg-accent/10 rounded">k</kbd> or <kbd class="px-1.5 py-0.5 text-xs bg-accent/10 rounded">↑</kbd>/<kbd class="px-1.5 py-0.5 text-xs bg-accent/10 rounded">↓</kbd> to navigate, <kbd class="px-1.5 py-0.5 text-xs bg-accent/10 rounded">Enter</kbd> to read.
     </p>
   </header>
 

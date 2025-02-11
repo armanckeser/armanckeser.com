@@ -40,14 +40,12 @@ const descriptionId = $derived(
 </script>
 
 <article 
-  class="group border-l-2 transition-all {isSelected ? 'border-accent/20' : 'border-transparent'}"
+  class="group border-l-2 transition-all {isSelected ? 'border-accent/20' : 'border-transparent'}" onmouseenter={onmouseenter} onmouseleave={onmouseleave}
 >
   <!-- Header section - clickable to expand -->
   <div 
     class="grid grid-cols-[1fr_auto] items-center gap-3 px-2 sm:px-4 py-3 cursor-pointer hover:bg-accent/5"
     onclick={onclick}
-    onmouseenter={onmouseenter}
-    onmouseleave={onmouseleave}
     role="button"
     tabindex="0"
     aria-expanded={isSelected}
