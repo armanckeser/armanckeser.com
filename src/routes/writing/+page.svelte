@@ -10,7 +10,7 @@ let selectedPost = $state<string | null>(null)
 let hoveredPost = $state<string | null>(null)
 
 function handlePostClick(slug: string) {
-	selectedPost = selectedPost === slug ? null : slug
+	window.location.href = slug
 }
 
 function handlePostHover(slug: string | null) {
@@ -48,10 +48,10 @@ $effect(() => {
 // Scroll selected post into view when it changes
 $effect(() => {
 	if (selectedPost) {
-		const article = document.querySelector(`article[aria-expanded="true"]`)
+		const article = document.querySelector(`div[aria-expanded="true"]`)
 		article?.scrollIntoView({
 			behavior: "smooth",
-			block: "nearest",
+			block: "center",
 		})
 	}
 })
