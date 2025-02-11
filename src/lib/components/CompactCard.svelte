@@ -7,6 +7,8 @@ const {
 	href,
 	isSelected = false,
 	onclick = () => {},
+	onmouseenter = () => {},
+	onmouseleave = () => {},
 } = $props<{
 	title: string
 	description: string
@@ -15,6 +17,8 @@ const {
 	href?: string
 	isSelected?: boolean
 	onclick?: () => void
+	onmouseenter?: () => void
+	onmouseleave?: () => void
 }>()
 
 import { getTagClasses } from "$lib/state/tags.svelte"
@@ -42,6 +46,8 @@ const descriptionId = $derived(
   <div 
     class="grid grid-cols-[1fr_auto] items-center gap-3 px-2 sm:px-4 py-3 cursor-pointer hover:bg-accent/5"
     onclick={onclick}
+    onmouseenter={onmouseenter}
+    onmouseleave={onmouseleave}
     role="button"
     tabindex="0"
     aria-expanded={isSelected}

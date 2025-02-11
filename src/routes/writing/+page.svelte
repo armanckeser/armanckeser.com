@@ -7,9 +7,14 @@ const props = $props<{ data: PageData }>()
 const posts: BlogPost[] = $derived(props.data.posts)
 
 let selectedPost = $state<string | null>(null)
+let hoveredPost = $state<string | null>(null)
 
 function handlePostClick(slug: string) {
 	selectedPost = selectedPost === slug ? null : slug
+}
+
+function handlePostHover(slug: string | null) {
+	hoveredPost = slug
 }
 
 $effect(() => {
@@ -78,9 +83,11 @@ $effect(() => {
         title={post.title}
         date={post.date}
         description={post.description ?? ''}
-        isSelected={selectedPost === post.slug}
+        isSelected={selectedPost === post.slug || hoveredPost === post.slug}
         href={post.slug}
         onclick={() => handlePostClick(post.slug)}
+        onmouseenter={() => handlePostHover(post.slug)}
+        onmouseleave={() => handlePostHover(null)}
       />
     {/each}
   </div>
