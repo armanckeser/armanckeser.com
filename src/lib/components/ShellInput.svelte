@@ -169,7 +169,7 @@ function handleKeydown(e: KeyboardEvent) {
 	<div
 		bind:this={commandState.ref}
 		role="textbox"
-		tabindex="0"
+		tabindex="-1"
 		aria-haspopup="listbox"
 		aria-controls="command-suggestions"
 		class={cn(

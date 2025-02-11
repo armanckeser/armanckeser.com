@@ -1,9 +1,10 @@
 <script lang="ts">
 import CompactCard from "$lib/components/CompactCard.svelte"
+import type { BlogPost } from "../../types"
 import type { PageData } from "./$types"
 
 const props = $props<{ data: PageData }>()
-const posts = $derived(props.data.posts)
+const posts: BlogPost[] = $derived(props.data.posts)
 
 let selectedPost = $state<string | null>(null)
 
@@ -16,31 +17,19 @@ $effect(() => {
 		if (e.key === "j" || e.key === "ArrowDown") {
 			e.preventDefault()
 			const currentIndex = selectedPost
-				? posts.findIndex(
-						(p: { slug: string | null }) => p.slug === selectedPost
-					)
+				? posts.findIndex(p => p.slug === selectedPost)
 				: -1
 			const nextIndex =
 				currentIndex < posts.length - 1 ? currentIndex + 1 : 0
 			selectedPost = posts[nextIndex].slug
-			document.querySelector(`[href="${selectedPost}"]`)?.scrollIntoView({
-				behavior: "smooth",
-				block: "nearest",
-			})
 		} else if (e.key === "k" || e.key === "ArrowUp") {
 			e.preventDefault()
 			const currentIndex = selectedPost
-				? posts.findIndex(
-						(p: { slug: string | null }) => p.slug === selectedPost
-					)
+				? posts.findIndex(p => p.slug === selectedPost)
 				: 0
 			const prevIndex =
 				currentIndex > 0 ? currentIndex - 1 : posts.length - 1
 			selectedPost = posts[prevIndex].slug
-			document.querySelector(`[href="${selectedPost}"]`)?.scrollIntoView({
-				behavior: "smooth",
-				block: "nearest",
-			})
 		} else if (e.key === "Enter" && selectedPost) {
 			e.preventDefault()
 			window.location.href = selectedPost
@@ -49,6 +38,17 @@ $effect(() => {
 
 	window.addEventListener("keydown", handleKeydown)
 	return () => window.removeEventListener("keydown", handleKeydown)
+})
+
+// Scroll selected post into view when it changes
+$effect(() => {
+	if (selectedPost) {
+		const article = document.querySelector(`article[aria-expanded="true"]`)
+		article?.scrollIntoView({
+			behavior: "smooth",
+			block: "nearest",
+		})
+	}
 })
 </script>
 
@@ -75,9 +75,12 @@ $effect(() => {
   <div class="space-y-px">
     {#each posts as post (post.slug)}
       <CompactCard
-        {...post}
+        title={post.title}
+        date={post.date}
+        description={post.description ?? ''}
         isSelected={selectedPost === post.slug}
-        on:click={() => handlePostClick(post.slug)}
+        href={post.slug}
+        onclick={() => handlePostClick(post.slug)}
       />
     {/each}
   </div>
