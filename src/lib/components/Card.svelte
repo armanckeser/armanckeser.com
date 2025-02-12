@@ -9,14 +9,14 @@ const {
 } = $props<{
 	title: string
 	description: string
-	tag?: string
+	tag?: Tag
 	date?: string
 	stars?: number
 	href?: string
 }>()
 
-import { getTagClasses } from "$lib/state/tags.svelte"
-const tagClasses = $derived(getTagClasses(tag))
+import { getTagClasses, type Tag } from "$lib/tags"
+const tagClasses = getTagClasses(tag)
 
 const Component = $derived(href ? "a" : "div")
 const componentProps = $derived(href ? { href, class: "block" } : {})

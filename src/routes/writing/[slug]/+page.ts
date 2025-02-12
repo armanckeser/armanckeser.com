@@ -1,4 +1,4 @@
-import { getPosts } from "$lib/utils/posts"
+import { getPosts } from "$lib/posts"
 import { error } from "@sveltejs/kit"
 import type { PageLoad } from "./$types"
 

@@ -9,7 +9,7 @@ const tagConfig = {
 	},
 } as const
 
-type Tag = keyof typeof tagConfig
+export type Tag = keyof typeof tagConfig
 
 /**
  * Returns the Tailwind CSS classes for a given tag based on its configuration.

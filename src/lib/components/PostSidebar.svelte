@@ -1,6 +1,6 @@
 <script lang="ts">
 import { page } from "$app/state"
-import { getPosts } from "$lib/utils/posts"
+import { getPosts } from "$lib/posts"
 import type { BlogPost } from "../../types"
 
 const props = $props<{

@@ -21,7 +21,7 @@ const {
 	onmouseleave?: () => void
 }>()
 
-import { getTagClasses } from "$lib/state/tags.svelte"
+import { getTagClasses } from "$lib/tags"
 const tagClasses = getTagClasses(tag)
 
 const formattedDate = $derived(
