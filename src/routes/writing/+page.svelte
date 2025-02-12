@@ -3,8 +3,8 @@ import CompactCard from "$lib/components/CompactCard.svelte"
 import type { BlogPost } from "../../types"
 import type { PageData } from "./$types"
 
-const props = $props<{ data: PageData }>()
-const posts: BlogPost[] = $derived(props.data.posts)
+const { data } = $props<{ data: PageData }>()
+const posts: BlogPost[] = data.posts
 
 let selectedPost = $state<string | null>(null)
 let hoveredPost = $state<string | null>(null)

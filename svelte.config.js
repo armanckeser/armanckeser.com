@@ -11,9 +11,6 @@ const config = {
 		vitePreprocess(),
 		mdsvex({
 			extensions: [".svx", ".md"],
-			layout: {
-				writing: "src/routes/writing/_layout.svelte",
-			},
 		}),
 	],
 

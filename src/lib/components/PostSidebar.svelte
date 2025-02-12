@@ -1,6 +1,7 @@
 <script lang="ts">
-import { page } from "$app/state"
 import { getPosts } from "$lib/posts"
+
+const { currentSlug } = $props<{ currentSlug: string }>()
 
 const posts = getPosts()
 
@@ -11,17 +12,18 @@ const formatDate = (date: string) =>
 	})
 </script>
 
+
 <aside
   class="space-y-4 lg:border-l lg:border-border/40 dark:lg:border-border/30 lg:pl-8"
 >
   <h3
     class="mb-4 font-mono text-sm text-muted-foreground dark:text-muted-foreground"
   >
-    More posts
+    More posts {currentSlug}
   </h3>
 
   {#each posts as post}
-    {#if post.slug !== page.url.pathname}
+    {#if post.slug !== currentSlug}
       <a
         href={post.slug}
         class="group flex items-center justify-between py-2 text-primary dark:text-primary transition-colors hover:text-accent dark:hover:text-accent"
