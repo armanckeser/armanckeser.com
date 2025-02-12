@@ -160,7 +160,7 @@ function handleKeydown(e: KeyboardEvent) {
 }
 </script>
 
-<div class="relative flex items-center gap-2 group flex-1 font-mono text-sm max-w-[30rem]">
+<div class="hidden sm:inline-flex items-center gap-2 group flex-1 font-mono text-sm max-w-[30rem]">
 	<!-- Shell prompt -->
 	<div class="shrink-0 text-blue-600 dark:text-blue-400">
 		❯

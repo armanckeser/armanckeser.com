@@ -39,9 +39,9 @@ const formattedDate = $derived(
 </svelte:head>
 
 <article 
-	class="px-4 sm:mx-auto py-12 sm:py-16 flex flex-col lg:flex-row"
+	class="px-4 py-12 sm:py-16 flex flex-col lg:flex-row gap-4 justify-between"
 >
-    <div class="prose prose-lg prose-invert max-w-none pl-9 
+    <div class="prose max-w-[100ch] prose-lg prose-invert prose-slate
         hover:prose-a:text-accent prose-a:transition-colors prose-a:duration-300
         prose-pre:bg-background/50 prose-pre:border prose-pre:border-accent/20
         prose-headings:text-primary prose-headings:font-mono
@@ -53,7 +53,7 @@ const formattedDate = $derived(
 
     <div 
         role="complementary"
-        class="w-[19rem]"
+        class="md:w-[19rem]"
     >
         <PostSidebar />
     </div>
