@@ -1,7 +1,6 @@
 <script lang="ts">
 import { getPosts } from "$lib/posts"
-
-const { currentSlug } = $props<{ currentSlug: string }>()
+import { page } from "$app/state"
 
 const posts = getPosts()
 
@@ -10,8 +9,17 @@ const formatDate = (date: string) =>
 		month: "short",
 		day: "numeric",
 	})
-</script>
 
+// Helper function to normalize paths by removing extra dots, hashes, and query params
+const normalizePath = (path: string) => {
+	// Remove any trailing dots
+	let normalized = path.replace(/\.+/g, "")
+	// Remove hash and query parameters
+	normalized = normalized.split(/[#?]/)[0]
+	// Remove any remaining consecutive dots
+	return normalized.replace(/\.+/g, "")
+}
+</script>
 
 <aside
   class="space-y-4 lg:border-l lg:border-border/40 dark:lg:border-border/30 lg:pl-8"
@@ -19,11 +27,11 @@ const formatDate = (date: string) =>
   <h3
     class="mb-4 font-mono text-sm text-muted-foreground dark:text-muted-foreground"
   >
-    More posts {currentSlug}
+    More posts
   </h3>
 
   {#each posts as post}
-    {#if post.slug !== currentSlug}
+    {#if normalizePath(post.slug) !== normalizePath(page.url.pathname)}
       <a
         href={post.slug}
         class="group flex items-center justify-between py-2 text-primary dark:text-primary transition-colors hover:text-accent dark:hover:text-accent"

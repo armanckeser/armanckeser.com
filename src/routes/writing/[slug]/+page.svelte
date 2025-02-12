@@ -71,14 +71,20 @@ const formattedDate = $derived(
 	</header>
 
 
-	<div class="prose prose-lg dark:prose-invert hover:prose-a:text-accent prose-a:transition-colors prose-a:duration-300 prose-a:ease-[cubic-bezier(0.25,0.1,0.25,1.5)]">
-		<data.content />
-	</div>
+    <div class="prose prose-lg prose-invert max-w-none pl-9 
+        hover:prose-a:text-accent prose-a:transition-colors prose-a:duration-300
+        prose-pre:bg-background/50 prose-pre:border prose-pre:border-accent/20
+        prose-headings:text-primary prose-headings:font-mono
+        prose-code:text-accent prose-code:font-mono
+        prose-strong:text-primary prose-strong:font-normal
+        prose-blockquote:border-accent/40 prose-blockquote:text-accent/80">
+        <data.content />
+    </div>
 
 	<div 
 		class="fixed right-[max(0px,calc(50%-45rem))] top-[3.8125rem] hidden w-[19rem] xl:block"
 		role="complementary"
 	>
-		<PostSidebar currentSlug={data.meta.slug} />
+		<PostSidebar />
 	</div>
 </article>
