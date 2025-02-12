@@ -6,11 +6,16 @@ import Card from "$lib/components/Card.svelte"
 import ContentSection from "$lib/components/ContentSection.svelte"
 import type { PageData } from "./$types"
 import ExternalLink from "$lib/components/ExternalLink.svelte"
-
+import type { Tag } from "$lib/tags"
 const props = $props<{ data: PageData }>()
 const posts = $derived(props.data.posts)
 
-const projects = [
+const projects: {
+	title: string
+	description: string
+	tag: Tag
+	stars: number
+}[] = [
 	{
 		title: "YouTube History",
 		description: "Analyze and visualize your YouTube watching patterns",
