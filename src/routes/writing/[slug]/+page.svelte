@@ -39,52 +39,22 @@ const formattedDate = $derived(
 </svelte:head>
 
 <article 
-	class="relative px-4 sm:mx-auto max-w-3xl py-12 sm:py-16"
+	class="px-4 sm:mx-auto py-12 sm:py-16 flex flex-col lg:flex-row"
 >
-	<header class="mb-12 space-y-6 border-b border-border/40 pb-8">
-		<div class="flex items-baseline gap-3 font-mono text-accent">
-			<span class="text-lg">$</span>
-			<h1 class="text-4xl font-bold tracking-tight text-primary">
-				{data.meta.title}
-			</h1>
-		</div>
-
-		<div class="flex flex-wrap gap-4 text-muted-foreground">
-			{#if formattedDate}
-				<div class="flex items-center gap-2">
-					<span class="h-px w-8 bg-accent/20"></span>
-					<time datetime={data.meta.date} class="text-sm">
-						{formattedDate}
-					</time>
-				</div>
-			{/if}
-			
-			{#if data.meta.description}
-				<div class="flex items-center gap-2">
-					<span class="h-px w-8 bg-accent/20"></span>
-					<p class="text-sm italic">
-						{data.meta.description}
-					</p>
-				</div>
-			{/if}
-		</div>
-	</header>
-
-
     <div class="prose prose-lg prose-invert max-w-none pl-9 
         hover:prose-a:text-accent prose-a:transition-colors prose-a:duration-300
         prose-pre:bg-background/50 prose-pre:border prose-pre:border-accent/20
         prose-headings:text-primary prose-headings:font-mono
         prose-code:text-accent prose-code:font-mono
         prose-strong:text-primary prose-strong:font-normal
-        prose-blockquote:border-accent/40 prose-blockquote:text-accent/80">
+        prose-blockquote:border-accent/40 prose-blockquote:text-accent/80 flex-1">
         <data.content />
     </div>
 
-	<div 
-		class="fixed right-[max(0px,calc(50%-45rem))] top-[3.8125rem] hidden w-[19rem] xl:block"
-		role="complementary"
-	>
-		<PostSidebar />
-	</div>
+    <div 
+        role="complementary"
+        class="w-[19rem]"
+    >
+        <PostSidebar />
+    </div>
 </article>
