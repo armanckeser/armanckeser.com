@@ -1,17 +1,8 @@
 <script lang="ts">
 import { page } from "$app/state"
 import { getPosts } from "$lib/posts"
-import type { BlogPost } from "../../types"
 
-const props = $props<{
-	currentSlug?: string
-}>()
-
-let posts = $state<BlogPost[]>([])
-
-$effect(() => {
-	posts = getPosts()
-})
+const posts = getPosts()
 
 const formatDate = (date: string) =>
 	new Date(date).toLocaleDateString("en-US", {
