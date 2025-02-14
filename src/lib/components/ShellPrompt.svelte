@@ -44,7 +44,9 @@ $effect(() => {
     >
       <!-- Left section -->
       <div class="flex flex-row gap-2 items-center">
-          <Computer class="h-4 w-4" aria-hidden="true" />
+          <a href="/" aria-label="Go to home">
+            <Computer class="h-4 w-4" aria-hidden="true" />
+          </a>
           <span class="text-accent" aria-hidden="true">│</span>
           <Breadcrumbs />
       </div>
