@@ -2,6 +2,7 @@
 import { base } from "$app/paths"
 import { page } from "$app/state"
 import { cn } from "$lib/utils"
+import { toggleMode } from "mode-watcher"
 
 const segments = $derived(() => {
 	const parts = page.url.pathname.split("/").filter(Boolean)
@@ -31,9 +32,17 @@ const segments = $derived(() => {
 </script>
 
 <nav class="flex text-nowrap items-center space-x-2 font-mono text-sm">
-  <div class="glass h-6 w-6 rounded-full p-1">
-    <div class="h-full w-full rounded-full bg-accent"></div>
-  </div>
+  <button
+    class="group glass h-6 w-6 rounded-full p-1 transition-all duration-300 hover:bg-accent/10"
+    onclick={toggleMode}
+    aria-label="Toggle theme"
+  >
+	<div
+	class="h-full w-full rounded-full bg-accent 
+			transition-colors duration-300 
+			group-hover:brightness-110"
+	></div>
+  </button>
   
   {#each segments() as segment, index}
     <span class="text-muted-foreground">/</span>
