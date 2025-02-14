@@ -120,6 +120,11 @@ const config: Config = {
 				"in-expo": "cubic-bezier(0.95, 0.05, 0.795, 0.035)",
 				"out-expo": "cubic-bezier(0.19, 1, 0.22, 1)",
 			},
+			spacing: {
+				paragraph: "1.2em",
+				heading: "1.8rem",
+				block: "2.5rem",
+			},
 		},
 	},
 	plugins: [typography, animate],

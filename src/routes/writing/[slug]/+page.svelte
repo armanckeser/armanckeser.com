@@ -57,7 +57,7 @@ const getTagClasses = (tag: string) => {
 
 <!-- Reading progress bar -->
 <div class="sticky top-14 z-10 bg-background/80 backdrop-blur border-b border-accent/10">
-    <div class="container px-4">
+    <div>
         <div class="h-1 bg-accent/5">
             <div 
                 class="h-full bg-accent/30 transition-all duration-100" 
@@ -65,7 +65,7 @@ const getTagClasses = (tag: string) => {
                 aria-hidden="true"
             ></div>
         </div>
-        <div class="font-mono text-xs text-muted-foreground py-1.5 flex items-center gap-2">
+        <div class="font-mono text-xs text-muted-foreground px-4 py-1.5 flex items-center gap-2">
             <Clock class="h-3 w-3" />
             <span>READING [{scrollProgress}%]</span>
         </div>
@@ -73,9 +73,9 @@ const getTagClasses = (tag: string) => {
 </div>
 
 <article 
-	class="container px-4 py-12 sm:py-16 flex flex-col lg:flex-row gap-8 justify-between"
+	class="container justify-around p-4 flex flex-col lg:flex-row gap-8"
 >
-    <div class="flex-1 max-w-[100ch]">
+    <div class="flex-1 max-w-[65ch] lg:max-w-[75ch] xl:max-w-[85ch]">
         <!-- Terminal-style header -->
         <div class="font-mono border-b border-accent/20 pb-4 mb-8">
             <div class="text-sm text-muted-foreground flex items-center gap-4">
@@ -89,15 +89,16 @@ const getTagClasses = (tag: string) => {
         </div>
 
         <!-- Article content with enhanced terminal styling -->
-        <div class="prose max-w-none prose-lg prose-invert 
-            hover:prose-a:text-accent prose-a:transition-colors prose-a:duration-300
-            prose-pre:bg-background/50 prose-pre:border prose-pre:border-accent/20
-            prose-headings:text-primary prose-headings:font-mono prose-headings:before:content-['#_']
-            prose-code:text-accent prose-code:font-mono
-            prose-strong:text-primary prose-strong:font-normal
-            prose-blockquote:border-l-4 prose-blockquote:border-accent/40 prose-blockquote:text-accent/80
-            prose-blockquote:pl-4 prose-blockquote:italic
-            prose-li:text-primary">
+        <div class="prose dark:prose-invert max-w-none prose-lg 
+        hover:prose-a:text-accent prose-a:transition-colors prose-a:duration-300
+        prose-pre:border prose-pre:border-accent/20 prose-pre:bg-background/5 prose-pre:rounded-lg prose-pre:shadow-sm prose-pre:overflow-x-auto
+        prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:font-mono prose-code:text-sm prose-code:text-primary
+        prose-headings:font-heading prose-headings:tracking-tight prose-headings:before:content-['#_']
+        prose-strong:text-primary prose-strong:font-semibold
+        prose-blockquote:border-l-4 prose-blockquote:border-accent/40 
+        prose-blockquote:pl-4 prose-blockquote:bg-background/10 prose-blockquote:rounded-r
+        prose-li:text-primary prose-li:leading-snug
+        prose-lead:text-muted-foreground/80">
             <data.content />
         </div>
 

@@ -43,8 +43,8 @@
 		--background: 240 10% 3.9%;
 		--foreground: 0 0% 98%;
 
-		--muted: 240 3.7% 15.9%;
-		--muted-foreground: 240 5% 64.9%;
+		--muted: 240 3.7% 18.9%;
+		--muted-foreground: 240 5% 74.9%;
 
 		--popover: 240 10% 3.9%;
 		--popover-foreground: 0 0% 98%;
@@ -112,7 +112,7 @@
 	}
 
 	p {
-		@apply leading-relaxed text-muted-foreground;
+		@apply leading-relaxed text-muted-foreground/90;
 	}
 
 	.mono {
@@ -224,4 +224,9 @@
 .terminal-rating::before {
 	content: "★";
 	@apply text-accent;
+}
+
+.prose code {
+	--tw-prose-code-bg: hsl(var(--accent)/0.1);
+	--tw-prose-code: hsl(var(--accent-foreground));
 }
