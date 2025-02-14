@@ -1,7 +1,7 @@
 ---
 title: "Building Habit-Forming Products: Notes from Hooked"
 description: "Key insights from Nir Eyal's framework for building products that stick"
-date: "2024-03-15"
+date: "2025-02-14"
 ---
 
 # The Hook Model: A Framework for Habit Formation

@@ -1,7 +1,7 @@
 ---
 title: "ADHD-Friendly Productivity Systems That Actually Work"
 description: "Practical strategies for managing focus, time, and energy with ADHD"
-date: "2024-03-10"
+date: "2025-02-14"
 ---
 
 # Building a Productivity System for the ADHD Brain
