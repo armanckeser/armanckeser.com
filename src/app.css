@@ -173,3 +173,55 @@
 :focus-visible {
 	@apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
 }
+
+/* Base terminal styling */
+.terminal-block {
+	@apply font-mono text-sm border border-accent/20 rounded-lg bg-background/50;
+	counter-reset: line;
+}
+
+/* Status bar header (for code/files) */
+.terminal-block[data-variant="code"]::before {
+	content: attr(data-filename);
+	@apply flex items-center justify-between px-4 py-2 border-b border-accent/20 text-muted-foreground text-sm;
+}
+
+/* Generic content variants */
+.terminal-block[data-variant="tip"] {
+	@apply border-l-4 border-accent/30 pl-4 bg-background/10;
+}
+
+.terminal-block[data-variant="warning"] {
+	@apply border-l-4 border-red-400/30 pl-4 bg-red-400/5;
+}
+
+.terminal-block[data-variant="quote"] {
+	@apply border-l-4 border-muted-foreground/20 pl-4 bg-background/10;
+}
+
+/* Interactive elements */
+.terminal-copy {
+	@apply absolute right-3 top-3 opacity-0 transition-opacity hover:text-accent cursor-pointer;
+	@apply px-2 py-1 text-xs border border-accent/20 rounded-md bg-background/80 backdrop-blur;
+}
+
+/* Line numbers (toggle with data-lines) */
+.terminal-block[data-lines="true"] .line::before {
+	counter-increment: line;
+	content: counter(line);
+	@apply mr-4 w-4 inline-block text-right text-xs text-muted-foreground;
+}
+
+/* Book/movie review specific */
+.terminal-block[data-variant="review"] {
+	@apply border-l-4 border-highlight/20 pl-4 bg-highlight/5;
+}
+
+.terminal-rating {
+	@apply inline-flex items-center gap-1 px-2 py-1 rounded-md bg-background/80 border border-accent/20;
+}
+
+.terminal-rating::before {
+	content: "★";
+	@apply text-accent;
+}
