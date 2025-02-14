@@ -112,6 +112,7 @@ class DropdownState {
 // State instances
 const commandState = new CommandState()
 const dropdown = new DropdownState(commandState)
+$inspect(dropdown.isVisible)
 
 $effect(() => {
 	const update = () => commandState.updateSelection()
@@ -160,106 +161,107 @@ function handleKeydown(e: KeyboardEvent) {
 }
 </script>
 
-<div class="hidden sm:inline-flex items-center gap-2 group flex-1 font-mono text-sm max-w-[30rem]">
-	<!-- Shell prompt -->
-	<div class="shrink-0 text-blue-600 dark:text-blue-400">
-		❯
-	</div>
+<div
+  class="hidden sm:flex items-center gap-2 flex-1 font-mono text-sm max-w-[30rem]"
+>
+  <!-- Shell prompt -->
+  <div class="shrink-0 text-blue-600 dark:text-blue-400">❯</div>
 
-	<div
-		bind:this={commandState.ref}
-		role="textbox"
-		tabindex="-1"
-		aria-haspopup="listbox"
-		aria-controls="command-suggestions"
-		class={cn(
-			// Layout and positioning
-			'caret-container relative flex-1 outline-none min-h-[1.5em] whitespace-nowrap text-nowrap inline-block line-height-[1.2em]',
+  <div class="flex flex-col">
+    <div
+      bind:this={commandState.ref}
+      role="textbox"
+      tabindex="-1"
+      aria-haspopup="listbox"
+      aria-controls="command-suggestions"
+      class={cn(
+        // Layout and positioning
+        'caret-container relative flex-1 outline-none min-h-[1.5em] whitespace-nowrap text-nowrap block line-height-[1.2em]',
 
-			'focus:[box-shadow:none]',
+        'focus:[box-shadow:none]',
 
-			// Text colors
-			'text-foreground dark:text-foreground',
+        // Text colors
+        'text-foreground dark:text-foreground',
 
-			// Placeholder
-			'empty:before:content-[attr(placeholder)] before:text-muted-foreground',
-			'before:opacity-100 empty:focus:before:content-[""]',
+        // Placeholder
+        'empty:before:content-[attr(placeholder)] before:text-muted-foreground',
+        'before:opacity-100 empty:focus:before:content-[""]',
 
-			// Cursor
-			commandState.needsBlinkingCursor ? 'focus:after:inline' : 'focus:after:hidden  caret-accent',
-			
-			'focus:after:animate-[blink_1s_step-end_infinite] focus:after:content-[""] focus:after:absolute focus:after:top-[0.2em] focus:after:w-[0.6em] focus:after:h-[1.2em] focus:after:bg-accent',
+        // Cursor
+        commandState.needsBlinkingCursor
+          ? 'focus:after:inline'
+          : 'focus:after:hidden  caret-accent',
 
-			// Add these to prevent <br> insertion
-			'[&>br]:hidden',
-		)}
-		contenteditable="true"
-		placeholder="type a command..."
-		spellcheck={false}
-		onkeydown={handleKeydown}
-		oncompositionstart={() => (commandState.isComposing = true)}
-		oncompositionend={() => (commandState.isComposing = false)}
-		onblur={() => {
-			dropdown.hide()
-			// to fix a stupid bug where the browser inserts a <br> when the input is empty
-			if (commandState.ref.textContent?.trim() === "") {
-				commandState.ref.innerHTML = ""
-			}
-		}}
-		oninput={() => {
-			commandState.full_command = commandState.ref.textContent?.trim() || ""
-		}}
-	>
-	</div>
-	{#if dropdown.isVisible}
-		<div
-			class={cn(
-				"flex flex-col",
-				// Positioning
-				"fixed sm:absolute left-0 top-full z-50",
-				"sm:mx-auto",
-				// Sizing
-				"w-[100vw] sm:w-full sm:min-w-[25rem] sm:max-w-[60vw] overflow-y-auto overflow-x-auto",
-				// Borders and shadows
-				"border border-border shadow-lg",
-				// Background and text
-				"bg-background font-mono text-sm",
-			)}
-		>
-			{#each dropdown.filteredCommands as [command, handler], i}
-				<button
-					class={cn(
-						// Layout
-						"flex items-center w-full px-4 py-2",
-						// Interaction
-						"cursor-pointer transition-colors",
-						// Hover state
-						"hover:bg-accent/10 hover:text-accent-foreground",
-						// Selected state
-						i === dropdown.selectedIndex 
-							? "bg-accent/20 text-accent-foreground border-l-4 border-accent" 
-							: "bg-transparent",
-						// Animation
-						"duration-200 ease-in-out"
-					)}
-				>
-					<span class="text-primary">{command}</span>
-					<div class="flex-1 mx-2 border-b border-border"></div>
-					<span class="text-right text-muted-foreground">{handler.help}</span>
-				</button>
-			{/each}
-		</div>
-	{/if}
+        'focus:after:animate-[blink_1s_step-end_infinite] focus:after:content-[""] focus:after:absolute focus:after:top-[0.2em] focus:after:w-[0.6em] focus:after:h-[1.2em] focus:after:bg-accent',
+
+        // Add these to prevent <br> insertion
+        '[&>br]:hidden',
+      )}
+      contenteditable="true"
+      placeholder="type a command..."
+      spellcheck={false}
+      onkeydown={handleKeydown}
+      oncompositionstart={() => (commandState.isComposing = true)}
+      oncompositionend={() => (commandState.isComposing = false)}
+      onblur={() => {
+        dropdown.hide();
+        // to fix a stupid bug where the browser inserts a <br> when the input is empty
+        if (commandState.ref.textContent?.trim() === '') {
+          commandState.ref.innerHTML = '';
+        }
+      }}
+      oninput={() => {
+        commandState.full_command = commandState.ref.textContent?.trim() || '';
+      }}
+    ></div>
+    {#if dropdown.isVisible}
+      <div
+        class={cn(
+          'flex flex-col',
+          // Positioning
+          'absolute top-full z-50',
+          // Sizing
+          'w-[100vw] sm:min-w-[25rem] sm:max-w-40 overflow-y-auto overflow-x-auto',
+          // Borders and shadows
+          'border border-border shadow-lg',
+          // Background and text
+          'bg-background font-mono text-sm',
+        )}
+      >
+        {#each dropdown.filteredCommands as [command, handler], i}
+          <button
+            class={cn(
+              // Layout
+              'flex items-center w-full px-4 py-2',
+              // Interaction
+              'cursor-pointer transition-colors',
+              // Hover state
+              'hover:bg-accent/10 hover:text-accent-foreground',
+              // Selected state
+              i === dropdown.selectedIndex
+                ? 'bg-accent/20 text-accent-foreground border-l-4 border-accent'
+                : 'bg-transparent',
+              // Animation
+              'duration-200 ease-in-out',
+            )}
+          >
+            <span class="text-primary">{command}</span>
+            <div class="flex-1 mx-2 border-b border-border"></div>
+            <span class="text-right text-muted-foreground">{handler.help}</span>
+          </button>
+        {/each}
+      </div>
+    {/if}
+  </div>
 </div>
 
-
 <style>
-	.caret-container {
-		box-shadow: none;
-		caret-color: transparent;
-	}
+  .caret-container {
+    box-shadow: none;
+    caret-color: transparent;
+  }
 
-	div {
-		scrollbar-width: none;
-	}
+  div {
+    scrollbar-width: none;
+  }
 </style>
