@@ -1,6 +1,6 @@
 <script lang="ts">
-import { page } from "$app/state"
 import { base } from "$app/paths"
+import { page } from "$app/state"
 import { cn } from "$lib/utils"
 
 const segments = $derived(() => {

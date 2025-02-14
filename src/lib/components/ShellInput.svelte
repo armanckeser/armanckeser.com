@@ -87,8 +87,12 @@ class DropdownState {
 		this.hide()
 	}
 
-	show = () => (this.isVisible = true)
-	hide = () => (this.isVisible = false)
+	show = () => {
+		this.isVisible = true
+	}
+	hide = () => {
+		this.isVisible = false
+	}
 
 	incrementIndex = () => {
 		this.selectedIndex =

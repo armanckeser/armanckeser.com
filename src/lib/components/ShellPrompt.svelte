@@ -1,10 +1,10 @@
 <!-- Combined terminal header with shell prompt functionality -->
 <script lang="ts">
-import { toggleMode } from "mode-watcher"
-import { GitBranch, ChevronUp, Clock, Computer } from "lucide-svelte"
-import ShellInput from "./ShellInput.svelte"
-import Breadcrumbs from "./Breadcrumbs.svelte"
 import { cn } from "$lib/utils"
+import { ChevronUp, Clock, Computer, GitBranch } from "lucide-svelte"
+import { toggleMode } from "mode-watcher"
+import Breadcrumbs from "./Breadcrumbs.svelte"
+import ShellInput from "./ShellInput.svelte"
 
 // Time management
 let currentTime = $state<string>("00:00:00")

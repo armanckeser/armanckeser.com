@@ -15,7 +15,7 @@ const {
 	href?: string
 }>()
 
-import { getTagClasses, type Tag } from "$lib/tags"
+import { type Tag, getTagClasses } from "$lib/tags"
 const tagClasses = getTagClasses(tag)
 
 const Component = $derived(href ? "a" : "div")

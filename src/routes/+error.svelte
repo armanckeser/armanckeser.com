@@ -1,6 +1,6 @@
 <script lang="ts">
-import PostSidebar from "$lib/components/PostSidebar.svelte"
 import { page } from "$app/state"
+import PostSidebar from "$lib/components/PostSidebar.svelte"
 
 const errorData = $derived({
 	status: page.status,

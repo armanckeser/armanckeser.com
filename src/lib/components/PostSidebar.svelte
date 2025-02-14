@@ -1,6 +1,6 @@
 <script lang="ts">
-import { getPosts } from "$lib/posts"
 import { page } from "$app/state"
+import { getPosts } from "$lib/posts"
 
 const posts = getPosts()
 

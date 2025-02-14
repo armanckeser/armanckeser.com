@@ -1,7 +1,7 @@
 <script lang="ts">
 import PostSidebar from "$lib/components/PostSidebar.svelte"
-import { Clock, GitBranch } from "lucide-svelte"
 import { cn } from "$lib/utils"
+import { Clock, GitBranch } from "lucide-svelte"
 import { scrollY } from "svelte/reactivity/window"
 import type { PageData } from "./$types"
 

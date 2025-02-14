@@ -4,9 +4,9 @@
 <script lang="ts">
 import Card from "$lib/components/Card.svelte"
 import ContentSection from "$lib/components/ContentSection.svelte"
-import type { PageData } from "./$types"
 import ExternalLink from "$lib/components/ExternalLink.svelte"
 import type { Tag } from "$lib/tags"
+import type { PageData } from "./$types"
 const props = $props<{ data: PageData }>()
 const posts = $derived(props.data.posts)
 

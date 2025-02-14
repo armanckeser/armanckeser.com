@@ -90,7 +90,13 @@
 				"useValidTypeof": "error"
 			}
 		},
-		"ignore": ["build/", ".svelte-kit/", "dist/", ".vscode/"]
+		"ignore": [
+			"build/",
+			".svelte-kit/",
+			"dist/",
+			".vscode/",
+			"node_modules/"
+		]
 	},
 	"javascript": {
 		"formatter": {
@@ -239,11 +245,17 @@
 			"include": ["*.svelte"],
 			"linter": {
 				"rules": {
-					"correctness": { "noUnusedVariables": "off" },
-					"style": { "useConst": "off" }
+					"correctness": {
+						"noUnusedVariables": "off"
+					},
+					"style": {
+						"useConst": "off"
+					}
 				}
 			}
 		},
-		{ "include": ["*.svelte"] }
+		{
+			"include": ["*.svelte"]
+		}
 	]
 }

@@ -1,7 +1,7 @@
 <script lang="ts">
 import "../app.css"
-import { ModeWatcher } from "mode-watcher"
 import ShellPrompt from "$lib/components/ShellPrompt.svelte"
+import { ModeWatcher } from "mode-watcher"
 
 const { children } = $props()
 </script>

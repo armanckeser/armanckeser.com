@@ -8,7 +8,7 @@ commands.set("cd", {
 	execute: async (path: string) => {
 		goto(path)
 	},
-	complete: (input: string) => {
+	complete: (_input: string) => {
 		// TODO: Implement path completion
 		return []
 	},
@@ -20,7 +20,7 @@ commands.set("ls", {
 		// TODO: Implement ls command
 		return []
 	},
-	complete: (input: string) => {
+	complete: (_input: string) => {
 		// TODO: Implement path completion
 		return []
 	},

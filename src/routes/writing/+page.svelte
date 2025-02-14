@@ -1,8 +1,8 @@
 <script lang="ts">
+import { preloadCode, preloadData } from "$app/navigation"
 import CompactCard from "$lib/components/CompactCard.svelte"
 import type { BlogPost } from "../../types"
 import type { PageData } from "./$types"
-import { preloadData, preloadCode } from "$app/navigation"
 
 const { data } = $props<{ data: PageData }>()
 const posts: BlogPost[] = data.posts
