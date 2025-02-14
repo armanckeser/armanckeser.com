@@ -7,7 +7,7 @@ import type { PageData } from "./$types"
 const { data } = $props<{ data: PageData }>()
 const posts: BlogPost[] = data.posts
 
-let selectedPost = $state<string | null>(null)
+let selectedPost = $state<string | null>(posts[0].slug)
 let hoveredPost = $state<string | null>(null)
 
 function handlePostClick(slug: string) {
