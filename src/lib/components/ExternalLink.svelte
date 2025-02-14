@@ -20,4 +20,4 @@ const { href, label, icon } = $props<{
     class="font-mono text-xs text-muted-foreground transition-colors group-hover:text-accent"
     >↗</span
   >
-</a> 
+</a>

@@ -112,7 +112,6 @@ class DropdownState {
 // State instances
 const commandState = new CommandState()
 const dropdown = new DropdownState(commandState)
-$inspect(dropdown.isVisible)
 
 $effect(() => {
 	const update = () => commandState.updateSelection()

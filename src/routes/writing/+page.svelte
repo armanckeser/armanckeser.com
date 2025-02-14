@@ -2,6 +2,7 @@
 import CompactCard from "$lib/components/CompactCard.svelte"
 import type { BlogPost } from "../../types"
 import type { PageData } from "./$types"
+import { preloadData, preloadCode } from "$app/navigation"
 
 const { data } = $props<{ data: PageData }>()
 const posts: BlogPost[] = data.posts
@@ -16,6 +17,14 @@ function handlePostClick(slug: string) {
 function handlePostHover(slug: string | null) {
 	hoveredPost = slug
 }
+
+// Preload data and code when a post is selected
+$effect(() => {
+	if (selectedPost) {
+		preloadData(selectedPost)
+		preloadCode(selectedPost)
+	}
+})
 
 $effect(() => {
 	const handleKeydown = (e: KeyboardEvent) => {
@@ -67,13 +76,23 @@ $effect(() => {
 
 <div class="relative mx-auto max-w-3xl px-2 sm:px-4 py-12 sm:py-16">
   <header class="mb-8 space-y-4">
-    <div class="flex items-center gap-2 font-mono text-lg text-muted-foreground">
+    <div
+      class="flex items-center gap-2 font-mono text-lg text-muted-foreground"
+    >
       <span>$</span>
       <span class="text-primary">~/writing</span>
       <span class="animate-pulse text-accent">▋</span>
     </div>
     <p class="font-mono text-base text-muted-foreground">
-      Product insights, book notes, and learnings. <br>Use <kbd class="px-1.5 py-0.5 text-xs bg-accent/10 rounded">j</kbd>/<kbd class="px-1.5 py-0.5 text-xs bg-accent/10 rounded">k</kbd> or <kbd class="px-1.5 py-0.5 text-xs bg-accent/10 rounded">↑</kbd>/<kbd class="px-1.5 py-0.5 text-xs bg-accent/10 rounded">↓</kbd> to navigate, <kbd class="px-1.5 py-0.5 text-xs bg-accent/10 rounded">Enter</kbd> to read.
+      Product insights, book notes, and learnings. <br />Use
+      <kbd class="px-1.5 py-0.5 text-xs bg-accent/10 rounded">j</kbd>/<kbd
+        class="px-1.5 py-0.5 text-xs bg-accent/10 rounded">k</kbd
+      >
+      or <kbd class="px-1.5 py-0.5 text-xs bg-accent/10 rounded">↑</kbd>/<kbd
+        class="px-1.5 py-0.5 text-xs bg-accent/10 rounded">↓</kbd
+      >
+      to navigate,
+      <kbd class="px-1.5 py-0.5 text-xs bg-accent/10 rounded">Enter</kbd> to read.
     </p>
   </header>
 
