@@ -12,7 +12,7 @@
 		"lint": "biome check .",
 		"format": "biome format --fix .",
 		"deploy": "bun run build && bunx gh-pages -d build -t true && bun run post-deploy",
-		"post-deploy": "echo https://armanckeser.github.io/new/",
+		"post-deploy": "echo https://armanckeser.com/",
 		"prepare": "husky",
 		"precommit": "lint-staged"
 	},
@@ -55,6 +55,8 @@
 		"zod": "^3.24.1"
 	},
 	"lint-staged": {
-		"*.{ts,js,svelte}": ["biome format --fix"]
+		"*.{ts,js,svelte}": [
+			"biome format --fix"
+		]
 	}
 }
