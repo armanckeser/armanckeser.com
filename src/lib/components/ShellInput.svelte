@@ -128,7 +128,6 @@ function handleKeydown(e: KeyboardEvent) {
 
 	switch (e.key) {
 		case "Tab":
-		case "Shift+Tab":
 		case "ArrowDown":
 		case "ArrowUp": {
 			e.preventDefault()
@@ -136,12 +135,17 @@ function handleKeydown(e: KeyboardEvent) {
 				dropdown.show()
 				break
 			}
-			e.key === "Tab" || e.key === "ArrowDown"
-				? dropdown.incrementIndex()
-				: dropdown.decrementIndex()
+
+			// Handle navigation direction
+			if (e.shiftKey || e.key === "ArrowUp") {
+				dropdown.decrementIndex()
+			} else {
+				dropdown.incrementIndex()
+			}
+
+			// Update command and cursor position
 			const command = dropdown.filteredCommands[dropdown.selectedIndex][0]
 			commandState.ref.textContent = command
-			// Move cursor to end of input
 			const range = document.createRange()
 			const selection = window.getSelection()
 			range.selectNodeContents(commandState.ref)
