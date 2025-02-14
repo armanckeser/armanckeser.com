@@ -6,8 +6,7 @@ export const commands: CommandRegistry = new Map()
 // cd command implementation
 commands.set("cd", {
 	execute: async (path: string) => {
-		await goto(path)
-		return
+		goto(path)
 	},
 	complete: (input: string) => {
 		// TODO: Implement path completion
@@ -26,4 +25,11 @@ commands.set("ls", {
 		return []
 	},
 	help: "List possible pages. Usage: ls",
+})
+
+commands.set("rss", {
+	execute: async () => {
+		goto("/rss.xml")
+	},
+	help: "Show RSS feed. Usage: rss",
 })
