@@ -89,16 +89,16 @@ const getTagClasses = (tag: string) => {
         </div>
 
         <!-- Article content with enhanced terminal styling -->
-        <div class="prose dark:prose-invert max-w-none prose-lg 
-        hover:prose-a:text-accent prose-a:transition-colors prose-a:duration-300
-        prose-pre:border prose-pre:border-accent/20 prose-pre:bg-background/5 prose-pre:rounded-lg prose-pre:shadow-sm prose-pre:overflow-x-auto
-        prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:font-mono prose-code:text-sm prose-code:text-primary
-        prose-headings:font-heading prose-headings:tracking-tight prose-headings:before:content-['#_']
-        prose-strong:text-primary prose-strong:font-semibold
-        prose-blockquote:border-l-4 prose-blockquote:border-accent/40 
-        prose-blockquote:pl-4 prose-blockquote:bg-background/10 prose-blockquote:rounded-r
-        prose-li:text-primary prose-li:leading-snug
-        prose-lead:text-muted-foreground/80">
+        <div class="prose dark:prose-invert max-w-none prose-lg
+            hover:prose-a:text-accent prose-a:transition-colors prose-a:duration-300
+            prose-headings:font-heading prose-headings:tracking-tight prose-headings:before:content-['#_']
+            prose-strong:text-primary prose-strong:font-semibold
+            prose-blockquote:border-l-4 prose-blockquote:border-accent/40 
+            prose-blockquote:pl-4 prose-blockquote:bg-background/10 prose-blockquote:rounded-r
+            prose-li:text-primary prose-li:leading-snug
+            prose-lead:text-muted-foreground/80
+            prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:font-mono prose-code:text-sm prose-code:text-primary
+            prose-pre:border prose-pre:border-accent/20 prose-pre:bg-background/5 prose-pre:rounded-lg prose-pre:shadow-sm prose-pre:overflow-x-auto">
             <data.content />
         </div>
 
