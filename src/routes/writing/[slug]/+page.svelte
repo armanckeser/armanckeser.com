@@ -88,21 +88,51 @@ const getTagClasses = (tag: string) => {
             {/if}
         </div>
 
-        <!-- Article content with enhanced terminal styling -->
+        <!-- Updated article content with consolidated Tailwind classes -->
         <div class="prose dark:prose-invert max-w-none prose-lg
-            hover:prose-a:text-accent prose-a:transition-colors prose-a:duration-300
-            prose-headings:font-heading prose-headings:tracking-tight 
+            // Base typography
+            prose-headings:font-heading prose-headings:tracking-tight
             prose-strong:text-primary prose-strong:font-semibold
-            prose-blockquote:border-l-4 prose-blockquote:border-accent/40 prose-blockquote:pl-4 prose-blockquote:bg-gradient-to-b prose-blockquote:from-background/5 prose-blockquote:to-transparent
             prose-lead:text-muted-foreground/80
-            prose-code:px-1.5 prose-code:py-1 prose-code:rounded prose-code:font-mono prose-code:text-sm prose-code:bg-background/10 prose-code:border prose-code:border-accent/20
-            prose-pre:rounded-xl prose-pre:border prose-pre:border-accent/20 prose-pre:bg-gradient-to-br prose-pre:from-background prose-pre:to-background/50 prose-pre:shadow-sm prose-pre:backdrop-blur
+            prose-p:leading-relaxed prose-p:opacity-85
+
+            // Links
+            hover:prose-a:text-accent prose-a:transition-colors prose-a:duration-300
+            [&_a]:border-b-2 [&_a]:border-accent/30 [&_a:hover]:border-accent
+
+            // Headings
+            [&_h1]:text-3xl [&_h1]:relative [&_h1]:pb-2 [&_h1]:border-b-0
+            [&_h1]:before:content-[''] [&_h1]:before:absolute [&_h1]:before:-bottom-0.5 
+            [&_h1]:before:left-0 [&_h1]:before:w-12 [&_h1]:before:h-px 
+            [&_h1]:before:bg-gradient-to-r [&_h1]:before:from-accent [&_h1]:before:to-transparent
+            prose-h2:text-2xl prose-h2:border-b prose-h2:border-accent/10 prose-h2:pb-2 prose-h2:mt-10 prose-h2:opacity-90
+            prose-h3:text-xl prose-h3:font-semibold prose-h3:opacity-80
+
+            // Code blocks
+            prose-code:px-1.5 prose-code:py-1 prose-code:rounded prose-code:font-mono 
+            prose-code:text-sm prose-code:bg-background/10 prose-code:border prose-code:border-accent/20
+            [&_pre]:p-6 [&_pre]:border-2 [&_pre>code]:bg-transparent [&_pre>code]:border-none [&_pre>code]:p-0
+            prose-pre:rounded-xl prose-pre:border prose-pre:border-accent/20 
+            prose-pre:bg-gradient-to-br prose-pre:from-background prose-pre:to-background/50 
+            prose-pre:shadow-sm prose-pre:backdrop-blur
+
+            // Lists
             prose-ul:space-y-2 prose-ol:space-y-2
-            prose-li:pl-4 prose-li:border-l prose-li:border-accent/20 prose-li:bg-gradient-to-r prose-li:from-accent/5
-            prose-li:hover:border-accent/40 prose-li:hover:from-accent/10
-            prose-h2:text-2xl prose-h2:border-b prose-h2:border-accent/10 prose-h2:pb-2
-            prose-h3:text-xl prose-h3:font-semibold
-            prose-img:rounded-xl prose-img:border prose-img:border-accent/20 prose-img:bg-background/5">
+            prose-li:relative prose-li:pl-6 prose-li:border-l-0 prose-li:bg-transparent
+            hover:prose-li:bg-accent/5 prose-li:transition-all prose-li:duration-200
+            prose-li:rounded-r hover:prose-li:translate-x-1
+            [&_li]:before:content-['▹'] [&_li]:before:absolute [&_li]:before:left-1
+            [&_li]:before:text-accent/40 hover:[&_li]:before:text-accent
+            [&_li]:before:transition-colors [&_li]:before:duration-200
+            [&_ul]:before:hidden
+
+            // Blockquotes
+            prose-blockquote:border-l-4 prose-blockquote:border-accent/40 
+            prose-blockquote:pl-4 prose-blockquote:bg-gradient-to-b 
+            prose-blockquote:from-background/5
+
+            // Images
+            prose-img:rounded-xl prose-img:border prose-img:border-accent/20">
             <data.content />
         </div>
 
@@ -129,110 +159,3 @@ const getTagClasses = (tag: string) => {
         <PostSidebar />
     </div>
 </article>
-
-<style>
-/* Dynamic color hierarchy */
-:global(.prose) {
-    --base-primary: var(--primary);
-    --base-muted: var(--muted-foreground);
-}
-
-:global(.prose h1) { 
-    color: var(--base-primary);
-    font-size: 2.5rem;
-    position: relative;
-    padding-bottom: 0.5rem;
-}
-
-:global(.prose h1::after) {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 3rem;
-    height: 2px;
-    background: linear-gradient(90deg, var(--accent), transparent);
-}
-
-:global(.prose h2) { 
-    color: var(--base-primary);
-    opacity: 0.9;
-    margin-top: 2.5rem;
-}
-
-:global(.prose h3) { 
-    color: var(--base-primary);
-    opacity: 0.8;
-}
-
-:global(.prose p) { 
-    color: var(--base-muted);
-    opacity: 0.85;
-    line-height: 1.7;
-}
-
-/* Enhanced list architecture */
-:global(.prose ul) {
-    counter-reset: list-item;
-}
-
-:global(.prose li) {
-    position: relative;
-    padding: 1rem 1.25rem;
-    margin: 0.75rem 0;
-    border-radius: 6px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    border-left-width: 3px;
-    box-shadow: 1px 1px 0px var(--background)/5;
-}
-
-:global(.prose li:hover) {
-    transform: translateX(4px);
-    box-shadow: 2px 2px 8px var(--accent)/5;
-}
-
-:global(.prose li::before) {
-    content: '▹';
-    position: absolute;
-    left: -1.25rem;
-    color: var(--accent);
-    font-size: 1.1em;
-    top: 0.9rem;
-}
-
-/* Nested list indentation */
-:global(.prose li > ul) {
-    margin-left: 1.5rem;
-    margin-top: 0.75rem;
-}
-
-:global(.prose li > ul li) {
-    border-left-style: dashed;
-    opacity: 0.9;
-}
-
-/* Code block enhancements */
-:global(.prose pre) {
-    padding: 1.5rem;
-    border-width: 1.5px;
-}
-
-:global(.prose pre code) {
-    background: transparent;
-    border: none;
-    padding: 0;
-    font-size: 0.9em;
-}
-
-/* Interactive elements */
-:global(.prose a) {
-    text-decoration: none;
-    font-weight: 500;
-    border-bottom: 1.5px solid var(--accent)/30;
-    transition: border-color 0.2s ease;
-}
-
-:global(.prose a:hover) {
-    border-bottom-color: var(--accent);
-}
-</style>
