@@ -1,14 +1,4 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-  <path d="M5 7l5 5-5 5M16 7v10"/>
-  <rect x="14" y="17" width="4" height="4" class="cursor-block"/>
-  <style>
-    .cursor-block {
-      fill: hsl(var(--accent));
-      stroke: none;
-      animation: pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-    }
-    @keyframes pulse {
-      50% { opacity: 0.5; }
-    }
-  </style>
+  <path d="M5 7l5 5-5 5"/>
+  <path d="M16 7v10" stroke="hsl(142.1, 76.2%, 36.3%)"/>
 </svg>
