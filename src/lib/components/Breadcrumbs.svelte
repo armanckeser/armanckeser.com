@@ -31,7 +31,7 @@ const segments = $derived(() => {
 })
 </script>
 
-<nav class="flex text-nowrap items-center space-x-2 font-mono text-sm">
+<nav class="flex items-center space-x-2 font-mono text-sm">
   <button
     class="group glass h-6 w-6 rounded-full p-1 transition-all duration-300 hover:bg-accent/10"
     onclick={toggleMode}
@@ -45,14 +45,14 @@ const segments = $derived(() => {
   </button>
   
   {#each segments() as segment, index}
-    <span class="text-muted-foreground">/</span>
+    <span class="text-muted-foreground leading-none">/</span>
     <a
       href={segment.href}
       class={cn(
-        'transition-colors  border-zinc-200 dark:border-zinc-800',
+        'transition-colors leading-none py-1',
         segment.isLast
           ? 'text-muted-foreground'
-          : 'border-b text-primary hover:text-accent',
+          : 'border-b border-zinc-200 dark:border-zinc-800 text-primary hover:text-accent',
       )}
     >
       {segment.text}

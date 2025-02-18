@@ -33,29 +33,29 @@ $effect(() => {
 <header
   class={cn(
     'sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur',
-    'supports-[backdrop-filter]:bg-background/75 overflow-visible',
+    'supports-[backdrop-filter]:bg-background/75',
     'transition-colors duration-300 ease-in-out',
   )}
   aria-label="Application header"
 >
-  <div class="container flex text-nowrap h-14 items-center px-4 sm:px-8">
-    <div
-      class="flex justify-between w-full flex-row gap-2 font-mono text-sm lg:items-center lg:gap-4"
-    >
-      <!-- Left section -->
-      <div class="flex flex-row gap-2 items-center">
-          <a href="/" aria-label="Go to home">
-            <Computer class="h-4 w-4" aria-hidden="true" />
-          </a>
-          <span class="text-accent" aria-hidden="true">│</span>
-          <Breadcrumbs />
+  <div class="container h-14 px-4 sm:px-8">
+    <!-- Switch to grid layout for better control -->
+    <div class="grid h-full grid-cols-[auto_1fr_auto] items-center gap-4 font-mono text-sm">
+      <!-- Left section with fixed width -->
+      <div class="flex items-center gap-2 shrink-0">
+        <a href="/" class="shrink-0" aria-label="Go to home">
+          <Computer class="h-4 w-4" aria-hidden="true" />
+        </a>
+        <span class="text-accent shrink-0" aria-hidden="true">│</span>
+        <Breadcrumbs />
       </div>
+
+      <!-- Center section with shell input -->
       <ShellInput />
-      <!-- Right section -->
-      <div class="inline-flex gap-2 items-center">
-        <div
-          class="flex items-center gap-2 text-highlight dark:text-highlight"
-        >
+
+      <!-- Right section with fixed width -->
+      <div class="flex items-center gap-2 shrink-0">
+        <div class="flex items-center gap-2 text-highlight dark:text-highlight">
           <GitBranch class="h-4 w-4" aria-hidden="true" />
           <button
             class="transition-colors hover:text-accent outline outline-[0.5px] outline-zinc-200 dark:outline-zinc-800 rounded-md px-1 py-0.5"

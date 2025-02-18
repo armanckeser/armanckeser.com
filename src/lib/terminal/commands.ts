@@ -15,18 +15,6 @@ commands.set("cd", {
 	help: "Change current page. Usage: cd [path]",
 })
 
-commands.set("ls", {
-	execute: async () => {
-		// TODO: Implement ls command
-		return []
-	},
-	complete: (_input: string) => {
-		// TODO: Implement path completion
-		return []
-	},
-	help: "List possible pages. Usage: ls",
-})
-
 commands.set("rss", {
 	execute: async () => {
 		goto("/rss.xml")

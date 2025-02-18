@@ -168,13 +168,12 @@ function handleKeydown(e: KeyboardEvent) {
 }
 </script>
 
-<div
-  class="hidden sm:flex items-center gap-2 flex-1 font-mono text-sm max-w-[30rem]"
->
+<!-- Shell input container -->
+<div class="hidden sm:flex items-center gap-2 w-full min-w-0 font-mono text-sm">
   <!-- Shell prompt -->
   <div class="shrink-0 text-blue-600 dark:text-blue-400">❯</div>
 
-  <div class="flex flex-col">
+  <div class="flex flex-col w-full min-w-0">
     <div
       bind:this={commandState.ref}
       role="textbox"
@@ -183,8 +182,7 @@ function handleKeydown(e: KeyboardEvent) {
       aria-controls="command-suggestions"
       class={cn(
         // Layout and positioning
-        'caret-container relative flex-1 outline-none min-h-[1.5em] whitespace-nowrap text-nowrap block line-height-[1.2em]',
-
+        'relative w-full min-w-0 outline-none min-h-[1.5em] whitespace-nowrap text-nowrap block line-height-[1.2em]',
         'focus:[box-shadow:none]',
 
         // Text colors
@@ -197,7 +195,7 @@ function handleKeydown(e: KeyboardEvent) {
         // Cursor
         commandState.needsBlinkingCursor
           ? 'focus:after:inline'
-          : 'focus:after:hidden  caret-accent',
+          : 'focus:after:hidden caret-accent',
 
         'focus:after:animate-[blink_1s_step-end_infinite] focus:after:content-[""] focus:after:absolute focus:after:top-[0.2em] focus:after:w-[0.6em] focus:after:h-[1.2em] focus:after:bg-accent',
 
@@ -212,7 +210,6 @@ function handleKeydown(e: KeyboardEvent) {
       oncompositionend={() => (commandState.isComposing = false)}
       onblur={() => {
         dropdown.hide();
-        // to fix a stupid bug where the browser inserts a <br> when the input is empty
         if (commandState.ref.textContent?.trim() === '') {
           commandState.ref.innerHTML = '';
         }
@@ -228,7 +225,7 @@ function handleKeydown(e: KeyboardEvent) {
           // Positioning
           'absolute top-full z-50',
           // Sizing
-          'w-[100vw] sm:min-w-[25rem] sm:max-w-40 overflow-y-auto overflow-x-auto',
+          'w-full min-w-[25rem] max-w-[40rem] overflow-y-auto overflow-x-auto',
           // Borders and shadows
           'border border-border shadow-lg',
           // Background and text

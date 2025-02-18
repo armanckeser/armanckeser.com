@@ -45,11 +45,8 @@ const projects: {
   />
 </svelte:head>
 
-<main
-  class="relative bg-background px-4 py-8 md:px-8 md:py-16 lg:px-16"
->
-
-  <div class="relative z-10 mx-auto max-w-[1200px] space-y-16">
+<main class="container mx-auto px-4 py-8 md:px-8 md:py-16">
+  <div class="max-w-[85rem] mx-auto space-y-16">
     <!-- Hero Section -->
     <section aria-label="Personal introduction" class="animate-fade-in space-y-8">
       <div class="space-y-4">
