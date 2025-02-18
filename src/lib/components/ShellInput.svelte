@@ -80,7 +80,7 @@ class CommandState {
 class DropdownState {
 	commandState: CommandState
 	isVisible = $state(false)
-	selectedIndex = $state(0)
+	selectedIndex = $state(-1)
 	filteredCommands = $derived(
 		Array.from(commands.entries()).filter(([command]) =>
 			command.startsWith(commandState.full_command)
@@ -92,7 +92,7 @@ class DropdownState {
 	}
 
 	reset = () => {
-		this.selectedIndex = 0
+		this.selectedIndex = -1
 		this.hide()
 	}
 
@@ -154,7 +154,7 @@ function handleKeydown(e: KeyboardEvent) {
 
 			// Update command and cursor position
 			const command = dropdown.filteredCommands[dropdown.selectedIndex][0]
-			commandState.updateFullCommand(command)
+			commandState.ref.innerHTML = command
 			const range = document.createRange()
 			const selection = window.getSelection()
 			range.selectNodeContents(commandState.ref)
@@ -166,6 +166,7 @@ function handleKeydown(e: KeyboardEvent) {
 
 		case "Enter": {
 			e.preventDefault()
+			commandState.updateFullCommand()
 			const handler = commands.get(commandState.command)
 			handler?.execute(...commandState.arguments)
 			commandState.reset()
@@ -173,7 +174,6 @@ function handleKeydown(e: KeyboardEvent) {
 			break
 		}
 	}
-	dropdown.clampIndex()
 }
 </script>
 
