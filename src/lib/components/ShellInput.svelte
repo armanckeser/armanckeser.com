@@ -45,6 +45,15 @@ class CommandState {
 		}
 	}
 
+	updateFullCommand = (command?: string) => {
+		if (command) {
+			this.ref.textContent = command
+		} else {
+			this.ref.textContent = this.ref.textContent?.trim() || ""
+		}
+		this.full_command = command || this.ref.textContent
+	}
+
 	updateSelection() {
 		const sel = window.getSelection()
 		if (!sel || !this.ref.contains(sel.anchorNode)) return
@@ -145,7 +154,7 @@ function handleKeydown(e: KeyboardEvent) {
 
 			// Update command and cursor position
 			const command = dropdown.filteredCommands[dropdown.selectedIndex][0]
-			commandState.ref.textContent = command
+			commandState.updateFullCommand(command)
 			const range = document.createRange()
 			const selection = window.getSelection()
 			range.selectNodeContents(commandState.ref)
@@ -214,9 +223,9 @@ function handleKeydown(e: KeyboardEvent) {
           commandState.ref.innerHTML = '';
         }
       }}
-      oninput={() => {
-        commandState.full_command = commandState.ref.textContent?.trim() || '';
-      }}
+	  oninput={()=> {
+		commandState.updateFullCommand();
+	  }}
     ></div>
     {#if dropdown.isVisible}
       <div
