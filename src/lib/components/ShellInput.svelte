@@ -6,10 +6,8 @@ TODO: [ ] **Command Completion**
   - Show preview of completed command in muted text
   - Accept completion on:
     - Right arrow key
-    - Tab key
     - Click/tap on suggestion
   - Handle partial matches
-  - Support command history navigation
 */
 -->
 <script lang="ts">
