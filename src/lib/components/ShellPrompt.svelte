@@ -38,7 +38,10 @@ $effect(() => {
   )}
   aria-label="Application header"
 >
-  <div class="container h-14 px-4 sm:px-8">
+  <div 
+    class="container h-14 px-4 sm:px-8"
+    style="padding-right: calc(var(--scrollbar-width) + 1rem)"
+  >
     <!-- Switch to grid layout for better control -->
     <div class="grid h-full grid-cols-[auto_1fr_auto] items-center gap-4 font-mono text-sm">
       <!-- Left section with fixed width -->

@@ -37,6 +37,8 @@
 		--ring: 240 5% 64.9%;
 
 		--radius: 0.5rem;
+
+		--scrollbar-width: calc(100vw - 100%);
 	}
 
 	.dark {
@@ -159,14 +161,21 @@
 /* Modern Scrollbar */
 ::-webkit-scrollbar {
 	@apply w-1.5;
+	background-color: transparent;
 }
 
 ::-webkit-scrollbar-track {
-	@apply bg-background;
+	background-color: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-	@apply rounded-full bg-muted;
+	@apply rounded-full bg-transparent;
+	transition: background-color 0.2s ease;
+}
+
+/* Show scrollbar thumb only during interaction */
+html:is(:hover, :active, :focus-within) ::-webkit-scrollbar-thumb {
+	@apply bg-muted;
 }
 
 /* Modern Focus Styles */
