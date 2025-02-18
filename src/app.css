@@ -161,11 +161,10 @@
 /* Modern Scrollbar */
 ::-webkit-scrollbar {
 	@apply w-1.5;
-	background-color: transparent;
 }
 
 ::-webkit-scrollbar-track {
-	background-color: transparent;
+	@apply bg-transparent;
 }
 
 ::-webkit-scrollbar-thumb {
@@ -173,9 +172,9 @@
 	transition: background-color 0.2s ease;
 }
 
-/* Show scrollbar thumb only during interaction */
-html:is(:hover, :active, :focus-within) ::-webkit-scrollbar-thumb {
-	@apply bg-muted;
+/* Show accent-colored scrollbar on hover/active */
+html:is(:hover, :active) ::-webkit-scrollbar-thumb {
+	@apply bg-accent/20;
 }
 
 /* Modern Focus Styles */

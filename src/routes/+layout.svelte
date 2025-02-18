@@ -17,7 +17,6 @@ const { children } = $props()
 
 <style>
   :global(html) {
-    --scrollbar-width: 0px;
     scrollbar-gutter: stable;
     overflow-y: scroll; /* Force scrollbar space allocation */
   }
