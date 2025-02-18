@@ -60,7 +60,7 @@ const getTagClasses = (tag: string) => {
     <div>
         <div class="h-1 bg-accent/5">
             <div 
-                class="h-full bg-accent/30 transition-all duration-100" 
+                class="h-full bg-gradient-to-r from-transparent to-accent transition-all duration-1" 
                 style="width: {scrollProgress}%"
                 aria-hidden="true"
             ></div>
@@ -110,21 +110,13 @@ const getTagClasses = (tag: string) => {
 
             // Code blocks
             prose-code:px-1.5 prose-code:py-1 prose-code:rounded prose-code:font-mono 
-            prose-code:text-sm prose-code:bg-background/10 prose-code:border prose-code:border-accent/20
+            prose-code:text-sm prose-code:border prose-code:border-accent/20
             [&_pre]:p-6 [&_pre]:border-2 [&_pre>code]:bg-transparent [&_pre>code]:border-none [&_pre>code]:p-0
             prose-pre:rounded-xl prose-pre:border prose-pre:border-accent/20 
-            prose-pre:bg-gradient-to-br prose-pre:from-background prose-pre:to-background/50 
-            prose-pre:shadow-sm prose-pre:backdrop-blur
+            prose-pre:shadow-sm prose-pre:text-primary prose-pre:bg-background
 
             // Lists
-            prose-ul:space-y-2 prose-ol:space-y-2
-            prose-li:relative prose-li:pl-6 prose-li:border-l-0 prose-li:bg-transparent
-            hover:prose-li:bg-accent/5 prose-li:transition-all prose-li:duration-200
-            prose-li:rounded-r hover:prose-li:translate-x-1
-            [&_li]:before:content-['▹'] [&_li]:before:absolute [&_li]:before:left-1
-            [&_li]:before:text-accent/40 hover:[&_li]:before:text-accent
-            [&_li]:before:transition-colors [&_li]:before:duration-200
-            [&_ul]:before:hidden
+            
 
             // Blockquotes
             prose-blockquote:border-l-4 prose-blockquote:border-accent/40 
