@@ -182,7 +182,7 @@ function handleKeydown(e: KeyboardEvent) {
       aria-controls="command-suggestions"
       class={cn(
         // Layout and positioning
-        'relative w-full min-w-0 outline-none min-h-[1.5em] whitespace-nowrap text-nowrap block line-height-[1.2em]',
+        'caret-container relative w-full min-w-0 outline-none min-h-[1.5em] whitespace-nowrap text-nowrap block line-height-[1.2em]',
         'focus:[box-shadow:none]',
 
         // Text colors
