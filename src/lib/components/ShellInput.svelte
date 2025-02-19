@@ -47,9 +47,9 @@ class CommandState {
 		if (command) {
 			this.ref.textContent = command
 		} else {
-			this.ref.textContent = this.ref.textContent?.trim() || ""
+			this.ref.textContent = this.ref.textContent || ""
 		}
-		this.full_command = command || this.ref.textContent
+		this.full_command = this.ref.textContent
 	}
 
 	updateSelection() {
@@ -161,7 +161,6 @@ function handleKeydown(e: KeyboardEvent) {
 			selection?.addRange(range)
 			break
 		}
-
 		case "Enter": {
 			e.preventDefault()
 			commandState.updateFullCommand()
@@ -169,6 +168,10 @@ function handleKeydown(e: KeyboardEvent) {
 			handler?.execute(...commandState.arguments)
 			commandState.reset()
 			dropdown.reset()
+			break
+		}
+		case "Escape": {
+			dropdown.hide()
 			break
 		}
 	}
