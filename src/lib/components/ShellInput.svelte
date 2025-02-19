@@ -11,7 +11,11 @@ TODO: [ ] **Command Completion**
 */
 -->
 <script lang="ts">
-import { commands } from "$lib/terminal/commands"
+import {
+	commands,
+	get_completions,
+	normalizeCommandInput,
+} from "$lib/terminal/commands"
 import { cn } from "$lib/utils"
 
 class CommandState {
@@ -46,10 +50,8 @@ class CommandState {
 	updateFullCommand = (command?: string) => {
 		if (command) {
 			this.ref.textContent = command
-		} else {
-			this.ref.textContent = this.ref.textContent || ""
 		}
-		this.full_command = this.ref.textContent
+		this.full_command = normalizeCommandInput(this.ref.textContent || "")
 	}
 
 	updateSelection() {
@@ -79,10 +81,9 @@ class DropdownState {
 	commandState: CommandState
 	isVisible = $state(false)
 	selectedIndex = $state(-1)
-	filteredCommands = $derived(
-		Array.from(commands.entries()).filter(([command]) =>
-			command.startsWith(commandState.full_command)
-		)
+
+	filteredCompletions = $derived.by(() =>
+		get_completions(commandState.full_command)
 	)
 
 	constructor(commandState: CommandState) {
@@ -103,19 +104,19 @@ class DropdownState {
 
 	incrementIndex = () => {
 		this.selectedIndex =
-			(this.selectedIndex + 1) % this.filteredCommands.length
+			(this.selectedIndex + 1) % this.filteredCompletions.length
 	}
 
 	decrementIndex = () => {
 		this.selectedIndex =
-			(this.selectedIndex - 1 + this.filteredCommands.length) %
-			this.filteredCommands.length
+			(this.selectedIndex - 1 + this.filteredCompletions.length) %
+			this.filteredCompletions.length
 	}
 
 	clampIndex = () => {
 		this.selectedIndex = Math.max(
-			0,
-			Math.min(this.selectedIndex, this.filteredCommands.length - 1)
+			-1,
+			Math.min(this.selectedIndex, this.filteredCompletions.length - 1)
 		)
 	}
 }
@@ -143,7 +144,7 @@ function handleKeydown(e: KeyboardEvent) {
 				break
 			}
 
-			// Handle navigation direction
+			// Handle navigation
 			if (e.shiftKey || e.key === "ArrowUp") {
 				dropdown.decrementIndex()
 			} else {
@@ -151,14 +152,21 @@ function handleKeydown(e: KeyboardEvent) {
 			}
 
 			// Update command and cursor position
-			const command = dropdown.filteredCommands[dropdown.selectedIndex][0]
-			commandState.ref.innerHTML = command
+			const completion =
+				dropdown.filteredCompletions[dropdown.selectedIndex]
+			if (!completion) return
+			if (completion.type === "command") {
+				commandState.ref.innerHTML = completion.text
+			} else {
+				commandState.ref.innerHTML =
+					commandState.command + " " + completion.text
+			}
 			const range = document.createRange()
-			const selection = window.getSelection()
+			const sel = window.getSelection()
 			range.selectNodeContents(commandState.ref)
 			range.collapse(false)
-			selection?.removeAllRanges()
-			selection?.addRange(range)
+			sel?.removeAllRanges()
+			sel?.addRange(range)
 			break
 		}
 		case "Enter": {
@@ -171,8 +179,13 @@ function handleKeydown(e: KeyboardEvent) {
 			break
 		}
 		case "Escape": {
+			e.preventDefault()
 			dropdown.hide()
 			break
+		}
+		default: {
+			commandState.updateFullCommand()
+			dropdown.reset()
 		}
 	}
 }
@@ -242,7 +255,7 @@ function handleKeydown(e: KeyboardEvent) {
           'bg-background font-mono text-sm',
         )}
       >
-        {#each dropdown.filteredCommands as [command, handler], i}
+        {#each dropdown.filteredCompletions as { text, help, type }, i (text)}
           <button
             class={cn(
               // Layout
@@ -257,11 +270,14 @@ function handleKeydown(e: KeyboardEvent) {
                 : 'bg-transparent',
               // Animation
               'duration-200 ease-in-out',
+              type === 'command' ? 'pl-4' : 'pl-6'
             )}
           >
-            <span class="text-primary">{command}</span>
-            <div class="flex-1 mx-2 border-b border-border"></div>
-            <span class="text-right text-muted-foreground">{handler.help}</span>
+            <span class="text-primary">{text}</span>
+            {#if help}
+              <div class="flex-1 mx-2 border-b border-border"></div>
+              <span class="text-right text-muted-foreground">{help}</span>
+            {/if}
           </button>
         {/each}
       </div>
