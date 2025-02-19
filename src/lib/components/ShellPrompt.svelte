@@ -43,7 +43,7 @@ $effect(() => {
     style="padding-right: calc(var(--scrollbar-width) + 1rem)"
   >
     <!-- Switch to grid layout for better control -->
-    <div class="grid h-full grid-cols-[auto_1fr_auto] items-center gap-4 font-mono text-sm">
+    <div class="grid h-full grid-cols-[auto_1fr_auto] justify-items-end items-center gap-4 font-mono text-sm">
       <!-- Left section with fixed width -->
       <div class="flex items-center gap-2 shrink-0">
         <a href="/" class="shrink-0" aria-label="Go to home">
