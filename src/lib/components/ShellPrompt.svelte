@@ -43,7 +43,7 @@ $effect(() => {
     style="padding-right: calc(var(--scrollbar-width) + 1rem)"
   >
     <!-- Switch to grid layout for better control -->
-    <div class="grid h-full grid-cols-[auto_1fr_auto] justify-items-end items-center gap-4 font-mono text-sm">
+    <div class="grid h-full grid-cols-2 sm:grid-cols-3 justify-between items-center gap-4 font-mono text-sm">
       <!-- Left section with fixed width -->
       <div class="flex items-center gap-2 shrink-0">
         <a href="/" class="shrink-0" aria-label="Go to home">
@@ -57,7 +57,7 @@ $effect(() => {
       <ShellInput />
 
       <!-- Right section with fixed width -->
-      <div class="flex items-center gap-2 shrink-0">
+      <div class="flex items-center gap-2 shrink-0 justify-self-end">
         <div class="flex items-center gap-2 text-highlight dark:text-highlight">
           <GitBranch class="h-4 w-4" aria-hidden="true" />
           <button
@@ -70,14 +70,14 @@ $effect(() => {
           </button>
 
           <!-- Git status indicators -->
-          <div class="hidden items-center gap-1 md:flex">
+          <div class="hidden whitespace-nowrap items-center gap-1 md:flex">
             <div class="flex items-center">
               <ChevronUp class="h-3 w-3 p-0" aria-hidden="true" />
               <span class="dark:hidden">0</span>
               <span class="hidden dark:inline">1</span>
             </div>
             <span class="text-red-400">!0</span>
-            <span class="text-blue-400">?0</span>
+            <span class="text-blue-400 ">?0</span>
           </div>
         </div>
 
