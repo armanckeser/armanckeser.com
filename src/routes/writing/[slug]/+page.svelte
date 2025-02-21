@@ -86,17 +86,17 @@ const viewId = $derived.by(() => {
     <div class="max-w-[85rem] mx-auto flex flex-col lg:flex-row gap-8">
         <div class="flex-1 max-w-[65ch] lg:max-w-[75ch] xl:max-w-[85ch]">
             <!-- Terminal-style header -->
-            <div class="font-mono border-b border-accent/20 pb-4 mb-8">
+            <div class="border-b border-accent/20 pb-4 mb-8">
                 <div class="text-sm text-muted-foreground flex items-center gap-4">
                     <div style:view-transition-name="title-{viewId}">
-                        <h3 class="text-2xl font-bold text-primary">
+                        <h3 class="text-2xl font-mono font-bold text-primary">
                             {data.meta.title}
                         </h3>
                     </div>
                 </div>
                 {#if data.meta.description}
                     <div style:view-transition-name="desc-{viewId}">
-                        <p class="text-muted-foreground mt-2 font-mono text-sm">
+                        <p class="text-muted-foreground mt-2 text-sm">
                             {data.meta.description}
                         </p>
                     </div>
