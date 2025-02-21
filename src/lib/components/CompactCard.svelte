@@ -1,7 +1,6 @@
 <script lang="ts" module>
 import { slide } from "svelte/transition"
 </script>
-
 <script lang="ts">
   const {
     title,
@@ -31,10 +30,11 @@ import { slide } from "svelte/transition"
   const formattedDate = $derived(
     date
       ? new Date(date).toLocaleDateString('en-US', {
+          year: 'numeric',
           month: 'short',
-          day: 'numeric',
+          day: 'numeric'
         })
-      : null,
+      : null
   );
 
   // Generate unique IDs for ARIA attributes

@@ -5,40 +5,15 @@
 import Card from "$lib/components/Card.svelte"
 import ContentSection from "$lib/components/ContentSection.svelte"
 import ExternalLink from "$lib/components/ExternalLink.svelte"
-import type { Tag } from "$lib/tags"
 import type { PageData } from "./$types"
 const props = $props<{ data: PageData }>()
 const posts = $derived(props.data.posts)
-
-const projects: {
-	title: string
-	description: string
-	tag: Tag
-	stars: number
-}[] = [
-	{
-		title: "YouTube History",
-		description: "Analyze and visualize your YouTube watching patterns",
-		tag: "app",
-		stars: 7,
-	},
-	{
-		title: "Easy Hang",
-		description: "Never mess up measurements when hanging pictures again",
-		tag: "app",
-		stars: 0,
-	},
-	{
-		title: "Reading List",
-		description: "Track and share your reading journey with notes",
-		tag: "app",
-		stars: 0,
-	},
-]
+const projects = $derived(props.data.projects)
 </script>
 
 <svelte:head>
   <title>Armanc Keser</title>
+  <link rel="dns-prefetch" href="https://github.com" />
   <meta
     name="description"
     content="Engineer learning the skills for the next steps"
@@ -104,7 +79,14 @@ const projects: {
       <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {#each projects as project, i}
           <div class="animate-slide-in" style="animation-delay: {i * 100}ms">
-            <Card {...project} />
+            <Card
+              title={project.title}
+              description={project.description}
+              tag="app"
+              stars={project.stars}
+              href={project.url}
+              date={project.updated}
+            />
           </div>
         {/each}
       </div>

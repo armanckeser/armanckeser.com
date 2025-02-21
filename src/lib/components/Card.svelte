@@ -37,11 +37,12 @@ const componentProps = $derived(href ? { href, class: "block" } : {})
         </div>
         <div class="flex items-center gap-1">
           {#if date}
-            <div
+            <time
+              datetime={date}
               class="font-mono text-[0.65rem] text-muted-foreground relative z-10"
             >
-              {date}
-            </div>
+              {new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+            </time>
           {/if}
           {#if stars && stars > 0}
             <div class="flex items-center gap-1 text-xs text-muted-foreground">
@@ -68,9 +69,12 @@ const componentProps = $derived(href ? { href, class: "block" } : {})
           {tag}
         </div>
         {#if date}
-          <div class="font-mono text-xs text-muted-foreground">
-            {date}
-          </div>
+          <time
+            datetime={date}
+            class="font-mono text-xs text-muted-foreground"
+          >
+            {new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+          </time>
         {/if}
         {#if stars && stars > 0}
           <div

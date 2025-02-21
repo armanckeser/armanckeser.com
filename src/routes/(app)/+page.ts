@@ -1,8 +1,11 @@
 import { getPosts } from "$lib/posts"
 import type { PageLoad } from "./$types"
 
-export const load: PageLoad = async () => {
-	const posts = await getPosts()
+export const load: PageLoad = async ({ fetch }) => {
+	const [posts, projects] = await Promise.all([
+		getPosts(),
+		fetch("/api/projects").then(r => r.json()),
+	])
 
 	// Sort posts by date, most recent first
 	const sortedPosts = posts.sort(
@@ -11,5 +14,6 @@ export const load: PageLoad = async () => {
 
 	return {
 		posts: sortedPosts,
+		projects,
 	}
 }

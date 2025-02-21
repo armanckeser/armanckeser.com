@@ -1,106 +1,29 @@
 ---
-title: "ADHD-Friendly Productivity Systems That Actually Work"
-description: "Practical strategies for managing focus, time, and energy with ADHD"
-date: "2025-02-14"
+title: "Life is too short to just live"
+description: "Just trying to build a life I can be proud of"
+date: 2025-02-20
 ---
 
-# Building a Productivity System for the ADHD Brain
+I haven't been building anything for the past years but always
+wanted to. I always kept procrastinating, watching tiktok, or youtube. Couple things happened and I
+changed a couple of things that got me building again. At the end of the year, my girlfriend made us
+do what is called a Year Compass. In the year compass was a question about "things you were proud of
+in the past year".  I could only write about the books I listened to when I dropped of my girlfriend
+at school. That really got to me. I think a fundamental thing that people want is to live a life
+they can look back and be proud off.  But this is something I knew already. Something else happened,
+a relative of mine was diagnosed with cancer out of nowhere. This changed something in me.  Death is
+the primary driver of valuing life and a valuable life is one we are proud off. Life is too short to
+just live. The truth is is, I always thought about this but never acted, I would like to say due to
+my self diagnosed ADHD, but it could just be due to laziness. I believe every decision we make is an
+active one, and I was actively choosing the comfort and effortlessness of brain rot to spending time
+on things that would make me proud. So I had to make doing things that would make me proud as
+effortless.
 
-Traditional productivity advice often fails for those with ADHD because it doesn't account for how our brains actually work. Here's a system built around our unique strengths and challenges.
-
-## Understanding the ADHD Brain
-
-Before diving into strategies, it's important to understand that ADHD brains:
-- Are novelty-seeking
-- Have variable energy levels
-- Process time differently
-- Need external structure
-- Thrive on interest-based motivation
-
-## Core Strategies
-
-### 1. Time Blocking with Flexibility
-
-Instead of rigid schedules, use these ADHD-friendly time blocking techniques:
-
-- **Time Theming**: Assign themes to days (e.g., "Deep Work Monday", "Admin Wednesday")
-- **Buffer Blocks**: Add 50% more time than you think you need
-- **Energy Mapping**: Schedule tasks based on your natural energy patterns
-
-### 2. Task Management That Works
-
-Traditional to-do lists often fail us. Instead:
-
-1. **The "Might Do" List**: Replace "should do" with "might do" to reduce resistance
-2. **Task Triage**:
-   - Must Do Today (3 items max)
-   - Could Do Today (5-7 items)
-   - Interesting Ideas (unlimited)
-3. **Visual Task Boards**: Use Trello or a physical board for visual processing
-
-### 3. Environment Design
-
-Your environment is your operating system:
-
-```
-Physical Space + Digital Setup + Routines = Your Productivity System
-```
-
-Key elements:
-- Clear workspace
-- Noise-canceling headphones
-- Time timer (visual time tracking)
-- Task-specific spaces
-
-### 4. Focus Tools and Techniques
-
-Proven strategies for ADHD focus:
-
-1. **Body Doubling**
-   - Work alongside others (in person or virtually)
-   - Use Focusmate or similar services
-   - Join virtual coworking sessions
-
-2. **The "Racing the Clock" Method**
-   - Set a timer for 10 minutes
-   - Race to complete as much as possible
-   - Take a 2-minute break
-   - Repeat if motivated
-
-3. **Background Stimulation**
-   - Lo-fi music or nature sounds
-   - Fidget toys
-   - Standing desk or wobble cushion
-
-## Digital Tools That Help
-
-Recommended apps and tools:
-
-1. **Task Management**
-   - Todoist (for quick capture)
-   - Notion (for visual organization)
-   - TickTick (for natural language input)
-
-2. **Focus Tools**
-   - Forest App (gamified focus sessions)
-   - Brain.fm (ADHD-optimized music)
-   - Freedom (website blocking)
-
-## When Things Fall Apart
-
-Remember:
-- Perfection isn't the goal
-- Systems need regular adjustment
-- "Failure" is just data
-- Start fresh whenever needed
-
-## Building Your Own System
-
-The key is experimentation. Take these elements and:
-1. Start with one change
-2. Test for 3 days
-3. Adjust based on results
-4. Add another element
-5. Repeat
-
-Remember: The best system is the one you'll actually use. Build around your strengths, not someone else's expectations. 
+My partner and I decided to sleep at 10pm and wake up at 6am every day. Waking up at 6am gives me
+roughly 1.5 hrs of side project time. We also keep a planner.  Most important part of the planner is
+that I get to review my next day the night before, time boxing everything, and the next day I can
+drill into the timebox and create simple todos. I give myself the weekend morning off, and I do
+track how many minutes a day I work, trying to make a habit out of it. I am sure these things help,
+I have also read the likes of Deep Work and Atomic Habits, so I subconsciously try to incorporate
+ideas from those, but the main point for me is to remind myself that being proud is the goal, and to
+make myself feel worse off for doing things that won't make me proud. 
