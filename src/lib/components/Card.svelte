@@ -20,6 +20,19 @@ const tagClasses = getTagClasses(tag)
 
 const Component = $derived(href ? "a" : "div")
 const componentProps = $derived(href ? { href, class: "block" } : {})
+
+// Generate a unique ID for view transitions
+const viewId = $derived.by(() => {
+	if (href) {
+		// Extract the slug from the href and format it to match the post's viewId
+		const slug = href.split("/").pop() // Get the last part of the path
+		const id = `-writing-${slug}`
+		return id
+	}
+	// Fallback for non-link cards (should not be used for blog posts)
+	const id = title.toLowerCase().replace(/[^a-z0-9]+/g, "-")
+	return id
+})
 </script>
 
 <svelte:element
@@ -32,6 +45,7 @@ const componentProps = $derived(href ? { href, class: "block" } : {})
       <div class="flex items-center justify-between gap-1.5 -mt-2 -ml-1.5">
         <div
           class={`rounded px-1.5 py-0.5 font-mono text-[0.65rem] ${tagClasses} relative z-10`}
+          style:view-transition-name="tag-{viewId}"
         >
           {tag}
         </div>
@@ -40,6 +54,7 @@ const componentProps = $derived(href ? { href, class: "block" } : {})
             <time
               datetime={date}
               class="font-mono text-[0.65rem] text-muted-foreground relative z-10"
+              style:view-transition-name="date-{viewId}"
             >
               {new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
             </time>
@@ -52,12 +67,16 @@ const componentProps = $derived(href ? { href, class: "block" } : {})
           {/if}
         </div>
       </div>
-      <h3 class="line-clamp-1 font-mono text-sm font-medium text-primary">
-        {title}
-      </h3>
-      <p class="line-clamp-2 text-xs leading-snug text-muted-foreground">
-        {description}
-      </p>
+      <div style:view-transition-name="title-{viewId}">
+        <h3 class="line-clamp-1 font-mono text-sm font-medium text-primary">
+          {title}
+        </h3>
+      </div>
+      <div style:view-transition-name="desc-{viewId}">
+        <p class="line-clamp-2 text-xs leading-snug text-muted-foreground">
+          {description}
+        </p>
+      </div>
     </div>
   </div>
 
@@ -65,13 +84,14 @@ const componentProps = $derived(href ? { href, class: "block" } : {})
     <!-- Header -->
     <div>
       <div class="mb-3 flex items-center gap-3">
-        <div class={`rounded px-2 py-0.5 font-mono text-xs ${tagClasses}`}>
+        <div class={`rounded px-2 py-0.5 font-mono text-xs ${tagClasses}`} style:view-transition-name="tag-{viewId}">
           {tag}
         </div>
         {#if date}
           <time
             datetime={date}
             class="font-mono text-xs text-muted-foreground"
+            style:view-transition-name="date-{viewId}"
           >
             {new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
           </time>
@@ -87,12 +107,16 @@ const componentProps = $derived(href ? { href, class: "block" } : {})
       </div>
 
       <!-- Content -->
-      <h3 class="mb-2 font-mono text-base font-medium text-primary md:text-lg">
-        {title}
-      </h3>
-      <p class="text-xs leading-relaxed text-muted-foreground md:text-sm">
-        {description}
-      </p>
+      <div style:view-transition-name="title-{viewId}">
+        <h3 class="mb-2 font-mono text-base font-medium text-primary md:text-lg">
+          {title}
+        </h3>
+      </div>
+      <div style:view-transition-name="desc-{viewId}">
+        <p class="text-xs leading-relaxed text-muted-foreground md:text-sm">
+          {description}
+        </p>
+      </div>
     </div>
 
     <!-- Hover Indicator -->

@@ -1,46 +1,55 @@
-<script lang="ts" module>
-import { slide } from "svelte/transition"
-</script>
 <script lang="ts">
-  const {
-    title,
-    description,
-    tag = 'blog',
-    date,
-    href,
-    isSelected = false,
-    onclick = () => {},
-    onmouseenter = () => {},
-    onmouseleave = () => {},
-  } = $props<{
-    title: string;
-    description: string;
-    tag?: string;
-    date?: string;
-    href?: string;
-    isSelected?: boolean;
-    onclick?: () => void;
-    onmouseenter?: () => void;
-    onmouseleave?: () => void;
-  }>();
+import { slide } from "svelte/transition"
 
-  import { getTagClasses } from '$lib/tags';
-  const tagClasses = getTagClasses(tag);
+const {
+	title,
+	description,
+	tag = "blog",
+	date,
+	href,
+	isSelected = false,
+	onclick = () => void 0,
+	onmouseenter = () => void 0,
+	onmouseleave = () => void 0,
+} = $props<{
+	title: string
+	description: string
+	tag?: string
+	date?: string
+	href?: string
+	isSelected?: boolean
+	onclick?: () => void
+	onmouseenter?: () => void
+	onmouseleave?: () => void
+}>()
 
-  const formattedDate = $derived(
-    date
-      ? new Date(date).toLocaleDateString('en-US', {
-          year: 'numeric',
-          month: 'short',
-          day: 'numeric'
-        })
-      : null
-  );
+import { getTagClasses } from "$lib/tags"
+const tagClasses = getTagClasses(tag)
 
-  // Generate unique IDs for ARIA attributes
-  const descriptionId = $derived(
-    `description-${title.toLowerCase().replace(/\s+/g, '-')}`,
-  );
+const formattedDate = $derived(
+	date
+		? new Date(date).toLocaleDateString("en-US", {
+				year: "numeric",
+				month: "short",
+				day: "numeric",
+			})
+		: null
+)
+
+// Generate unique IDs for ARIA attributes
+const descriptionId = $derived(
+	`description-${title.toLowerCase().replace(/\s+/g, "-")}`
+)
+
+// Generate view transition ID
+const viewId = $derived.by(() => {
+	if (href) {
+		const slug = href.split("/").pop()
+		const id = `-writing-${slug}`
+		return id
+	}
+	return title.toLowerCase().replace(/[^a-z0-9]+/g, "-")
+})
 </script>
 
 <article
@@ -63,18 +72,27 @@ import { slide } from "svelte/transition"
     data-sveltekit-preload-code="hover"
   >
     <div class="flex items-center gap-3 min-w-0">
-      <div class={`shrink-0 px-1.5 py-0.5 font-mono text-xs ${tagClasses}`}>
+      <div 
+        class={`shrink-0 px-1.5 py-0.5 font-mono text-xs ${tagClasses}`}
+        style:view-transition-name="tag-{viewId}"
+      >
         {tag}
       </div>
 
-      <h3 class="truncate font-mono text-base text-primary">
-        {title}
-      </h3>
+      <div style:view-transition-name="title-{viewId}">
+        <h3 class="truncate font-mono text-base text-primary">
+          {title}
+        </h3>
+      </div>
     </div>
 
     <div class="flex items-center gap-3">
       {#if formattedDate}
-        <time datetime={date} class="font-mono text-sm text-muted-foreground">
+        <time 
+          datetime={date} 
+          class="font-mono text-sm text-muted-foreground"
+          style:view-transition-name="date-{viewId}"
+        >
           {formattedDate}
         </time>
       {/if}
@@ -94,9 +112,11 @@ import { slide } from "svelte/transition"
       <div
         class="grid grid-cols-[1fr_auto] items-center gap-4 px-2 sm:px-4 pb-3"
       >
-        <p class="text-sm text-muted-foreground">
-          {description}
-        </p>
+        <div style:view-transition-name="desc-{viewId}">
+          <p class="text-sm text-muted-foreground">
+            {description}
+          </p>
+        </div>
 
         {#if href}
           <a

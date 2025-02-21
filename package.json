@@ -38,14 +38,13 @@
     "tslib": "^2.8.1",
     "typescript": "^5.7.3",
     "vite": "^6.0.1",
-    "vitest": "^3.0.0"
+    "vitest": "^3.0.0",
+    "@biomejs/biome": "1.9.4"
   },
   "type": "module",
   "dependencies": {
-    "@biomejs/biome": "1.9.4",
     "@octokit/rest": "^21.1.1",
     "@octokit/types": "^13.8.0",
-    "bits-ui": "^1.0.0-next.84",
     "change-case": "^5.4.4",
     "clsx": "^2.1.1",
     "cmdk-sv": "^0.0.18",

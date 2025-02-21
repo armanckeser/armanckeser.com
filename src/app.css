@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Opt-in to cross-document view transitions */
+@view-transition {
+	navigation: auto;
+}
+
 @layer base {
 	:root {
 		--background: 210 8% 95%;
@@ -238,3 +243,4 @@ html:is(:hover, :active) ::-webkit-scrollbar-thumb {
 	--tw-prose-code-bg: hsl(var(--accent) / 0.1);
 	--tw-prose-code: hsl(var(--accent-foreground));
 }
+

@@ -1,4 +1,5 @@
 <script lang="ts">
+import { page } from "$app/state"
 import PostSidebar from "$lib/components/PostSidebar.svelte"
 import { cn } from "$lib/utils"
 import { Clock } from "lucide-svelte"
@@ -34,6 +35,13 @@ const getTagClasses = (tag: string) => {
 		"bg-accent/10 text-accent"
 	)
 }
+
+// Generate view transition ID with fallback
+const viewId = $derived.by(() => {
+	// Use the URL params to match the card's href format
+	const id = `-writing-${page.params.slug}`
+	return id
+})
 </script>
 
 <svelte:head>
@@ -80,12 +88,18 @@ const getTagClasses = (tag: string) => {
             <!-- Terminal-style header -->
             <div class="font-mono border-b border-accent/20 pb-4 mb-8">
                 <div class="text-sm text-muted-foreground flex items-center gap-4">
-                    <span>$ cat {data.meta.title}.md</span>
+                    <div style:view-transition-name="title-{viewId}">
+                        <h3 class="text-2xl font-bold text-primary">
+                            {data.meta.title}
+                        </h3>
+                    </div>
                 </div>
                 {#if data.meta.description}
-                    <p class="text-muted-foreground mt-2 font-mono text-sm">
-                        // {data.meta.description}
-                    </p>
+                    <div style:view-transition-name="desc-{viewId}">
+                        <p class="text-muted-foreground mt-2 font-mono text-sm">
+                            {data.meta.description}
+                        </p>
+                    </div>
                 {/if}
             </div>
 

@@ -37,6 +37,7 @@ $effect(() => {
     'transition-colors duration-300 ease-in-out',
   )}
   aria-label="Application header"
+  style:view-transition-name="header"
 >
   <div 
     class="container h-14 px-4 sm:px-8"
@@ -45,8 +46,8 @@ $effect(() => {
     <!-- Switch to grid layout for better control -->
     <div class="grid h-full grid-cols-2 sm:grid-cols-3 justify-between items-center gap-4 font-mono text-sm">
       <!-- Left section with fixed width -->
-      <div class="flex items-center gap-2 shrink-0">
-        <a href="/" class="shrink-0" aria-label="Go to home">
+      <div class="flex items-center gap-2 shrink-0" style:view-transition-name="nav">
+        <a href="/" class="shrink-0" aria-label="Go to home" style:view-transition-name="logo">
           <Computer class="h-4 w-4" aria-hidden="true" />
         </a>
         <span class="text-accent shrink-0" aria-hidden="true">│</span>
@@ -57,7 +58,7 @@ $effect(() => {
       <ShellInput />
 
       <!-- Right section with fixed width -->
-      <div class="flex items-center gap-2 shrink-0 justify-self-end">
+      <div class="flex items-center gap-2 shrink-0 justify-self-end" style:view-transition-name="header-meta">
         <div class="flex items-center gap-2 text-highlight dark:text-highlight">
           <GitBranch class="h-4 w-4" aria-hidden="true" />
           <button
