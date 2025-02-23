@@ -1,1 +1,0 @@
-import{h as a,a as n,t as r,$ as o}from"../chunks/disclose-version.BNLVBT4A.js";var s=r('<h1 class="font-inter flex h-full items-center justify-center">under construction</h1>');function i(e){var t=s();a(c=>{o.title="Armanc Keser"}),n(e,t)}export{i as component};

@@ -1,0 +1,17 @@
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+            <channel>
+                <title>Armanc Keser</title>
+                <description>Personal blog and portfolio of Armanc Keser</description>
+                <link>https://armanckeser.com</link>
+                <atom:link href="https://armanckeser.com/rss.xml" rel="self" type="application/rss+xml"/>
+                
+                        <item>
+                            <title>Six Years Later</title>
+                            <description>A reflection on personal growth and commitments</description>
+                            <link>https://armanckeser.com/writing/sixth-year</link>
+                            <guid isPermaLink="true">https://armanckeser.com/writing/sixth-year</guid>
+                            <pubDate>Fri, 21 Feb 2025 00:00:00 GMT</pubDate>
+                        </item>
+                    
+            </channel>
+        </rss>
