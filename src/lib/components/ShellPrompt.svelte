@@ -3,7 +3,7 @@
 import { cn } from "$lib/utils"
 import { ChevronUp, Clock, Computer, GitBranch } from "lucide-svelte"
 import { toggleMode } from "mode-watcher"
-import Breadcrumbs from "./Breadcrumbs.svelte"
+import NavBar from "./NavBar.svelte"
 import ShellInput from "./ShellInput.svelte"
 
 // Time management
@@ -51,7 +51,7 @@ $effect(() => {
           <Computer class="h-4 w-4" aria-hidden="true" />
         </a>
         <span class="text-accent shrink-0" aria-hidden="true">│</span>
-        <Breadcrumbs />
+        <NavBar />
       </div>
 
       <!-- Center section with shell input -->
