@@ -3,7 +3,6 @@ import { base } from "$app/paths"
 import { page } from "$app/state"
 import * as Breadcrumb from "$lib/components/ui/breadcrumb"
 import * as DropdownMenu from "$lib/components/ui/dropdown-menu"
-import { cn } from "$lib/utils"
 import Terminal from "lucide-svelte/icons/terminal"
 import { toggleMode } from "mode-watcher"
 
@@ -32,13 +31,6 @@ const segments = $derived.by(() => {
 		})
 	)
 })
-
-// Get the full path for display
-const fullPath = $derived.by(() => {
-	return segments.map(s => s.text).join("/")
-})
-
-$inspect(segments)
 </script>
 
 <div class="flex items-center space-x-2 font-mono text-sm">
