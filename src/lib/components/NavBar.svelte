@@ -3,7 +3,6 @@ import { base } from "$app/paths"
 import { page } from "$app/state"
 import * as Breadcrumb from "$lib/components/ui/breadcrumb"
 import * as DropdownMenu from "$lib/components/ui/dropdown-menu"
-import Terminal from "lucide-svelte/icons/terminal"
 import { toggleMode } from "mode-watcher"
 
 const segments = $derived.by(() => {
@@ -52,7 +51,6 @@ const segments = $derived.by(() => {
       <DropdownMenu.Trigger
         class="inline-flex items-center justify-center rounded-md px-2 py-1 text-sm font-medium transition-colors hover:bg-accent/10 disabled:pointer-events-none disabled:opacity-50 data-[state=open]:bg-accent/10"
       >
-        <Terminal class="size-4 mr-1" />
         pwd
       </DropdownMenu.Trigger>
       <DropdownMenu.Content align="start" class="w-[200px]">

@@ -35,7 +35,7 @@ $effect(() => {
     'sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur',
     'supports-[backdrop-filter]:bg-background/75',
     'transition-colors duration-300 ease-in-out',
-    'container h-14 px-4 sm:px-8'
+    'h-14 px-4 sm:px-8'
   )}
   aria-label="Application header"
   style:view-transition-name="header"
