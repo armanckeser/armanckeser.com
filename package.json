@@ -11,7 +11,7 @@
     "test": "vitest run",
     "lint": "biome check .",
     "format": "biome format --fix .",
-    "deploy": "bun run build && bunx gh-pages -d build -t true && bun run post-deploy",
+    "deploy": "bun run build && bunx gh-pages -d build --nojekyll --cname 'armanckeser.com' && bun run post-deploy",
     "post-deploy": "echo https://armanckeser.com/",
     "prepare": "husky",
     "precommit": "lint-staged"

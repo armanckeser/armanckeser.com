@@ -53,7 +53,10 @@ const segments = $derived.by(() => {
       >
         pwd
       </DropdownMenu.Trigger>
-      <DropdownMenu.Content align="start" class="w-[200px]">
+      <DropdownMenu.Content
+        align="start"
+        class="w-[200px]"
+      >
         <DropdownMenu.Label class="font-mono">Current Path</DropdownMenu.Label>
         <DropdownMenu.Separator />
         {#each segments as segment, index}

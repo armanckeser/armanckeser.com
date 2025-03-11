@@ -243,4 +243,3 @@ html:is(:hover, :active) ::-webkit-scrollbar-thumb {
 	--tw-prose-code-bg: hsl(var(--accent) / 0.1);
 	--tw-prose-code: hsl(var(--accent-foreground));
 }
-

@@ -21,7 +21,7 @@ onNavigate(navigation => {
 
 <ModeWatcher />
 
-<div class="min-h-screen flex flex-col">
+<div class="min-h-screen flex flex-col w-screen">
   <ShellPrompt />
   <main class="flex-1">
     {@render children()}
