@@ -56,12 +56,15 @@ const segments = $derived.by(() => {
       <DropdownMenu.Content align="start" class="w-[200px]">
         <DropdownMenu.Label class="font-mono">Current Path</DropdownMenu.Label>
         <DropdownMenu.Separator />
-        {#each segments as segment}
+        {#each segments as segment, index}
           <DropdownMenu.Item>
             <a
               href={segment.href}
-              class="flex w-full items-center"
+              class="flex w-full items-center pl-{index * 4}"
             >
+              {#if index > 0}
+                <span class="mr-2 text-muted-foreground">└─</span>
+              {/if}
               {segment.text}
             </a>
           </DropdownMenu.Item>
