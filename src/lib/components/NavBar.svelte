@@ -55,7 +55,7 @@ const segments = $derived.by(() => {
       </DropdownMenu.Trigger>
       <DropdownMenu.Content
         align="start"
-        class="w-[200px]"
+        class="min-w-[200px]"
       >
         <DropdownMenu.Label class="font-mono">Current Path</DropdownMenu.Label>
         <DropdownMenu.Separator />
