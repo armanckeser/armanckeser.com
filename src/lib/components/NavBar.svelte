@@ -46,10 +46,10 @@ const segments = $derived.by(() => {
   </button>
   
   <!-- Mobile PWD Dropdown -->
-  <div class="sm:hidden">
+  <div class="lg:hidden">
     <DropdownMenu.Root>
       <DropdownMenu.Trigger
-        class="inline-flex items-center justify-center rounded-md px-2 py-1 text-sm font-medium transition-colors hover:bg-accent/10 disabled:pointer-events-none disabled:opacity-50 data-[state=open]:bg-accent/10"
+        class="border-b border-zinc-200 dark:border-zinc-800 text-primary hover:text-accent transition-colors"
       >
         pwd
       </DropdownMenu.Trigger>
@@ -74,7 +74,7 @@ const segments = $derived.by(() => {
   </div>
 
   <!-- Desktop Breadcrumbs -->
-  <div class="hidden sm:block">
+  <div class="hidden lg:block">
     <Breadcrumb.Root>
       <Breadcrumb.List>
         {#each segments as segment}
