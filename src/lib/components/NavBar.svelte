@@ -63,7 +63,8 @@ const segments = $derived.by(() => {
           <DropdownMenu.Item>
             <a
               href={segment.href}
-              class="flex w-full items-center pl-{index * 4}"
+              class="flex w-full items-center font-mono"
+              style="padding-left: {index * 1}rem"
             >
               {#if index > 0}
                 <span class="mr-2 text-muted-foreground">└─</span>
