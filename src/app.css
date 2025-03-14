@@ -30,6 +30,39 @@
 	navigation: auto;
 }
 
+/* Global view transition settings */
+:root {
+	--view-transition-duration: 600ms;
+	--view-transition-easing: cubic-bezier(0.16, 1, 0.3, 1);
+	scrollbar-gutter: stable;
+	overflow-y: scroll; /* Force scrollbar space allocation */
+}
+
+/* View transition animations */
+::view-transition {
+	animation-duration: var(--view-transition-duration, 600ms);
+	animation-timing-function: var(--view-transition-easing, cubic-bezier(0.16, 1, 0.3, 1));
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+	mix-blend-mode: normal;
+}
+
+.dark::view-transition-old(root) {
+	z-index: 1;
+}
+
+.dark::view-transition-new(root) {
+	z-index: 999;
+}
+
+::view-transition-old(page),
+::view-transition-new(page) {
+	animation-duration: var(--view-transition-duration, 600ms);
+	animation-timing-function: var(--view-transition-easing, cubic-bezier(0.16, 1, 0.3, 1));
+}
+
 @layer base {
 	:root {
 		--background: 210 8% 95%;
@@ -242,6 +275,13 @@
 		);
 		border-image: var(--gradient-border) 1;
 	}
+
+	/* Custom utility class for smooth view transitions */
+	.smooth-view-transition {
+		view-transition-name: var(--view-name, auto);
+		animation-duration: var(--view-transition-duration, 600ms);
+		animation-timing-function: var(--view-transition-easing, cubic-bezier(0.16, 1, 0.3, 1));
+	}
 }
 
 /* Modern Scrollbar */
@@ -325,16 +365,20 @@ html:is(:hover, :active) ::-webkit-scrollbar-thumb {
 	--tw-prose-code: hsl(var(--accent-foreground));
 }
 
+/* Text element transitions */
 ::view-transition-old(text),
 ::view-transition-new(text) {
-  /* Make the text views match the height of their group */
-  height: 100%;
-  /* Set the other dimension to auto,
-     which for images means they maintain their aspect ratio */
-  width: auto;
+	/* Make the text views match the height of their group */
+	height: 100%;
+	/* Set the other dimension to auto,
+	   which for images means they maintain their aspect ratio */
+	width: auto;
+	/* Add smooth animation properties */
+	animation-duration: var(--view-transition-duration, 600ms);
+	animation-timing-function: var(--view-transition-easing, cubic-bezier(0.16, 1, 0.3, 1));
 }
 
 ::view-transition-group(text) {
-  /* Clip the views as they overflow the group */
-  overflow: clip;
+	/* Clip the views as they overflow the group */
+	overflow: clip;
 }

@@ -6,15 +6,36 @@ import "../app.css"
 
 const { children } = $props()
 
-// Handle view transitions
+// Define custom view transition options
+const viewTransitionOptions = {
+	duration: 600, // ms
+	easing: "cubic-bezier(0.16, 1, 0.3, 1)", // Smooth ease-out
+}
+
+// Handle view transitions with custom timing
 onNavigate(navigation => {
 	if (!document.startViewTransition) return
 
 	return new Promise(resolve => {
-		document.startViewTransition(async () => {
+		// Apply custom transition options
+		const transition = document.startViewTransition(async () => {
 			resolve()
 			await navigation.complete
 		})
+
+		// Apply custom duration and easing if supported
+		if (transition.ready) {
+			transition.ready.then(() => {
+				document.documentElement.style.setProperty(
+					"--view-transition-duration",
+					`${viewTransitionOptions.duration}ms`
+				)
+				document.documentElement.style.setProperty(
+					"--view-transition-easing",
+					viewTransitionOptions.easing
+				)
+			})
+		}
 	})
 })
 </script>
@@ -22,34 +43,8 @@ onNavigate(navigation => {
 <ModeWatcher />
 
 <div class="min-h-screen flex flex-col w-full">
-  <ShellPrompt />
-  <main class="flex-1">
-    {@render children()}
-  </main>
+	<ShellPrompt />
+	<main class="flex-1">
+		{@render children()}
+	</main>
 </div>
-
-<style>
-  :global(html) {
-    scrollbar-gutter: stable;
-    overflow-y: scroll; /* Force scrollbar space allocation */
-  }
-
-  /* View Transitions */
-  :global(::view-transition-old(root)),
-  :global(::view-transition-new(root)) {
-    animation: none;
-    mix-blend-mode: normal;
-  }
-
-  :global(.dark::view-transition-old(root)) {
-    z-index: 1;
-  }
-  :global(.dark::view-transition-new(root)) {
-    z-index: 999;
-  }
-
-  :global(::view-transition-old(page)),
-  :global(::view-transition-new(page)) {
-    animation: none;
-  }
-</style>

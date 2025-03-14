@@ -68,7 +68,7 @@ const viewId = $derived.by(() => {
         </div>
       </div>
       <div style:view-transition-name="title-{viewId}">
-        <h3 class="line-clamp-1 font-mono text-sm font-medium text-primary">
+        <h3 class="line-clamp-1 font-mono text-sm font-bold text-primary">
           {title}
         </h3>
       </div>
@@ -108,7 +108,7 @@ const viewId = $derived.by(() => {
 
       <!-- Content -->
       <div class="w-fit" style:view-transition-name="title-{viewId}">
-        <h3 class="mb-2 font-mono text-base font-medium text-primary md:text-lg">
+        <h3 class="mb-2 font-mono text-base font-bold text-primary md:text-lg">
           {title}
         </h3>
       </div>

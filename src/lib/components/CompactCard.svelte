@@ -80,7 +80,7 @@ const viewId = $derived.by(() => {
       </div>
 
       <div class="w-fit" style:view-transition-name="title-{viewId}">
-        <h3 class="truncate font-mono text-base text-primary">
+        <h3 class="truncate font-mono text-base font-bold text-primary">
           {title}
         </h3>
       </div>
