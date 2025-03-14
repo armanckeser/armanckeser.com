@@ -84,7 +84,7 @@ const viewId = $derived.by(() => {
     <!-- Header -->
     <div>
       <div class="mb-3 flex items-center gap-3">
-        <div class={`rounded px-2 py-0.5 font-mono text-xs ${tagClasses}`} style:view-transition-name="tag-{viewId}">
+        <div class={`rounded px-2 py-0.5 w-fit font-mono text-xs ${tagClasses}`} style:view-transition-name="tag-{viewId}">
           {tag}
         </div>
         {#if date}
@@ -107,12 +107,12 @@ const viewId = $derived.by(() => {
       </div>
 
       <!-- Content -->
-      <div style:view-transition-name="title-{viewId}">
+      <div class="w-fit" style:view-transition-name="title-{viewId}">
         <h3 class="mb-2 font-mono text-base font-medium text-primary md:text-lg">
           {title}
         </h3>
       </div>
-      <div style:view-transition-name="desc-{viewId}">
+      <div class="w-fit" style:view-transition-name="desc-{viewId}">
         <p class="text-xs leading-relaxed text-muted-foreground md:text-sm">
           {description}
         </p>

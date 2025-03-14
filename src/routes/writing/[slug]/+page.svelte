@@ -88,14 +88,14 @@ const viewId = $derived.by(() => {
             <!-- Terminal-style header -->
             <div class="border-b border-accent/20 pb-4 mb-8">
                 <div class="text-sm text-muted-foreground flex items-center gap-4">
-                    <div style:view-transition-name="title-{viewId}">
+                    <div class="w-fit" style:view-transition-name="title-{viewId}">
                         <h3 class="text-2xl font-mono font-bold text-primary">
                             {data.meta.title}
                         </h3>
                     </div>
                 </div>
                 {#if data.meta.description}
-                    <div style:view-transition-name="desc-{viewId}">
+                    <div class="w-fit" style:view-transition-name="desc-{viewId}">
                         <p class="text-muted-foreground mt-2 text-sm">
                             {data.meta.description}
                         </p>
@@ -103,7 +103,6 @@ const viewId = $derived.by(() => {
                 {/if}
             </div>
 
-            <!-- Updated article content with consolidated Tailwind classes -->
             <div class="prose dark:prose-invert max-w-none prose-lg
                 // Base typography
                 prose-headings:font-heading prose-headings:tracking-tight

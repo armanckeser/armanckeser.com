@@ -73,13 +73,13 @@ const viewId = $derived.by(() => {
   >
     <div class="flex items-center gap-3 min-w-0">
       <div 
-        class={`shrink-0 px-1.5 py-0.5 font-mono text-xs ${tagClasses}`}
+        class={`shrink-0 px-1.5 py-0.5 w-fit font-mono text-xs ${tagClasses}`}
         style:view-transition-name="tag-{viewId}"
       >
         {tag}
       </div>
 
-      <div style:view-transition-name="title-{viewId}">
+      <div class="w-fit" style:view-transition-name="title-{viewId}">
         <h3 class="truncate font-mono text-base text-primary">
           {title}
         </h3>
@@ -112,7 +112,7 @@ const viewId = $derived.by(() => {
       <div
         class="grid grid-cols-[1fr_auto] items-center gap-4 px-2 sm:px-4 pb-3"
       >
-        <div style:view-transition-name="desc-{viewId}">
+        <div class="w-fit" style:view-transition-name="desc-{viewId}">
           <p class="text-sm text-muted-foreground">
             {description}
           </p>

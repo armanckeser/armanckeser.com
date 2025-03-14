@@ -324,3 +324,17 @@ html:is(:hover, :active) ::-webkit-scrollbar-thumb {
 	--tw-prose-code-bg: hsl(var(--accent) / 0.1);
 	--tw-prose-code: hsl(var(--accent-foreground));
 }
+
+::view-transition-old(text),
+::view-transition-new(text) {
+  /* Make the text views match the height of their group */
+  height: 100%;
+  /* Set the other dimension to auto,
+     which for images means they maintain their aspect ratio */
+  width: auto;
+}
+
+::view-transition-group(text) {
+  /* Clip the views as they overflow the group */
+  overflow: clip;
+}
