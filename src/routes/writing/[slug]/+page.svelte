@@ -109,7 +109,7 @@ const viewId = $derived.by(() => {
                 prose-headings:font-heading prose-headings:tracking-tight
                 prose-strong:text-primary prose-strong:font-semibold
                 prose-lead:text-muted-foreground/80
-                prose-p:leading-relaxed prose-p:opacity-85
+                prose-p:leading-relaxed prose-p:opacity-90
 
                 // Links
                 hover:prose-a:text-accent prose-a:transition-colors prose-a:duration-300

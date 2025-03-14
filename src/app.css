@@ -2,6 +2,29 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Font fallback size adjustments to minimize layout shifts */
+@layer base {
+	/* Adjust system-ui to match Inter metrics */
+	@font-face {
+		font-family: 'system-ui';
+		font-style: normal;
+		font-weight: 400;
+		size-adjust: 98%;
+		ascent-override: 90%;
+		src: local('system-ui');
+	}
+	
+	/* Adjust monospace fallbacks to match JetBrains Mono metrics */
+	@font-face {
+		font-family: 'monospace';
+		font-style: normal;
+		font-weight: 400;
+		size-adjust: 95%;
+		ascent-override: 92%;
+		src: local('monospace');
+	}
+}
+
 /* Opt-in to cross-document view transitions */
 @view-transition {
 	navigation: auto;

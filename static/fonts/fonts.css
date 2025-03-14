@@ -1,0 +1,28 @@
+/* Inter variable font family */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 100 900; /* Variable font supports all weights */
+  font-display: swap;
+  src: url('/fonts/Inter/InterVariable.woff2') format('woff2');
+  font-synthesis: none; /* Prevent synthesized bold/italic */
+}
+
+/* JetBrains Mono font family */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/JetBrainsMono/JetBrainsMono-Regular.woff2') format('woff2');
+}
+
+/* Cal Sans font family (fallback to system fonts until file is added) */
+@font-face {
+  font-family: 'Cal Sans';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  /* Will use system-ui fallback until Cal Sans is added locally */
+  src: local('system-ui');
+} 
