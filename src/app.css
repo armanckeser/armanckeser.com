@@ -156,6 +156,64 @@
 		@apply border border-border/50 bg-background/80 backdrop-blur-lg;
 	}
 
+	/* Enhanced glass effect from Card component */
+	.glass-card {
+		position: relative;
+		background: linear-gradient(
+			180deg,
+			hsl(var(--background) / 0.3) 0%,
+			hsl(var(--background) / 0.2) 100%
+		);
+		backdrop-filter: blur(8px);
+	}
+
+	.glass-card::before {
+		content: '';
+		position: absolute;
+		inset: 0;
+		border-radius: inherit;
+		padding: 1px;
+		background: linear-gradient(
+			180deg,
+			hsl(var(--border) / 0.3),
+			hsl(var(--border) / 0.1)
+		);
+		mask:
+			linear-gradient(black, black) content-box,
+			linear-gradient(black, black);
+		mask-composite: exclude;
+		pointer-events: none;
+	}
+
+	.dark .glass-card {
+		background: linear-gradient(
+			180deg,
+			hsl(var(--background) / 0.2) 0%,
+			hsl(var(--background) / 0.1) 100%
+		);
+	}
+
+	.dark .glass-card::before {
+		background: linear-gradient(
+			180deg,
+			hsl(var(--border) / 0.2),
+			hsl(var(--border) / 0.05)
+		);
+	}
+
+	/* Hide scrollbar utility for components */
+	.no-scrollbar {
+		scrollbar-width: none;
+	}
+	.no-scrollbar::-webkit-scrollbar {
+		display: none;
+	}
+
+	/* Transparent caret utility */
+	.transparent-caret {
+		caret-color: transparent;
+	}
+
 	.sharp-shadow {
 		box-shadow: 0 0 0 1px rgb(0 0 0 / 0.1), 0 1px 2px 0 rgb(0 0 0 / 0.05);
 	}

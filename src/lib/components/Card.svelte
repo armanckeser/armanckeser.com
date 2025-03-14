@@ -38,7 +38,7 @@ const viewId = $derived.by(() => {
 <svelte:element
   this={Component}
   {...componentProps}
-  class="glass hover:sharp-shadow-md group relative flex md:h-[180px] w-full flex-col justify-between overflow-hidden rounded-lg border border-border/40 bg-white/5 dark:bg-black/5 p-3 transition-all duration-300 hover:border-accent/20"
+  class="glass-card hover:sharp-shadow-md group relative flex md:h-[180px] w-full flex-col justify-between overflow-hidden rounded-lg border border-border/40 bg-white/5 dark:bg-black/5 p-3 transition-all duration-300 hover:border-accent/20"
 >
   <div class="flex md:hidden h-full flex-col">
     <div class="flex-1 space-y-1.5">
@@ -129,49 +129,3 @@ const viewId = $derived.by(() => {
     {/if}
   </div>
 </svelte:element>
-
-<style>
-  .glass {
-    position: relative;
-    background: linear-gradient(
-      180deg,
-      hsl(var(--background) / 0.3) 0%,
-      hsl(var(--background) / 0.2) 100%
-    );
-    backdrop-filter: blur(8px);
-  }
-
-  .glass::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    padding: 1px;
-    background: linear-gradient(
-      180deg,
-      hsl(var(--border) / 0.3),
-      hsl(var(--border) / 0.1)
-    );
-    mask:
-      linear-gradient(black, black) content-box,
-      linear-gradient(black, black);
-    mask-composite: exclude;
-    pointer-events: none;
-  }
-
-  :global(.dark) .glass {
-    background: linear-gradient(
-      180deg,
-      hsl(var(--background) / 0.2) 0%,
-      hsl(var(--background) / 0.1) 100%
-    );
-  }
-
-  :global(.dark) .glass::before {
-    background: linear-gradient(
-      180deg,
-      hsl(var(--border) / 0.2),
-      hsl(var(--border) / 0.05)
-    );
-  }
-</style>
