@@ -1,6 +1,3 @@
-<!--
-- TODO: [ ] Make everything more compact
--->
 <script lang="ts">
 import Card from "$lib/components/Card.svelte"
 import ContentSection from "$lib/components/ContentSection.svelte"
@@ -82,9 +79,9 @@ const projects = $derived(props.data.projects)
             <Card
               title={project.title}
               description={project.description}
-              tag="app"
+              tag={project.homepage ? "page" : "repo"}
               stars={project.stars}
-              href={project.url}
+              href={project.homepage || project.url}
               date={project.updated}
             />
           </div>
