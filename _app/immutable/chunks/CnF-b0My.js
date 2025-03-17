@@ -1,0 +1,1 @@
+const e={blog:{light:"text-accent bg-accent/10",dark:"dark:text-accent dark:bg-accent/10"},page:{light:"text-blue-500 bg-blue-500/10",dark:"dark:text-blue-400 dark:bg-blue-400/10"},repo:{light:"text-cyan-500 bg-cyan-500/10",dark:"dark:text-cyan-400 dark:bg-cyan-400/10"}};function g(a){const t=e[a];return`${t.light} ${t.dark}`}export{g};
