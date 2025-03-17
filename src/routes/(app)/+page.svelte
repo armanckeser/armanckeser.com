@@ -90,9 +90,3 @@ const projects = $derived(props.data.projects)
     </ContentSection>
   </div>
 </main>
-
-<style lang="postcss">
-  :global(body) {
-    @apply bg-background;
-  }
-</style>
