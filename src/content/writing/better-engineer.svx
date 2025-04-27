@@ -95,8 +95,10 @@ are terrible for the job at hand.
 Nowadays, I use the same principle when coding with Cursor. I try to identify the "artifact" I would
 like the AI to generate, and never let it generate a bad output in the first place. Just reword,
 clarify, and restart until its 80% of the way there and do the same on improving the artifact the
-last 15% of the way (i.e. letting the LLM edit the first version repeatedly instead of going through
-many, many versions and overwhelming the context). Most LLM applications hope to get some predefined
+15% more (i.e. letting the LLM edit the first version repeatedly instead of going through
+many, many versions and overwhelming the context), and finally manually edit the remaining 5%.
+
+Most LLM applications hope to get some predefined
 rules to be enough for the LLM to gather or guess the requirements, but only you know what you want,
 and until the LLMs become smarter than you, you have to steer the ship.
 
