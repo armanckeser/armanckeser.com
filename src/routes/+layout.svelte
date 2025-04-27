@@ -1,5 +1,6 @@
 <script lang="ts">
 import { onNavigate } from "$app/navigation"
+import Footer from "$lib/components/Footer.svelte"
 import ShellPrompt from "$lib/components/ShellPrompt.svelte"
 import { ModeWatcher } from "mode-watcher"
 import "../app.css"
@@ -47,4 +48,5 @@ onNavigate(navigation => {
 	<main class="flex-1">
 		{@render children()}
 	</main>
+	<Footer />
 </div>
