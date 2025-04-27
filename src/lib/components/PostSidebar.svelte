@@ -37,10 +37,10 @@ const formatDate = (date: string) =>
         href={post.slug}
         class="group flex items-center justify-between py-2 text-primary dark:text-primary transition-colors hover:text-accent dark:hover:text-accent"
       >
-        <span class="truncate text-sm">{post.title}</span>
+        <span class="truncate font-mono text-sm">{post.title}</span>
         {#if post.date}
           <span
-            class="ml-4 text-xs text-muted-foreground dark:text-muted-foreground group-hover:text-accent dark:group-hover:text-accent"
+            class="ml-4 font-mono text-xs text-muted-foreground dark:text-muted-foreground group-hover:text-accent dark:group-hover:text-accent"
           >
             {formatDate(post.date)}
           </span>
