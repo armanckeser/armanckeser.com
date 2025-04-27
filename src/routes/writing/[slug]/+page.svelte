@@ -203,7 +203,7 @@ const viewId = $derived.by(() => {
             reactionsEnabled="1"
             emitMetadata="0"
             inputPosition="bottom"
-            theme={mode === "dark" ? "noborder_dark" : "noborder_light"}
+            theme={mode.current === "dark" ? "noborder_dark" : "noborder_light"}
             lang="en"
             loading="lazy">
             </Giscus>
