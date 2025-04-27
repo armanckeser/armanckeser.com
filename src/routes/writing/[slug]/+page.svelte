@@ -5,6 +5,7 @@ import ScrollTracker from "$lib/components/ScrollTracker.svelte"
 import { cn } from "$lib/utils"
 import Giscus from "@giscus/svelte"
 import { Clock } from "lucide-svelte"
+import { mode } from "mode-watcher"
 import { scrollY } from "svelte/reactivity/window"
 import type { PageData } from "./$types"
 
@@ -191,6 +192,8 @@ const viewId = $derived.by(() => {
                 </div>
             </div>
             <Giscus
+            id="comments"
+            term="comments"
             repo="armanckeser/armanckeser.com"
             repoId="R_kgDOMS8yoA"
             category="General"
@@ -200,7 +203,7 @@ const viewId = $derived.by(() => {
             reactionsEnabled="1"
             emitMetadata="0"
             inputPosition="bottom"
-            theme="noborder_dark"
+            theme={mode === "dark" ? "noborder_dark" : "noborder_light"}
             lang="en"
             loading="lazy">
             </Giscus>
