@@ -1,6 +1,7 @@
 <script lang="ts">
 import { page } from "$app/state"
 import PostSidebar from "$lib/components/PostSidebar.svelte"
+import ScrollTracker from "$lib/components/ScrollTracker.svelte"
 import { cn } from "$lib/utils"
 import Giscus from "@giscus/svelte"
 import { Clock } from "lucide-svelte"
@@ -62,7 +63,31 @@ const viewId = $derived.by(() => {
 	<meta property="og:site_name" content="Armanc Keser" />
 	<meta property="article:published_time" content={data.meta.date} />
 	<meta property="article:author" content="Armanc Keser" />
+    <style>
+        /* Anchor link styles */
+        .anchor-link {
+            opacity: 0;
+            color: var(--color-accent);
+            margin-left: 0.25rem;
+            font-size: 0.75em;
+            text-decoration: none;
+            transition: opacity 0.2s ease;
+            cursor: pointer;
+        }
+        
+        h1:hover .anchor-link,
+        h2:hover .anchor-link,
+        h3:hover .anchor-link,
+        h4:hover .anchor-link,
+        h5:hover .anchor-link,
+        h6:hover .anchor-link {
+            opacity: 1;
+        }
+    </style>
 </svelte:head>
+
+<!-- Include scroll tracker for section detection -->
+<ScrollTracker />
 
 <!-- Reading progress bar -->
 <div class="sticky top-14 z-10 bg-background/80 backdrop-blur border-b border-accent/10">
@@ -116,6 +141,9 @@ const viewId = $derived.by(() => {
                 // Links
                 hover:prose-a:text-accent prose-a:transition-colors prose-a:duration-300
                 [&_a]:border-b-2 [&_a]:border-accent/30 [&_a:hover]:border-accent
+                
+                // Exception for anchor links
+                [&_.anchor-link]:border-b-0
 
                 // Headings
                 [&_h1]:text-3xl [&_h1]:relative [&_h1]:pb-2 [&_h1]:border-b-0
@@ -174,8 +202,7 @@ const viewId = $derived.by(() => {
             inputPosition="bottom"
             theme="noborder_dark"
             lang="en"
-            loading="lazy"
-            async>
+            loading="lazy">
             </Giscus>
         </div>
         <div class="lg:w-64 sticky top-[7.5rem] h-fit">

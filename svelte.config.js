@@ -1,6 +1,7 @@
 import adapter from "@sveltejs/adapter-static"
 import { vitePreprocess } from "@sveltejs/vite-plugin-svelte"
 import { mdsvex } from "mdsvex"
+import rehypeAutolinkHeadings from "rehype-autolink-headings"
 import rehypeSlug from "rehype-slug"
 import remarkToc from "remark-toc"
 
@@ -14,7 +15,21 @@ const config = {
 		mdsvex({
 			extensions: [".svx", ".md"],
 			remarkPlugins: [[remarkToc, { tight: true }]],
-			rehypePlugins: [rehypeSlug],
+			rehypePlugins: [
+				rehypeSlug,
+				[
+					rehypeAutolinkHeadings,
+					{
+						behavior: "append",
+						content: {
+							type: "element",
+							tagName: "span",
+							properties: { className: ["anchor-link"] },
+							children: [{ type: "text", value: " #" }],
+						},
+					},
+				],
+			],
 		}),
 	],
 
