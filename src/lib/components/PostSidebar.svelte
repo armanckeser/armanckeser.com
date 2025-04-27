@@ -1,6 +1,7 @@
 <script lang="ts">
 import { page } from "$app/state"
 import { getPosts } from "$lib/posts"
+import type { BlogPost } from "../../types"
 
 const normalizePath = (path: string) => {
 	// Remove any trailing dots
@@ -11,9 +12,13 @@ const normalizePath = (path: string) => {
 	return normalized.replace(/\.+/g, "")
 }
 
-const posts = getPosts().filter(
-	post => normalizePath(post.slug) !== normalizePath(page.url.pathname)
-)
+let posts = $state<BlogPost[]>([])
+
+$effect(() => {
+	posts = getPosts().filter(
+		post => normalizePath(post.slug) !== normalizePath(page.url.pathname)
+	)
+})
 
 const formatDate = (date: string) =>
 	new Date(date).toLocaleDateString("en-US", {
