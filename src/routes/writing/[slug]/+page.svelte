@@ -2,10 +2,10 @@
 import { page } from "$app/state"
 import PostSidebar from "$lib/components/PostSidebar.svelte"
 import { cn } from "$lib/utils"
+import Giscus from "@giscus/svelte"
 import { Clock } from "lucide-svelte"
 import { scrollY } from "svelte/reactivity/window"
 import type { PageData } from "./$types"
-import Giscus from "@giscus/svelte"
 
 const { data } = $props<{ data: PageData }>()
 
@@ -107,6 +107,7 @@ const viewId = $derived.by(() => {
             <div class="prose dark:prose-invert max-w-none prose-lg
                 // Base typography
                 prose-headings:font-heading prose-headings:tracking-tight
+                prose-headings:scroll-mt-24
                 prose-strong:text-primary prose-strong:font-semibold
                 prose-lead:text-muted-foreground/80
                 prose-p:leading-relaxed 
@@ -118,11 +119,14 @@ const viewId = $derived.by(() => {
 
                 // Headings
                 [&_h1]:text-3xl [&_h1]:relative [&_h1]:pb-2 [&_h1]:border-b-0
+                [&_h1]:scroll-mt-24
                 [&_h1]:before:content-[''] [&_h1]:before:absolute [&_h1]:before:-bottom-0.5 
                 [&_h1]:before:left-0 [&_h1]:before:w-12 [&_h1]:before:h-px 
                 [&_h1]:before:bg-gradient-to-r [&_h1]:before:from-accent [&_h1]:before:to-transparent
                 prose-h2:text-2xl prose-h2:border-b prose-h2:border-accent/10 prose-h2:pb-2 prose-h2:mt-10 prose-h2:opacity-90
+                prose-h2:scroll-mt-24
                 prose-h3:text-xl prose-h3:font-semibold prose-h3:opacity-80
+                prose-h3:scroll-mt-24
 
                 // Code blocks
                 prose-code:px-1.5 prose-code:py-1 prose-code:rounded prose-code:font-mono 
@@ -170,7 +174,7 @@ const viewId = $derived.by(() => {
             inputPosition="bottom"
             theme="noborder_dark"
             lang="en"
-            crossorigin="anonymous"
+            loading="lazy"
             async>
             </Giscus>
         </div>
