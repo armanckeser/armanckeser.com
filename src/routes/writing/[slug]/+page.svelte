@@ -5,6 +5,7 @@ import { cn } from "$lib/utils"
 import { Clock } from "lucide-svelte"
 import { scrollY } from "svelte/reactivity/window"
 import type { PageData } from "./$types"
+import Giscus from "@giscus/svelte"
 
 const { data } = $props<{ data: PageData }>()
 
@@ -108,7 +109,8 @@ const viewId = $derived.by(() => {
                 prose-headings:font-heading prose-headings:tracking-tight
                 prose-strong:text-primary prose-strong:font-semibold
                 prose-lead:text-muted-foreground/80
-                prose-p:leading-relaxed prose-p:opacity-90
+                prose-p:leading-relaxed 
+                prose-p:text-muted-foreground
 
                 // Links
                 hover:prose-a:text-accent prose-a:transition-colors prose-a:duration-300
@@ -128,9 +130,6 @@ const viewId = $derived.by(() => {
                 [&_pre]:p-6 [&_pre]:border-2 [&_pre>code]:bg-transparent [&_pre>code]:border-none [&_pre>code]:p-0
                 prose-pre:rounded-xl prose-pre:border prose-pre:border-accent/20 
                 prose-pre:shadow-sm prose-pre:text-primary prose-pre:bg-background
-
-                // Lists
-                
 
                 // Blockquotes
                 prose-blockquote:border-l-4 prose-blockquote:border-accent/40 
@@ -159,8 +158,22 @@ const viewId = $derived.by(() => {
                     {/if}
                 </div>
             </div>
+            <Giscus
+            repo="armanckeser/armanckeser.com"
+            repoId="R_kgDOMS8yoA"
+            category="General"
+            categoryId="DIC_kwDOMS8yoM4CpgZA"
+            mapping="pathname"
+            strict="0"
+            reactionsEnabled="1"
+            emitMetadata="0"
+            inputPosition="bottom"
+            theme="noborder_dark"
+            lang="en"
+            crossorigin="anonymous"
+            async>
+            </Giscus>
         </div>
-
         <div class="lg:w-64 sticky top-[7.5rem] h-fit">
             <PostSidebar />
         </div>

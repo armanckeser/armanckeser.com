@@ -6,22 +6,22 @@
 @layer base {
 	/* Adjust system-ui to match Inter metrics */
 	@font-face {
-		font-family: 'system-ui';
+		font-family: "system-ui";
 		font-style: normal;
 		font-weight: 400;
 		size-adjust: 98%;
 		ascent-override: 90%;
-		src: local('system-ui');
+		src: local("system-ui");
 	}
-	
+
 	/* Adjust monospace fallbacks to match JetBrains Mono metrics */
 	@font-face {
-		font-family: 'monospace';
+		font-family: "monospace";
 		font-style: normal;
 		font-weight: 400;
 		size-adjust: 95%;
 		ascent-override: 92%;
-		src: local('monospace');
+		src: local("monospace");
 	}
 }
 
@@ -41,7 +41,10 @@
 /* View transition animations */
 ::view-transition {
 	animation-duration: var(--view-transition-duration, 600ms);
-	animation-timing-function: var(--view-transition-easing, cubic-bezier(0.16, 1, 0.3, 1));
+	animation-timing-function: var(
+		--view-transition-easing,
+		cubic-bezier(0.16, 1, 0.3, 1)
+	);
 }
 
 ::view-transition-old(root),
@@ -60,7 +63,10 @@
 ::view-transition-old(page),
 ::view-transition-new(page) {
 	animation-duration: var(--view-transition-duration, 600ms);
-	animation-timing-function: var(--view-transition-easing, cubic-bezier(0.16, 1, 0.3, 1));
+	animation-timing-function: var(
+		--view-transition-easing,
+		cubic-bezier(0.16, 1, 0.3, 1)
+	);
 }
 
 @layer base {
@@ -201,7 +207,7 @@
 	}
 
 	.glass-card::before {
-		content: '';
+		content: "";
 		position: absolute;
 		inset: 0;
 		border-radius: inherit;
@@ -211,8 +217,7 @@
 			hsl(var(--border) / 0.3),
 			hsl(var(--border) / 0.1)
 		);
-		mask:
-			linear-gradient(black, black) content-box,
+		mask: linear-gradient(black, black) content-box,
 			linear-gradient(black, black);
 		mask-composite: exclude;
 		pointer-events: none;
@@ -280,7 +285,10 @@
 	.smooth-view-transition {
 		view-transition-name: var(--view-name, auto);
 		animation-duration: var(--view-transition-duration, 600ms);
-		animation-timing-function: var(--view-transition-easing, cubic-bezier(0.16, 1, 0.3, 1));
+		animation-timing-function: var(
+			--view-transition-easing,
+			cubic-bezier(0.16, 1, 0.3, 1)
+		);
 	}
 }
 
@@ -375,7 +383,10 @@ html:is(:hover, :active) ::-webkit-scrollbar-thumb {
 	width: auto;
 	/* Add smooth animation properties */
 	animation-duration: var(--view-transition-duration, 600ms);
-	animation-timing-function: var(--view-transition-easing, cubic-bezier(0.16, 1, 0.3, 1));
+	animation-timing-function: var(
+		--view-transition-easing,
+		cubic-bezier(0.16, 1, 0.3, 1)
+	);
 }
 
 ::view-transition-group(text) {

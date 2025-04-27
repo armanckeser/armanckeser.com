@@ -1,0 +1,116 @@
+---
+title: "LLMs are making me a better engineer"
+description: "My experience with LLMs and why I think they are making me a better engineer"
+tags: [LLMs, engineering]
+date: "2025-04-26"
+---
+> TLDR: I find that instead of frustrating myself with a sequence of bad attempts by an LLM, a loop
+of reading the output, stopping it immediately as I see something wrong or outside my preference,
+and editing my original prompt until I get a consistent and quality output is letting me discover my
+requirements in an incremental way, leading to quality code, technical writing, and output in
+general. This also sharpens my thought process around
+requirements. Additionally, having worked on LLM based systems in the past years, I am finding
+myself saying things like "this --buzzword technology-- is a worse --boring but stable
+technology--", and deeply thinking about incentives, entropy, and first principles problem solving
+when communicating around engineering decisions about LLM based systems.
+Altogether, to make useful LLM systems and to make LLMs I use useful, I find myself having to become
+a better engineer.
+
+## Contents
+
+
+## The Question
+
+I know everyone is tired of hearing, talking, thinking, seeing, thinking, and hearing about AI and
+LLMs and if they are good or not... so let me add to the pile.
+
+
+As someone who has paid a yearly subscription fee for Cursor, every time a new article comes out about [people stopping using AI code editors](https://lucianonooijen.com/blog/why-i-stopped-using-ai-code-editors/), [AI being forced on workers who don't want it](https://aftermath.site/ai-video-game-development-art-vibe-coding-midjourney), or [how bad AI generated code is](https://www.axios.com/2024/06/13/genai-code-mistakes-copilot-gemini-chatgpt?ref=wheresyoured.at), I find myself asking the question: Am I using LLMs in a way beneficial to me? And when I say "beneficial", I mean that in the most holistic sense, are they making me get more done in a sustainable way? Are they enabling me to do things I couldn't (or wouldn't)? Are they improving my skills for the long term? And after some consideration, I think the answer is that LLMs are making me (or forcing me to be) a better engineer.
+
+## Why riding the hype wave (carefully) matters
+
+Let me elaborate. Like many fresh out of the college engineers, I have been actively using and testing any new shiny AI tech that came out (from UI builders to AI native note taking apps to Shopping assistants) in the past 2-3 years. Unlike full-stack or FE engineers who were already tired by the new JS frameworks, or seasoned engineers who already know it'll probably take a life time for a new tech to replace them and just don't care, being a junior backend engineer, I had the capacity and will to keep an eye on trends and new technology no matter how overwhelming (approaching burn out soon).
+
+Which brings me to the first beneficial point of LLMs: they are the cutting edge, and ***it is
+valuable to speak and think cutting edge***. Yes, trend catching and switching frameworks and
+applications every day is not sustainable or productive and it is tiring, really, really tiring.
+When it comes to making a business or just building things, sticking with the tried and true, honing
+your skills instead of jumping ship everyday is the way to go. But, I personally see a lot of value
+in thinking about how I can use a new technology to solve an old problem, or even better, something
+people don't even recognize as a problem. Staying on the cutting edge pushes you to develop the
+skills to distinguish ***what is air and what is impactful***. It might be a healthier life to
+assume any new thing that will be impactful will find its way to you in time, but most change is
+derivative and even the slightest original good idea could shape the future of a new technology, or
+present an opportunity you can't find in another time. As an engineer, I find it extremely valuable
+that I know what LLMs are actually good or bad at, and even more so that I can have strong opinions
+about entire movements (please don't build your system as multi agent). Most valuably, being on the
+edge gives you a chance to identify what an industry might have misidentified and a chance to be the
+one to fill the gap.
+
+## AI coding removes the friction of starting and finishing projects
+
+When it comes to using LLMs, I, like most people, started with the chat interfaces and gradually moved up to specialized systems like [chef](https://chef.convex.dev/), [vetted.ai](https://vetted.ai/) (been using this since they were called Lustre), and AI coding IDEs like Cursor. Side note: I find it interesting and true to experience that Cursor lists "*Cursor lets you breeze through changes by predicting your next edit*" as the first feature in their website, as I think that is the part I miss the most when I use a different editor. 
+
+
+It took me quite a while to pull the trigger on Cursor, but I finally bought in for a year on
+January. What convinced me was observing how AI coding just made me much more likely to start and
+finish projects. I would get an idea like "I want to have an app to make hanging things easier and
+why not learn 3D on the web on the way" to creating [EasyHang](https://easy-hang.pages.dev/),
+creating a Slackbot for work that automates the process of deploying to staging by getting approvals
+from everyone who has commits on the dev branch, or the website you are reading this on. What AI
+Coding allowed me to do, was to turn on some lo-fi music, my walking pad, and just keep asking the
+AI to fix things my way until things sort of worked. This workflow later got named "vibe coding",
+and it gets a bad rep, but the truth is that through vibe coding I got to create applications that I
+wouldn't have otherwise. It just made coding for myself, after coding for someone else for an 8 hour
+workday, possible and fun.
+
+## The "Vibe Coding" Trap: More Projects, Not Necessarily Better Skills
+
+Just because AI coders made me code more doesn't mean that they made me a better engineer. And in most of the above cases they didn't. They made me happier, helped me create things that I will be adding to the "things I am proud of" in the [year compass](https://yearcompass.com/) I will fill this year (did this section in the last year's compass give me an existential crisis that lead to my yearly subscription to Cursor? We will never know), but I didn't really "learn 3D on the web on the way", I just used it.
+
+### Stop and regenerate over and over again
+
+This brings me to a revelation I had a few weeks ago using [OpenWebUI](https://openwebui.com/) to talk to work allowed LLMs for writing an architectural proposal. I had already written my thoughts in freeform on why and when this architecture would be better, and why it fit our problem space. Unfortunately for me, arguments are better received when they have a certain structure and are accompanied by diagrams and examples, counter examples etc, so I turned to Claude for help.
+
+
+LLMs are notoriously [bad at writing](https://en.wikipedia.org/wiki/AI_slop), ([although maybe they are getting better](https://eqbench.com/creative_writing.html)), so I wasn't expecting much, and in the first iteration I got what I expected. What I didn't expect was how impactful it was for me to stop the LLM's response as soon as I saw something out of order, reword and add new requirements to my question and rerun the generation. Doing this a few turns, I ended up with a proposal with clear structure, short, to the point arguments, specific examples generated based on the context I provided, and helpful diagrams made with [mermaid](https://mermaid.js.org/). It even wrote things like
+
+> **The [x] approach doesn't solve the [y] problem—it fragments it across multiple boundaries while adding communication complexity.**
+
+Really understanding the core of my argument and distilling it into a direct point at the end of a
+chapter. After a few manual edits, I published the proposal and even got some compliments on the
+presentation. Even created a web version by asking the LLM to just make a single page HTML using
+prebuilt components from a CDN and vanilla JS. The proposal would not have been close to what it is
+if I hadn't spent days writing and editing the free-form version, gathered context, and knew exactly
+what I was trying to achieve, but the output of the LLM did teach me things. It showed me how I
+could marry all the dispersed ideas I had into a coherent argument, and it wasn't by letting the LLM
+do what it wants, but by figuring out ***what I want*** through forcing myself to come up with the
+requirements that would get the LLM to not generate slop. This might sound like a no-brainer, but I
+think the easy thing and what most people do is to just write the next prompt correcting the mistakes the LLM made, that
+leading to context overloading and even more mistakes, getting frustrated and concluding that LLMs
+are terrible for the job at hand.
+
+## Recognize the artifact, and try to get it right in one prompt (not the first one)
+
+Nowadays, I use the same principle when coding with Cursor. I try to identify the "artifact" I would
+like the AI to generate, and never let it generate a bad output in the first place. Just reword,
+clarify, and restart until its 80% of the way there and do the same on improving the artifact the
+last 15% of the way (i.e. letting the LLM edit the first version repeatedly instead of going through
+many, many versions and overwhelming the context). Most LLM applications hope to get some predefined
+rules to be enough for the LLM to gather or guess the requirements, but only you know what you want,
+and until the LLMs become smarter than you, you have to steer the ship.
+
+## Thinking about LLM systems and trends around them
+
+There is a separate part of this argument, about how working on LLM systems and tech around them
+also pushes me to think about the parallels between some fundamental software problems engineers
+have been working on for decades and problems that the industry frames as new to sell useless tech.
+And how important of a skill it is to be able to communicate these thoughts in a careful manner when
+most people seem to disagree with you. But this probably warrants
+a separate blog post.
+
+## So, Are LLMs Making *You* a Better Engineer?
+
+Thank you if you have read until this point, I am new to writing a blog so any feedback is more than welcome. What do you think about my argument? Do LLMs make you a better engineer?
+
+
