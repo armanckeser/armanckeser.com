@@ -16,23 +16,12 @@ const {
 }>()
 
 import { type Tag, getTagClasses } from "$lib/tags"
-const tagClasses = getTagClasses(tag)
+import { formatDate, getViewTransitionId } from "$lib/utils"
 
+const tagClasses = getTagClasses(tag)
 const Component = $derived(href ? "a" : "div")
 const componentProps = $derived(href ? { href, class: "block" } : {})
-
-// Generate a unique ID for view transitions
-const viewId = $derived.by(() => {
-	if (href) {
-		// Extract the slug from the href and format it to match the post's viewId
-		const slug = href.split("/").pop() // Get the last part of the path
-		const id = `-writing-${slug}`
-		return id
-	}
-	// Fallback for non-link cards (should not be used for blog posts)
-	const id = title.toLowerCase().replace(/[^a-z0-9]+/g, "-")
-	return id
-})
+const viewId = $derived(getViewTransitionId(href, title))
 </script>
 
 <svelte:element
@@ -56,13 +45,13 @@ const viewId = $derived.by(() => {
               class="font-mono text-[0.65rem] text-muted-foreground relative z-10"
               style:view-transition-name="date-{viewId}"
             >
-              {new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+              {formatDate(date)}
             </time>
           {/if}
           {#if stars && stars > 0}
-            <div class="flex items-center gap-1 text-xs text-muted-foreground">
-              <span class="text-accent">★</span>
-              <span>{stars}</span>
+            <div class="flex items-center gap-1 text-xs text-muted-foreground" aria-label="{stars} stars">
+              <span class="text-accent" aria-hidden="true">★</span>
+              <span class="tabular-nums">{stars}</span>
             </div>
           {/if}
         </div>
@@ -93,15 +82,16 @@ const viewId = $derived.by(() => {
             class="font-mono text-xs text-muted-foreground"
             style:view-transition-name="date-{viewId}"
           >
-            {new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+            {formatDate(date)}
           </time>
         {/if}
         {#if stars && stars > 0}
           <div
             class="flex items-center gap-1 font-mono text-xs text-muted-foreground"
+            aria-label="{stars} stars"
           >
-            <span class="text-accent">★</span>
-            <span>{stars}</span>
+            <span class="text-accent" aria-hidden="true">★</span>
+            <span class="tabular-nums">{stars}</span>
           </div>
         {/if}
       </div>
@@ -123,6 +113,7 @@ const viewId = $derived.by(() => {
     {#if href}
       <div
         class="absolute bottom-2 right-4 font-mono text-xs text-accent opacity-0 transition-all duration-300 group-hover:translate-x-1 group-hover:opacity-100"
+        aria-hidden="true"
       >
         →
       </div>

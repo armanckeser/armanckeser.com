@@ -1,5 +1,7 @@
 <script lang="ts">
 import { slide } from "svelte/transition"
+import { getTagClasses } from "$lib/tags"
+import { formatDate, getViewTransitionId } from "$lib/utils"
 
 const {
 	title,
@@ -23,33 +25,12 @@ const {
 	onmouseleave?: () => void
 }>()
 
-import { getTagClasses } from "$lib/tags"
 const tagClasses = getTagClasses(tag)
-
-const formattedDate = $derived(
-	date
-		? new Date(date).toLocaleDateString("en-US", {
-				year: "numeric",
-				month: "short",
-				day: "numeric",
-			})
-		: null
-)
-
-// Generate unique IDs for ARIA attributes
+const formattedDate = $derived(date ? formatDate(date) : null)
 const descriptionId = $derived(
 	`description-${title.toLowerCase().replace(/\s+/g, "-")}`
 )
-
-// Generate view transition ID
-const viewId = $derived.by(() => {
-	if (href) {
-		const slug = href.split("/").pop()
-		const id = `-writing-${slug}`
-		return id
-	}
-	return title.toLowerCase().replace(/[^a-z0-9]+/g, "-")
-})
+const viewId = $derived(getViewTransitionId(href, title))
 </script>
 
 <article
@@ -67,7 +48,7 @@ const viewId = $derived.by(() => {
     role="button"
     tabindex="0"
     aria-expanded={isSelected}
-    onkeydown={(e: KeyboardEvent) => e.key === 'Enter' && onclick()}
+    onkeydown={(e: KeyboardEvent) => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), onclick())}
     data-sveltekit-preload-data="hover"
     data-sveltekit-preload-code="hover"
   >

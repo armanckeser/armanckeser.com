@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Skill(must-do-aligning-for-non-simple-tasks)",
+      "Skill(web-search)",
+      "Bash(~/.claude/skills/web-search/scripts/web_search.py:*)",
+      "Bash(npm run build:*)"
+    ]
+  }
+}

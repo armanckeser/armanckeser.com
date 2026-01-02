@@ -1,6 +1,7 @@
 <script lang="ts">
 import { page } from "$app/state"
 import PostSidebar from "$lib/components/PostSidebar.svelte"
+import TerminalHeader from "$lib/components/TerminalHeader.svelte"
 
 const errorData = $derived({
 	status: page.status,
@@ -16,12 +17,7 @@ const errorData = $derived({
 
 <article class="container justify-around p-4 flex flex-col lg:flex-row gap-8">
   <div class="flex-1 max-w-[65ch] lg:max-w-[75ch] xl:max-w-[85ch]">
-    <!-- Terminal-style error header -->
-    <div class="font-mono border-b border-accent/20 pb-4 mb-8">
-      <div class="text-sm text-muted-foreground flex items-center gap-4">
-        <span>$ error --code {errorData.status}</span>
-      </div>
-    </div>
+    <TerminalHeader command="error --code {errorData.status}" />
 
     <!-- Error content -->
     <div class="terminal-block" data-variant="warning">

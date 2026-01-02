@@ -1,14 +1,12 @@
 <script lang="ts">
 import { page } from "$app/state"
 import { getPosts } from "$lib/posts"
+import { formatDateShort } from "$lib/utils"
 import type { BlogPost } from "../../types"
 
 const normalizePath = (path: string) => {
-	// Remove any trailing dots
 	let normalized = path.replace(/\.+/g, "")
-	// Remove hash and query parameters
 	normalized = normalized.split(/[#?]/)[0]
-	// Remove any remaining consecutive dots
 	return normalized.replace(/\.+/g, "")
 }
 
@@ -19,12 +17,6 @@ $effect(() => {
 		post => normalizePath(post.slug) !== normalizePath(page.url.pathname)
 	)
 })
-
-const formatDate = (date: string) =>
-	new Date(date).toLocaleDateString("en-US", {
-		month: "short",
-		day: "numeric",
-	})
 </script>
 
 {#if posts.length > 0}
@@ -47,7 +39,7 @@ const formatDate = (date: string) =>
           <span
             class="ml-4 font-mono text-xs text-muted-foreground dark:text-muted-foreground group-hover:text-accent dark:group-hover:text-accent"
           >
-            {formatDate(post.date)}
+            {formatDateShort(post.date)}
           </span>
         {/if}
       </a>

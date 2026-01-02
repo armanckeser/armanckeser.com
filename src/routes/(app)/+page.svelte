@@ -25,7 +25,7 @@ const projects = $derived(props.data.projects)
         <h1
           class="animate-slide-in font-mono text-4xl font-bold tracking-tight text-primary md:text-6xl lg:text-7xl"
         >
-          Armanc Keser<span class="animate-pulse text-accent">_</span>
+          Armanc Keser<span class="animate-pulse text-accent" aria-hidden="true">_</span>
         </h1>
 
         <p

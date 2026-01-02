@@ -2,7 +2,8 @@
 import { page } from "$app/state"
 import PostSidebar from "$lib/components/PostSidebar.svelte"
 import ScrollTracker from "$lib/components/ScrollTracker.svelte"
-import { cn } from "$lib/utils"
+import TerminalHeader from "$lib/components/TerminalHeader.svelte"
+import { cn, formatDate } from "$lib/utils"
 import Giscus from "@giscus/svelte"
 import { Clock } from "lucide-svelte"
 import { mode } from "mode-watcher"
@@ -11,10 +12,8 @@ import type { PageData } from "./$types"
 
 const { data } = $props<{ data: PageData }>()
 
-// Reading progress state
 let scrollProgress = $state<number>(0)
 
-// Calculate reading progress using window scrollY
 $effect(() => {
 	const height = document.documentElement.scrollHeight - window.innerHeight
 	if (height > 0) {
@@ -22,16 +21,6 @@ $effect(() => {
 	}
 })
 
-// Format date for terminal display
-const formatDate = (date: string) => {
-	return new Date(date).toLocaleDateString("en-US", {
-		year: "numeric",
-		month: "short",
-		day: "numeric",
-	})
-}
-
-// Get tag classes based on tag name
 const getTagClasses = (tag: string) => {
 	return cn(
 		"font-mono text-xs px-1.5 py-0.5 rounded",
@@ -39,12 +28,7 @@ const getTagClasses = (tag: string) => {
 	)
 }
 
-// Generate view transition ID with fallback
-const viewId = $derived.by(() => {
-	// Use the URL params to match the card's href format
-	const id = `-writing-${page.params.slug}`
-	return id
-})
+const viewId = $derived(`-writing-${page.params.slug}`)
 </script>
 
 <svelte:head>
@@ -102,9 +86,9 @@ const viewId = $derived.by(() => {
     </div>
     <!-- Content stays in container -->
     <div class="container mx-auto px-4 sm:px-8">
-        <div class="font-mono text-xs text-muted-foreground py-1.5 flex items-center gap-2">
-            <Clock class="h-3 w-3" />
-            <span>READING [{scrollProgress}%]</span>
+        <div class="font-mono text-xs text-muted-foreground py-1.5 flex items-center gap-2" role="status" aria-live="polite">
+            <Clock class="h-3 w-3" aria-hidden="true" />
+            <span>READING [<span class="tabular-nums">{scrollProgress}</span>%]</span>
         </div>
     </div>
 </div>
@@ -112,65 +96,14 @@ const viewId = $derived.by(() => {
 <article class="container mx-auto px-4 py-8 md:px-8 md:py-16">
     <div class="max-w-[85rem] mx-auto flex flex-col lg:flex-row gap-8">
         <div class="flex-1 max-w-[65ch] lg:max-w-[75ch] xl:max-w-[85ch]">
-            <!-- Terminal-style header -->
-            <div class="border-b border-accent/20 pb-4 mb-8">
-                <div class="text-sm text-muted-foreground flex items-center gap-4">
-                    <div class="w-fit" style:view-transition-name="title-{viewId}">
-                        <h3 class="text-2xl font-mono font-bold text-primary">
-                            {data.meta.title}
-                        </h3>
-                    </div>
-                </div>
-                {#if data.meta.description}
-                    <div class="w-fit" style:view-transition-name="desc-{viewId}">
-                        <p class="text-muted-foreground mt-2 text-sm">
-                            {data.meta.description}
-                        </p>
-                    </div>
-                {/if}
-            </div>
+            <TerminalHeader
+                command="cat {page.params.slug}.md"
+                title={data.meta.title}
+                description={data.meta.description}
+                viewId={viewId}
+            />
 
-            <div class="prose dark:prose-invert max-w-none prose-lg
-                // Base typography
-                prose-headings:font-heading prose-headings:tracking-tight
-                prose-headings:scroll-mt-24
-                prose-strong:text-primary prose-strong:font-semibold
-                prose-lead:text-muted-foreground/80
-                prose-p:leading-relaxed 
-                prose-p:text-muted-foreground
-
-                // Links
-                hover:prose-a:text-accent prose-a:transition-colors prose-a:duration-300
-                [&_a]:border-b-2 [&_a]:border-accent/30 [&_a:hover]:border-accent
-                
-                // Exception for anchor links
-                [&_.anchor-link]:border-b-0
-
-                // Headings
-                [&_h1]:text-3xl [&_h1]:relative [&_h1]:pb-2 [&_h1]:border-b-0
-                [&_h1]:scroll-mt-24
-                [&_h1]:before:content-[''] [&_h1]:before:absolute [&_h1]:before:-bottom-0.5 
-                [&_h1]:before:left-0 [&_h1]:before:w-12 [&_h1]:before:h-px 
-                [&_h1]:before:bg-gradient-to-r [&_h1]:before:from-accent [&_h1]:before:to-transparent
-                prose-h2:text-2xl prose-h2:border-b prose-h2:border-accent/10 prose-h2:pb-2 prose-h2:mt-10 prose-h2:opacity-90
-                prose-h2:scroll-mt-24
-                prose-h3:text-xl prose-h3:font-semibold prose-h3:opacity-80
-                prose-h3:scroll-mt-24
-
-                // Code blocks
-                prose-code:px-1.5 prose-code:py-1 prose-code:rounded prose-code:font-mono 
-                prose-code:text-sm prose-code:border prose-code:border-accent/20
-                [&_pre]:p-6 [&_pre]:border-2 [&_pre>code]:bg-transparent [&_pre>code]:border-none [&_pre>code]:p-0
-                prose-pre:rounded-xl prose-pre:border prose-pre:border-accent/20 
-                prose-pre:shadow-sm prose-pre:text-primary prose-pre:bg-background
-
-                // Blockquotes
-                prose-blockquote:border-l-4 prose-blockquote:border-accent/40 
-                prose-blockquote:pl-4 prose-blockquote:bg-gradient-to-b 
-                prose-blockquote:from-background/5
-
-                // Images
-                prose-img:rounded-xl prose-img:border prose-img:border-accent/20">
+            <div class="prose-blog">
                 <data.content />
             </div>
 

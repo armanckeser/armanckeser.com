@@ -1,4 +1,5 @@
 <script lang="ts">
+import TerminalHeader from "$lib/components/TerminalHeader.svelte"
 </script>
 
 <svelte:head>
@@ -8,21 +9,10 @@
 
 <article class="container justify-around p-4 flex flex-col">
   <div class="flex-1 max-w-[65ch] lg:max-w-[75ch] xl:max-w-[85ch] mx-auto">
-    <!-- Terminal-style header -->
-    <div class="font-mono border-b border-accent/20 pb-4 mb-8">
-      <div class="text-sm text-muted-foreground flex items-center gap-4">
-        <span>$ cat privacy-policy.md</span>
-      </div>
-    </div>
+    <TerminalHeader command="cat privacy-policy.md" />
 
     <!-- Content -->
-    <div class="prose dark:prose-invert max-w-none prose-lg
-      // Base typography
-      prose-headings:font-heading prose-headings:tracking-tight
-      prose-headings:scroll-mt-24
-      prose-strong:text-primary prose-strong:font-semibold
-      prose-p:leading-relaxed 
-      prose-p:text-muted-foreground">
+    <div class="prose-blog">
 
       <h1>Privacy Policy</h1>
       

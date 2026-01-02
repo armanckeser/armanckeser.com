@@ -43,9 +43,13 @@ onNavigate(navigation => {
 
 <ModeWatcher />
 
+<a href="#main-content" class="skip-to-content">
+	Skip to content
+</a>
+
 <div class="min-h-screen flex flex-col w-full">
 	<ShellPrompt />
-	<main class="flex-1">
+	<main id="main-content" class="flex-1" tabindex="-1">
 		{@render children()}
 	</main>
 	<Footer />

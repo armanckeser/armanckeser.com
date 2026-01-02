@@ -36,6 +36,40 @@
 	--view-transition-easing: cubic-bezier(0.16, 1, 0.3, 1);
 	scrollbar-gutter: stable;
 	overflow-y: scroll; /* Force scrollbar space allocation */
+
+	/* Spacing scale (8px base) */
+	--space-1: 0.25rem; /* 4px */
+	--space-2: 0.5rem; /* 8px */
+	--space-3: 0.75rem; /* 12px */
+	--space-4: 1rem; /* 16px */
+	--space-5: 1.25rem; /* 20px */
+	--space-6: 1.5rem; /* 24px */
+	--space-8: 2rem; /* 32px */
+	--space-10: 2.5rem; /* 40px */
+	--space-12: 3rem; /* 48px */
+	--space-16: 4rem; /* 64px */
+
+	/* Layout constants */
+	--header-height: 3.5rem; /* 56px - h-14 */
+	--sticky-offset: 7.5rem; /* Header + progress bar */
+}
+
+/* Respect user's motion preferences */
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
+	}
+
+	::view-transition-group(*),
+	::view-transition-old(*),
+	::view-transition-new(*) {
+		animation: none !important;
+	}
 }
 
 /* View transition animations */
@@ -270,6 +304,11 @@
 		text-wrap: balance;
 	}
 
+	/* Tabular numbers for aligned numeric displays */
+	.tabular-nums {
+		font-variant-numeric: tabular-nums;
+	}
+
 	.gradient-border {
 		--gradient-border: linear-gradient(
 			to right,
@@ -314,6 +353,39 @@ html:is(:hover, :active) ::-webkit-scrollbar-thumb {
 /* Modern Focus Styles */
 :focus-visible {
 	@apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+}
+
+/* Touch-friendly clickable elements */
+a,
+button,
+[role="button"],
+input,
+select,
+textarea {
+	touch-action: manipulation;
+}
+
+/* Ensure minimum touch targets on mobile */
+@media (pointer: coarse) {
+	button,
+	[role="button"],
+	a:not(.prose a) {
+		min-height: 44px;
+		min-width: 44px;
+	}
+}
+
+/* Skip to content link */
+.skip-to-content {
+	@apply absolute -top-12 left-4 z-[100] px-4 py-2 bg-accent text-accent-foreground font-mono text-sm rounded-md;
+	@apply focus:top-4 focus:outline-none focus:ring-2 focus:ring-ring;
+	transition: top 0.2s ease-in-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.skip-to-content {
+		transition: none;
+	}
 }
 
 /* Base terminal styling */
@@ -371,6 +443,60 @@ html:is(:hover, :active) ::-webkit-scrollbar-thumb {
 .prose code {
 	--tw-prose-code-bg: hsl(var(--accent) / 0.1);
 	--tw-prose-code: hsl(var(--accent-foreground));
+}
+
+/* Consolidated prose styling for blog posts and content pages */
+@layer components {
+	.prose-blog {
+		@apply prose dark:prose-invert max-w-none prose-lg;
+
+		/* Base typography */
+		@apply prose-headings:font-heading prose-headings:tracking-tight prose-headings:scroll-mt-24;
+		@apply prose-strong:text-primary prose-strong:font-semibold;
+		@apply prose-lead:text-muted-foreground/80;
+		@apply prose-p:leading-relaxed prose-p:text-muted-foreground;
+
+		/* Links */
+		@apply hover:prose-a:text-accent prose-a:transition-colors prose-a:duration-300;
+
+		/* Headings */
+		@apply prose-h2:text-2xl prose-h2:border-b prose-h2:border-accent/10 prose-h2:pb-2 prose-h2:mt-10 prose-h2:opacity-90 prose-h2:scroll-mt-24;
+		@apply prose-h3:text-xl prose-h3:font-semibold prose-h3:opacity-80 prose-h3:scroll-mt-24;
+
+		/* Code blocks */
+		@apply prose-code:px-1.5 prose-code:py-1 prose-code:rounded prose-code:font-mono prose-code:text-sm prose-code:border prose-code:border-accent/20;
+		@apply prose-pre:rounded-xl prose-pre:border prose-pre:border-accent/20 prose-pre:shadow-sm prose-pre:text-primary prose-pre:bg-background;
+
+		/* Blockquotes */
+		@apply prose-blockquote:border-l-4 prose-blockquote:border-accent/40 prose-blockquote:pl-4;
+
+		/* Images */
+		@apply prose-img:rounded-xl prose-img:border prose-img:border-accent/20;
+
+		/* Link underlines */
+		& a:not(.anchor-link) {
+			@apply border-b-2 border-accent/30 hover:border-accent;
+		}
+
+		/* H1 special styling with accent underline */
+		& h1 {
+			@apply text-3xl relative pb-2 border-b-0 scroll-mt-24;
+		}
+
+		& h1::before {
+			content: "";
+			@apply absolute -bottom-0.5 left-0 w-12 h-px bg-gradient-to-r from-accent to-transparent;
+		}
+
+		/* Pre blocks */
+		& pre {
+			@apply p-6 border-2;
+		}
+
+		& pre > code {
+			@apply bg-transparent border-none p-0;
+		}
+	}
 }
 
 /* Text element transitions */

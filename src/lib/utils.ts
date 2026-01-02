@@ -7,6 +7,47 @@ export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs))
 }
 
+/**
+ * Format a date string for display.
+ * @param date - ISO date string or Date object
+ * @param options - Intl.DateTimeFormat options (defaults to "Jan 1, 2024" format)
+ */
+export function formatDate(
+	date: string | Date,
+	options: Intl.DateTimeFormatOptions = {
+		year: "numeric",
+		month: "short",
+		day: "numeric",
+	}
+): string {
+	return new Date(date).toLocaleDateString("en-US", options)
+}
+
+/**
+ * Format a date for sidebar display (shorter format).
+ * @param date - ISO date string or Date object
+ */
+export function formatDateShort(date: string | Date): string {
+	return formatDate(date, { month: "short", day: "numeric" })
+}
+
+/**
+ * Generate a view transition ID from an href or title.
+ * Used for coordinating view transitions between cards and detail pages.
+ * @param href - Optional href to extract slug from
+ * @param title - Fallback title for non-link cards
+ */
+export function getViewTransitionId(href?: string, title?: string): string {
+	if (href) {
+		const slug = href.split("/").pop()
+		return `-writing-${slug}`
+	}
+	if (title) {
+		return title.toLowerCase().replace(/[^a-z0-9]+/g, "-")
+	}
+	return ""
+}
+
 type FlyAndScaleParams = {
 	y?: number
 	x?: number
