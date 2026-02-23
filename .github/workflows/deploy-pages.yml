@@ -23,7 +23,7 @@ jobs:
       - run: bun install --frozen-lockfile
       - run: bun run build
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+          GH_PAT: ${{ secrets.GH_PAT }}
       - uses: actions/upload-pages-artifact@v3
         with:
           path: build
