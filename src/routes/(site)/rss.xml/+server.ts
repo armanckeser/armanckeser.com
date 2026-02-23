@@ -1,6 +1,6 @@
 import * as config from "$lib/config"
 import { getPosts } from "$lib/posts"
-import type { BlogPost } from "../../types"
+import type { BlogPost } from "../../../types"
 
 export const prerender = true
 

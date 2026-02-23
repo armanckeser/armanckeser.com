@@ -1,7 +1,7 @@
 <script lang="ts">
 import { preloadCode, preloadData } from "$app/navigation"
 import CompactCard from "$lib/components/CompactCard.svelte"
-import type { BlogPost } from "../../types"
+import type { BlogPost } from "../../../types"
 import type { PageData } from "./$types"
 
 const { data } = $props<{ data: PageData }>()

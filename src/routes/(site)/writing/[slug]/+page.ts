@@ -3,7 +3,9 @@ import type { PageLoad } from "./$types"
 
 export const load: PageLoad = async ({ params }) => {
 	try {
-		const post = await import(`../../../content/writing/${params.slug}.svx`)
+		const post = await import(
+			`../../../../content/writing/${params.slug}.svx`
+		)
 
 		return {
 			content: post.default,

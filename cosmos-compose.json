@@ -1,0 +1,76 @@
+{
+  "cosmos-installer": {
+    "form": [
+      {
+        "name": "GITHUB_TOKEN",
+        "label": "GitHub Personal Access Token (repo scope)",
+        "initialValue": "",
+        "type": "password"
+      },
+      {
+        "name": "GIT_USER_NAME",
+        "label": "Git commit author name",
+        "initialValue": "CMS Bot",
+        "type": "text"
+      },
+      {
+        "name": "GIT_USER_EMAIL",
+        "label": "Git commit author email",
+        "initialValue": "cms@armanckeser.com",
+        "type": "text"
+      }
+    ],
+    "post-install": [
+      {
+        "type": "info",
+        "label": "armanckeser.com CMS installed. Access it at your configured URL."
+      }
+    ]
+  },
+  "minVersion": "0.8.0",
+  "services": {
+    "{ServiceName}": {
+      "image": "ghcr.io/armanckeser/armanckeser-cms:latest",
+      "container_name": "{ServiceName}",
+      "hostname": "{ServiceName}",
+      "restart": "unless-stopped",
+      "labels": {
+        "cosmos-force-network-secured": "true",
+        "cosmos-auto-update": "true",
+        "cosmos-icon": "https://armanckeser.com/favicon.png",
+        "cosmos-persistent-env": "GITHUB_TOKEN, GIT_USER_NAME, GIT_USER_EMAIL",
+        "cosmos-stack": "{ServiceName}",
+        "cosmos-stack-main": "{ServiceName}"
+      },
+      "volumes": [
+        {
+          "source": "{ServiceName}-repo",
+          "target": "/app/repo",
+          "type": "volume"
+        }
+      ],
+      "environment": [
+        "GITHUB_TOKEN={Context.GITHUB_TOKEN}",
+        "GIT_USER_NAME={Context.GIT_USER_NAME}",
+        "GIT_USER_EMAIL={Context.GIT_USER_EMAIL}",
+        "ORIGIN=https://{Hostnames.{StaticServiceName}}",
+        "PORT=3000"
+      ],
+      "routes": [
+        {
+          "name": "{ServiceName}",
+          "description": "armanckeser.com CMS",
+          "useHost": true,
+          "target": "http://{ServiceName}:3000",
+          "mode": "SERVAPP",
+          "Timeout": 30000,
+          "ThrottlePerMinute": 500,
+          "BlockCommonBots": true,
+          "SmartShield": {
+            "Enabled": true
+          }
+        }
+      ]
+    }
+  }
+}
