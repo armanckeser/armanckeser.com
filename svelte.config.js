@@ -35,7 +35,7 @@ const config = {
 	],
 
 	kit: {
-		adapter: isCmsMode ? adapterNode() : adapterStatic(),
+		adapter: isCmsMode ? adapterNode() : adapterStatic({ strict: false }),
 	},
 }
 
