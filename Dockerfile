@@ -17,7 +17,7 @@ RUN bun run build
 FROM --platform=$TARGETPLATFORM node:24-slim
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y --no-install-recommends git && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates git && rm -rf /var/lib/apt/lists/*
 
 COPY --from=build /app/build ./build
 COPY --from=build /app/package.json .
