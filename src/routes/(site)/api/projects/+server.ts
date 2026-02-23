@@ -1,4 +1,4 @@
-import { GITHUB_TOKEN } from "$env/static/private"
+import { env } from "$env/dynamic/private"
 import { Octokit } from "@octokit/rest"
 import { json } from "@sveltejs/kit"
 import { capitalCase } from "change-case"
@@ -6,7 +6,7 @@ import type { RequestHandler } from "./$types"
 
 export const GET: RequestHandler = async () => {
 	try {
-		const octokit = new Octokit({ auth: GITHUB_TOKEN })
+		const octokit = new Octokit({ auth: env.GITHUB_TOKEN })
 
 		const { data: repos } =
 			await octokit.rest.repos.listForAuthenticatedUser({
