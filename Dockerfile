@@ -10,6 +10,7 @@ RUN --mount=type=cache,target=/root/.bun/install/cache \
 
 COPY . .
 ENV BUILD_MODE=cms
+ENV GITHUB_TOKEN=unused
 RUN bun run build
 
 # Stage 2: Runtime
