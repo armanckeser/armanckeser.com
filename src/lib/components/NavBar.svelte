@@ -73,22 +73,18 @@ const segments = $derived.by(() => {
 
 <div class="flex items-center space-x-2 font-mono text-sm">
   <button
-    class="group glass h-6 w-6 rounded-full p-1 transition-all duration-300 hover:bg-accent/10"
+    class="group glass flex items-center justify-center h-6 w-6 shrink-0 rounded-full p-1 transition-all duration-300 hover:bg-accent/10"
     onclick={toggleMode}
     aria-label="Toggle theme"
   >
-	<div
-	class="h-full w-full rounded-full bg-accent 
-			transition-colors duration-300 
-			group-hover:brightness-110"
-	></div>
+	<div class="h-3.5 w-3.5 rounded-full bg-accent transition-colors duration-300 group-hover:brightness-110"></div>
   </button>
   
   <!-- Simple Custom Mobile PWD Dropdown -->
   <div class="relative lg:hidden">
     <button 
       id="mobile-pwd-trigger"
-      class="border-b border-zinc-200 dark:border-zinc-800 text-primary hover:text-accent transition-colors"
+      class="border-b border-zinc-200 dark:border-zinc-800 text-primary hover:text-accent transition-colors outline-none"
       onclick={toggleDropdown}
       aria-haspopup="true"
       aria-expanded={isDropdownOpen}

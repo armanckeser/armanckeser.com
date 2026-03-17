@@ -365,15 +365,6 @@ textarea {
 	touch-action: manipulation;
 }
 
-/* Ensure minimum touch targets on mobile */
-@media (pointer: coarse) {
-	button,
-	[role="button"],
-	a:not(.prose a) {
-		min-height: 44px;
-		min-width: 44px;
-	}
-}
 
 /* Skip to content link */
 .skip-to-content {
