@@ -6,11 +6,15 @@ let {
 	description = $bindable(""),
 	tags = $bindable(""),
 	date = $bindable(""),
+	slug = $bindable(""),
+	onslugmanuallyedited = undefined as (() => void) | undefined,
 }: {
 	title: string
 	description: string
 	tags: string
 	date: string
+	slug: string
+	onslugmanuallyedited?: () => void
 } = $props()
 
 let collapsed = $state(false)
@@ -65,6 +69,21 @@ let collapsed = $state(false)
 						placeholder="svelte, web"
 						class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-ring"
 					/>
+				</div>
+				<div class="flex-1">
+					<label for="slug" class="block font-mono text-xs text-muted-foreground mb-1">Slug</label>
+					<div class="flex items-center gap-1.5">
+						<input
+							id="slug"
+							name="slug"
+							type="text"
+							bind:value={slug}
+							oninput={onslugmanuallyedited}
+							placeholder="post-slug"
+							class="flex-1 min-w-0 rounded-md border border-input bg-background px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-ring"
+						/>
+						<span class="font-mono text-xs text-muted-foreground shrink-0">.svx</span>
+					</div>
 				</div>
 				<div class="w-40">
 					<label for="date" class="block font-mono text-xs text-muted-foreground mb-1">Date</label>

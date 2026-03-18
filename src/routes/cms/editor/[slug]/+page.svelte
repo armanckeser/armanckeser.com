@@ -1,12 +1,16 @@
 <script lang="ts">
 import { deserialize } from "$app/forms"
+import { goto } from "$app/navigation"
 import FrontmatterForm from "$lib/components/cms/FrontmatterForm.svelte"
+import GrammarPanel from "$lib/components/cms/GrammarPanel.svelte"
 import PublishBar from "$lib/components/cms/PublishBar.svelte"
 import TerminalHeader from "$lib/components/TerminalHeader.svelte"
 import { cn, formatDate } from "$lib/utils"
 import { Carta, MarkdownEditor } from "carta-md"
 import "carta-md/default.css"
 import { Eye, PenLine } from "lucide-svelte"
+import { toast } from "svelte-sonner"
+import type { ActionResult } from "@sveltejs/kit"
 import type { PageData } from "./$types"
 
 const { data } = $props<{ data: PageData }>()
@@ -18,8 +22,10 @@ let description = $state(data.post.description ?? "")
 let tags = $state(data.post.tags)
 let date = $state(data.post.date)
 let content = $state(data.post.content)
+let slug = $state(data.post.slug)
 let publishing = $state(false)
 let saving = $state(false)
+let deleting = $state(false)
 
 let activeTab = $state<"write" | "preview">("write")
 let previewHtml = $state("")
@@ -59,12 +65,13 @@ const tagList = $derived(
 		: []
 )
 
-async function submitForm(action: string): Promise<void> {
+async function submitForm(action: string): Promise<ActionResult> {
 	const formData = new FormData()
 	formData.set("title", title)
 	formData.set("description", description)
 	formData.set("tags", tags)
 	formData.set("date", date)
+	formData.set("slug", slug)
 	formData.set("content", content)
 
 	const response = await fetch(`/cms/editor/${data.post.slug}?/${action}`, {
@@ -72,15 +79,22 @@ async function submitForm(action: string): Promise<void> {
 		body: formData,
 	})
 
-	if (action === "publish" && response.redirected) {
-		window.location.href = response.url
-	}
+	return deserialize(await response.text())
 }
 
 async function handleSave(): Promise<void> {
 	saving = true
 	try {
-		await submitForm("save")
+		const result = await submitForm("save")
+		if (result.type === "failure") {
+			toast.error(
+				(result.data as { error?: string })?.error ?? "Failed to save"
+			)
+		} else {
+			toast.success("Draft saved")
+		}
+	} catch {
+		toast.error("Failed to save")
 	} finally {
 		saving = false
 	}
@@ -89,9 +103,41 @@ async function handleSave(): Promise<void> {
 async function handlePublish(): Promise<void> {
 	publishing = true
 	try {
-		await submitForm("publish")
+		const result = await submitForm("publish")
+		if (result.type === "failure") {
+			toast.error(
+				(result.data as { error?: string })?.error ?? "Publish failed"
+			)
+		} else {
+			toast.success("Published and deploying...")
+			setTimeout(() => goto("/cms"), 1000)
+		}
+	} catch {
+		toast.error("Publish failed")
 	} finally {
 		publishing = false
+	}
+}
+
+async function handleDelete(): Promise<void> {
+	deleting = true
+	try {
+		const formData = new FormData()
+		const response = await fetch(`/cms/editor/${data.post.slug}?/delete`, {
+			method: "POST",
+			body: formData,
+		})
+		const result = deserialize(await response.text())
+		if (result.type === "success") {
+			toast.success("Post deleted")
+			setTimeout(() => goto("/cms"), 1000)
+		} else {
+			toast.error("Delete failed")
+		}
+	} catch {
+		toast.error("Delete failed")
+	} finally {
+		deleting = false
 	}
 }
 </script>
@@ -120,7 +166,7 @@ async function handlePublish(): Promise<void> {
 </svelte:head>
 
 <div class="flex flex-col h-full">
-	<FrontmatterForm bind:title bind:description bind:tags bind:date />
+	<FrontmatterForm bind:title bind:description bind:tags bind:date bind:slug />
 
 	<!-- Tab bar -->
 	<div class="flex border-b border-border bg-background px-4">
@@ -204,6 +250,19 @@ async function handlePublish(): Promise<void> {
 				</article>
 			</div>
 		{/if}
+	</div>
+
+	<GrammarPanel bind:content />
+
+	<div class="flex justify-center border-t border-border/30 py-1.5 bg-background">
+		<button
+			type="button"
+			disabled={deleting || saving || publishing}
+			onclick={handleDelete}
+			class="font-mono text-xs text-muted-foreground/50 hover:text-destructive transition-colors disabled:opacity-30"
+		>
+			{deleting ? "Deleting..." : "Delete post"}
+		</button>
 	</div>
 
 	<PublishBar {publishing} {saving} onpublish={handlePublish} onsave={handleSave} />

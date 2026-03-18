@@ -1,12 +1,16 @@
 <script lang="ts">
 import { deserialize } from "$app/forms"
+import { goto } from "$app/navigation"
 import FrontmatterForm from "$lib/components/cms/FrontmatterForm.svelte"
+import GrammarPanel from "$lib/components/cms/GrammarPanel.svelte"
 import PublishBar from "$lib/components/cms/PublishBar.svelte"
 import TerminalHeader from "$lib/components/TerminalHeader.svelte"
 import { cn, formatDate } from "$lib/utils"
 import { Carta, MarkdownEditor } from "carta-md"
 import "carta-md/default.css"
 import { Eye, PenLine } from "lucide-svelte"
+import { toast } from "svelte-sonner"
+import type { ActionResult } from "@sveltejs/kit"
 
 const carta = new Carta({ sanitizer: false })
 
@@ -15,12 +19,29 @@ let description = $state("")
 let tags = $state("")
 let date = $state(new Date().toISOString().split("T")[0])
 let content = $state("")
+let slug = $state("")
+let slugManuallyEdited = $state(false)
 let publishing = $state(false)
 let saving = $state(false)
 
 let activeTab = $state<"write" | "preview">("write")
 let previewHtml = $state("")
 let loadingPreview = $state(false)
+
+function slugifyShort(input: string): string {
+	const shortTitle = input.split(/\s+/).slice(0, 3).join(" ")
+	return shortTitle
+		.toLowerCase()
+		.replace(/[^a-z0-9]+/g, "-")
+		.replace(/^-+|-+$/g, "")
+}
+
+// Auto-derive slug from first 3 words of title unless user manually edited
+$effect(() => {
+	if (!slugManuallyEdited) {
+		slug = title ? slugifyShort(title) : ""
+	}
+})
 
 async function fetchPreview(): Promise<void> {
 	loadingPreview = true
@@ -56,12 +77,13 @@ const tagList = $derived(
 		: []
 )
 
-async function submitForm(action: string): Promise<void> {
+async function submitForm(action: string): Promise<ActionResult> {
 	const formData = new FormData()
 	formData.set("title", title)
 	formData.set("description", description)
 	formData.set("tags", tags)
 	formData.set("date", date)
+	formData.set("slug", slug)
 	formData.set("content", content)
 
 	const response = await fetch(`/cms/editor?/${action}`, {
@@ -69,15 +91,22 @@ async function submitForm(action: string): Promise<void> {
 		body: formData,
 	})
 
-	if (action === "publish" && response.redirected) {
-		window.location.href = response.url
-	}
+	return deserialize(await response.text())
 }
 
 async function handleSave(): Promise<void> {
 	saving = true
 	try {
-		await submitForm("save")
+		const result = await submitForm("save")
+		if (result.type === "failure") {
+			toast.error(
+				(result.data as { error?: string })?.error ?? "Failed to save"
+			)
+		} else {
+			toast.success("Draft saved")
+		}
+	} catch {
+		toast.error("Failed to save")
 	} finally {
 		saving = false
 	}
@@ -86,7 +115,17 @@ async function handleSave(): Promise<void> {
 async function handlePublish(): Promise<void> {
 	publishing = true
 	try {
-		await submitForm("publish")
+		const result = await submitForm("publish")
+		if (result.type === "failure") {
+			toast.error(
+				(result.data as { error?: string })?.error ?? "Publish failed"
+			)
+		} else {
+			toast.success("Published and deploying...")
+			setTimeout(() => goto("/cms"), 1000)
+		}
+	} catch {
+		toast.error("Publish failed")
 	} finally {
 		publishing = false
 	}
@@ -94,7 +133,15 @@ async function handlePublish(): Promise<void> {
 
 // Auto-save to localStorage
 $effect(() => {
-	const draft = JSON.stringify({ title, description, tags, date, content })
+	const draft = JSON.stringify({
+		title,
+		description,
+		tags,
+		date,
+		content,
+		slug,
+		slugManuallyEdited,
+	})
 	localStorage.setItem("cms-draft-new", draft)
 })
 
@@ -109,6 +156,8 @@ $effect(() => {
 			tags = draft.tags ?? ""
 			date = draft.date ?? new Date().toISOString().split("T")[0]
 			content = draft.content ?? ""
+			slug = draft.slug ?? ""
+			slugManuallyEdited = draft.slugManuallyEdited ?? false
 		} catch {
 			// ignore corrupt drafts
 		}
@@ -142,7 +191,14 @@ $effect(() => {
 </svelte:head>
 
 <div class="flex flex-col h-full">
-	<FrontmatterForm bind:title bind:description bind:tags bind:date />
+	<FrontmatterForm
+		bind:title
+		bind:description
+		bind:tags
+		bind:date
+		bind:slug
+		onslugmanuallyedited={() => (slugManuallyEdited = true)}
+	/>
 
 	<!-- Tab bar -->
 	<div class="flex border-b border-border bg-background px-4">
@@ -228,6 +284,7 @@ $effect(() => {
 		{/if}
 	</div>
 
+	<GrammarPanel bind:content />
 	<PublishBar {publishing} {saving} onpublish={handlePublish} onsave={handleSave} />
 </div>
 

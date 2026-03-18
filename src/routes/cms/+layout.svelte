@@ -1,11 +1,14 @@
 <script lang="ts">
 import { page } from "$app/state"
 import { FileText, Home, PenLine } from "lucide-svelte"
+import { Toaster } from "svelte-sonner"
 
 const { children } = $props()
 
 const isEditing = $derived(page.url.pathname.includes("/cms/editor"))
 </script>
+
+<Toaster theme="dark" toastOptions={{ style: "font-family: monospace; font-size: 0.8125rem;" }} />
 
 <div class="h-dvh flex flex-col bg-background text-foreground">
 	<nav class="shrink-0 border-b border-border bg-background/95 backdrop-blur">

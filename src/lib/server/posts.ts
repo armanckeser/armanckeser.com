@@ -81,3 +81,8 @@ export function slugify(title: string): string {
 		.replace(/[^a-z0-9]+/g, "-")
 		.replace(/^-+|-+$/g, "")
 }
+
+export function slugifyShort(title: string): string {
+	const shortTitle = title.split(/\s+/).slice(0, 3).join(" ")
+	return slugify(shortTitle)
+}
