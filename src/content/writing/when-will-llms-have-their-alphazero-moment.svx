@@ -2,7 +2,7 @@
 title: When will LLMs have their AlphaZero moment?
 description: Thoughts on the next chapter of LLMs
 tags:
-  - LLM
+  - LLMs
   - AGI
 date: '2026-03-18'
 ---
