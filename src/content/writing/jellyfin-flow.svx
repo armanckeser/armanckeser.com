@@ -1,0 +1,145 @@
+---
+title: "My PR has been waiting a year, or the exponential curve behind open source backlogs"
+description: "What a queuing theory book says about why open source contributions sit for over a year"
+tags: [open-source, engineering, systems]
+date: "2026-04-13"
+published: true
+---
+
+<script lang="ts">
+  import QueueCurve from "$lib/components/QueueCurve.svelte"
+  import WaitRatio from "$lib/components/PRTimeline.svelte"
+  import BacklogComparison from "$lib/components/BacklogComparison.svelte"
+
+  const waitSegments = [
+    { label: "First review + response", days: 2, kind: "active" as const },
+    { label: "Waiting", days: 17, kind: "waiting" as const },
+    { label: "Second review + split suggestion", days: 1, kind: "active" as const },
+    { label: "Waiting", days: 3, kind: "waiting" as const },
+    { label: "Refactor PR opened, reviewed, approved", days: 14, kind: "active" as const },
+    { label: "Waiting", days: 12, kind: "waiting" as const },
+    { label: "Third PR opened, pings", days: 3, kind: "active" as const },
+    { label: "Waiting", days: 36, kind: "waiting" as const },
+    { label: "Maintainer responds: busy with move", days: 1, kind: "active" as const },
+    { label: "Waiting", days: 36, kind: "waiting" as const },
+    { label: "Second approval on refactor PR", days: 1, kind: "active" as const },
+    { label: "Waiting", days: 202, kind: "waiting" as const },
+    { label: "Ping: do you see a world where this gets merged?", days: 1, kind: "active" as const },
+    { label: "Waiting, no response", days: 39, kind: "waiting" as const },
+  ]
+
+  const backlogProjects = [
+    { name: "CPython", openPRs: 2200, activeMaintainers: "~30 core devs", source: "github", sourceLink: "https://github.com/python/cpython/pulls" },
+    { name: "Jellyfin Web", openPRs: 200, activeMaintainers: "~1 active reviewer", source: "github", sourceLink: "https://github.com/jellyfin/jellyfin-web/pulls" },
+    { name: "Angular", openPRs: 118, activeMaintainers: "Google team", source: "github", sourceLink: "https://github.com/angular/angular/pulls" },
+    { name: "Vue.js", openPRs: 114, activeMaintainers: "~3 full-time", source: "github", sourceLink: "https://github.com/vuejs/core/pulls" },
+  ]
+</script>
+
+## Contents
+
+## A year per PR
+
+I have been trying to get a feature into [Jellyfin web](https://github.com/jellyfin/jellyfin-web) for over a year. Opened three PRs, even got [two](https://github.com/jellyfin/jellyfin-web/pull/6824) [approvals](https://github.com/jellyfin/jellyfin-web/pull/6735), but zero merges. The feature is relatively isolated and small. When you are adjusting subtitle offset in the player, it adds a timeline that shows you exactly which subtitle will appear when, so you can see what you are doing instead of guessing.
+
+<video src="https://github.com/user-attachments/assets/819fee3a-b33d-46ba-95c9-c0687a858a20" controls muted playsinline style="width: 100%; border-radius: 0.75rem; border: 1px solid hsl(var(--accent) / 0.2);"></video>
+
+A reviewer gave detailed feedback on the first day. I split the work into [smaller](https://github.com/jellyfin/jellyfin-web/pull/6824) [pieces](https://github.com/jellyfin/jellyfin-web/pull/6931) when they asked, responded same day, changed the code style to match the project. The [refactor PR](https://github.com/jellyfin/jellyfin-web/pull/6824) got two approvals and is just sitting there. The [smallest PR](https://github.com/jellyfin/jellyfin-web/pull/6931), 49 lines added, 0 deleted, has never gotten a single human review.
+
+I brought this up in the Jellyfin community and someone joked that a year is not even that long for Jellyfin PRs. The main maintainer said the backlog "sucks... for everyone" and that every second he is not reviewing makes it worse. I asked if PR size limits, proposal requirements, different processes could help. The answer was mostly "there is only one maintainer."
+
+I think there is more to it than that.
+
+## A common problem
+
+This is not unusual, most popular open source projects have the same problem.
+
+<BacklogComparison projects={backlogProjects} />
+
+[CPython](https://github.com/python/cpython/pulls) has over 2,200 open PRs. At the [2022 Python Language Summit](https://pyfound.blogspot.com/2022/05/the-2022-python-language-summit-dealing.html), a core developer presented on the backlog specifically and pointed out a chicken-and-egg problem: no active reviewer for a module means no reviews, which means no new reviewers get trained.
+
+Evan You, the creator of [Vue.js](https://vuejs.org/), has talked openly about how the volume of issues became impossible to keep up with as the project grew. A [2024 Tidelift survey](https://www.sonarsource.com/the-2024-tidelift-maintainer-impact-report.pdf) found that 60% of open source maintainers have quit or considered quitting. A [Ford Foundation report](https://www.fordfoundation.org/work/learning/research-reports/roads-and-bridges-the-unseen-labor-behind-our-digital-infrastructure/) found that the vast majority of open source projects are maintained by one or two people.
+
+Jellyfin is just where I ran into it. And I think the fix is not "find more maintainers." It is changing how work flows through the one maintainer you have.
+
+## Where the time goes
+
+368 days across my three PRs. The green is days where someone actually reviewed, wrote code, or responded. The rest is waiting.
+
+<WaitRatio segments={waitSegments} total={368} />
+
+The work that happened in those green stretches was good, detailed code reviews, back and forth on architecture, splitting the PR when asked, addressing every ask, but none of it went anywhere because two approvals later the PR is still not merged.
+
+Jellyfin web has about [200 open pull requests](https://github.com/jellyfin/jellyfin-web/pulls) and merges roughly 20 to 35 real code PRs a month once you strip out automated dependency updates (which is a lot for a volunteer project). There are about 77 open feature PRs, but features only make up around 21% of what actually gets merged, bug fixes get through but features just sit there.
+
+## The queue math
+
+Donald Reinertsen's [*The Principles of Product Development Flow*](https://www.amazon.com/Principles-Product-Development-Flow-Generation/dp/1935401009) applies [queuing theory](https://en.wikipedia.org/wiki/Queueing_theory) to product development, and the core idea is this: when a resource gets close to 100% utilization, queues grow exponentially, not linearly. The [M/M/1 queue](https://en.wikipedia.org/wiki/M/M/1_queue) formula is `wait = utilization / (1 - utilization)`. At 50% utilization the wait is 1x. At 80%, 4x. At 90%, 9x. At 95%, 19x.
+
+<QueueCurve />
+
+The maintainer said every second not reviewing makes it worse, and that is exactly the trap, because the feeling that slack is wasteful pushes you toward 100% utilization which is where the curve goes vertical, and you can not outwork an exponential.
+
+[Little's Law](https://en.wikipedia.org/wiki/Little%27s_law) puts a number on it: `cycle time = work in progress / throughput`. With 200 PRs in the queue and roughly 30 merges a month, the average cycle time works out to 6.7 months. That is not a temporary backlog, that is just what the system does at this load.
+
+### The death spiral
+
+Large PRs take longer to review, so they pile up, and contributors see the pile and figure they might as well bundle more changes while they wait, which makes PRs larger, which makes reviews slower, which makes the pile bigger. Reinertsen calls this the Batch Size Death Spiral and I think the name is accurate.
+
+Of the 200 open PRs on Jellyfin web, 30 have merge conflicts and 31 are labeled stale. These are PRs that are harder to merge now than when they were first opened, and that only gets worse with time, it does not fix itself.
+
+### Slow feedback wastes everyone's time
+
+A review gets less useful the longer it takes. At 3 days the contributor still has the context and can turn around changes quickly, at 3 months they have moved on, the codebase has drifted, and rebasing becomes its own project.
+
+A [2021 study](https://arxiv.org/abs/2110.15447) looked at over 265,000 pull requests across popular GitHub projects and found that the most common reasons contributors abandoned their PRs were obstacles they ran into and hurdles imposed by maintainers during review, not outright rejection.
+
+## What I think could help
+
+The [Theory of Constraints](https://en.wikipedia.org/wiki/Theory_of_constraints) says: find the bottleneck, squeeze maximum value from it, make everything else serve it. I think all of the following can be done without new maintainers, they are about protecting the time you already have.
+
+### Cap PR size
+
+A hard limit on changed lines for feature PRs, maybe 300, or at the very least automatic size labels that nudge contributors toward smaller PRs that are each mergeable on their own.
+
+Small PRs are faster to review, carry less risk, and give faster feedback. The project's biggest fear is breaking playback without test coverage, so smaller changes should be an easier sell. The [contributing guide](https://github.com/jellyfin/jellyfin-web/blob/master/CONTRIBUTING.md) already says PRs "should represent singular focus." A bot that flags oversized PRs turns that advice into a real constraint. [Kubernetes does this](https://github.com/kubernetes/community/blob/master/contributors/guide/pull-requests.md) with automatic size labels so reviewers can pick what fits their time.
+
+### Gate quality before it reaches the bottleneck
+
+Every minute a maintainer spends on a PR with failing CI, a missing description, or merge conflicts is wasted, and unlike time lost at any other point in the process, time lost at the bottleneck is time lost for the whole system.
+
+Jellyfin already has a [PR template](https://github.com/jellyfin/jellyfin-web/blob/master/.github/PULL_REQUEST_TEMPLATE.md) with a checklist and CI that runs linting. The [LLM policy](https://jellyfin.org/docs/general/contributing/llm-policies/) filters low-effort AI code. Next step: auto-label PRs "not ready" when CI is red, maybe auto-close PRs with merge conflicts after a set period. [Homebrew](https://github.com/Homebrew/brew) leans heavily on automation to [keep maintainer load sustainable](https://docs.brew.sh/Maintainers-Avoiding-Burnout).
+
+### Limit work in progress
+
+How many PRs can one person really review at a time? Maybe 5, maybe 10, but it is definitely not 200. A hard cap on PRs in active review where you finish or reject before starting new ones would help, because switching between half-reviewed PRs means re-reading context and re-checking what changed, and with 200 open PRs the pull is to skim many, but deep work on a few with forced completion works out better and costs nothing to try.
+
+### Prioritize by value over size
+
+Not all PRs are worth the same. A security fix has a huge cost of waiting. A cosmetic change has near zero. But there is a less obvious cost here too. If the path of least resistance is to merge refactors and bug fixes because they are smaller and safer, features never land. The application stagnates, contributors stop showing up because they see a project that only does maintenance, and that is its own kind of death spiral.
+
+The system should make it *easy* for features to get in, not just possible in theory. That means features need a clear path: proposal, size limit, review priority. Reinertsen calls the general principle [WSJF](https://en.wikipedia.org/wiki/Weighted_shortest_job_first), divide the cost of delay by the effort to review, do the highest scoring ones first. But the cost of delay on features is easy to undercount because it is spread across every user who does not get the thing they wanted, and every contributor who does not come back.
+
+### Set a cadence
+
+A fixed weekly block for PR triage where you go through new ones, finish reviewing in-progress ones, and close stale ones with a kind message. The point is not the schedule itself, it is that things become predictable. Right now there is no way to know when feedback will show up, it could be 3 days or 300, and without that predictability contributors start thinking *let me add this other thing while I wait*, which is how PRs grow from 50 lines to 500. A weekly cadence turns "first response within 7 days" into something contributors can actually count on.
+
+Even a partial response like "read this, concept looks good, full review in week 3" costs almost nothing and saves the contributor from wondering if their work went into a void.
+
+### Build a reviewer tier
+
+A few repeat contributors get reviewer status where they can approve but not merge, and the maintainer does a quick check on already-approved PRs which is way faster than a full review from nothing. The [PR checklist](https://github.com/jellyfin/jellyfin-web/blob/master/.github/PULL_REQUEST_TEMPLATE.md) already asks contributors to review someone else's PR before their own gets attention, which is the right instinct, and making that structural with real reviewer roles would multiply review capacity.
+
+### Require proposals for features
+
+The [docs](https://jellyfin.org/docs/general/contributing/development#feature-proposals) say features should start with a proposal but it is not enforced, and making it a hard gate would mean feature PRs without an approved proposal do not enter the review queue.
+
+This is the one I feel most personally. I asked multiple times what it would take to get my feature in, what the right approach was, what order to do things in, and I never got an answer. A proposal process would have forced that conversation before I wrote any code, we could have agreed on scope and I would have known what the project actually needed instead of guessing.
+
+[Rust's RFC process](https://rust-lang.github.io/rfcs/0002-rfc-process.html) is maybe the clearest example. It was [created in 2014](https://github.com/rust-lang/rfcs) because features kept landing without upfront alignment, and it let the project scale contribution without scaling the core team at the same rate.
+
+## The actual point
+
+The conversation I had was stuck on "one maintainer, so PRs take forever" and I just do not buy that. The bottleneck is not that there is one person, it is that 200 PRs of different quality and size all funnel through one point with no flow controls, and the maintainer's time (which is genuinely substantial) gets spent on PRs without descriptions, 1000-line feature PRs, PRs with merge conflicts that have been sitting for months, all demand that produces no output. Protecting that time is a different thing from asking for more of it.
+
+I use Jellyfin every day and I want to contribute to it. Maybe some of these ideas are worth trying, or maybe someone can just tell me how to get the subtitle timeline merged and I will stop talking about queuing theory forever, I would honestly take either one.
