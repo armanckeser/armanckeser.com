@@ -18,13 +18,13 @@ If you have not run into it, xcancel is a fork of [Nitter](https://github.com/ze
 
 ## The network-level version, and why I gave up on it
 
-The guides for doing this network-wide all follow the same shape, and [vgmoose's gist](https://gist.github.com/vgmoose/215b6006bcc491891998026768e3872b) is the clearest version of it I found. Point your DNS at a box you control, sign a certificate for x.com with your own certificate authority, serve an HTTP redirect to your frontend of choice, then trust that CA on all your devices. The title of that gist is honest about what you are doing, incidentally, since it contains the word MITM.
+The guides for doing this network-wide all follow the same shape, and [vgmoose's gist](https://gist.github.com/vgmoose/215b6006bcc491891998026768e3872b) is the clearest version of it I found. Point your DNS at a box you control, sign a certificate for x.com with your own certificate authority, serve an HTTP redirect to your frontend of choice, then trust that CA on all your devices. The gist has MITM in the title, which is the right word for it.
 
-That last step is the whole cost, and it is not optional. DNS maps a name to an address and nothing else, so it can absolutely send your phone to the Pi instead of to X. But the moment the browser connects it asks the server to prove it is x.com, the Pi cannot, and the connection dies during the TLS handshake before any HTTP request exists. Nothing you run on that box gets a turn. I spent a while thinking about this the wrong way round, imagining some small app on the Pi that would render xcancel in place, and it makes no difference what the app does, because the certificate check happens before the app is ever consulted.
+You cannot skip that last step. DNS maps a name to an address and nothing else, so it can happily send your phone to the Pi instead of to X. But the moment the browser connects it asks the server to prove it is x.com, the Pi cannot, and the connection dies during the TLS handshake before any HTTP request exists. Nothing you run on that box gets a turn. I spent a while thinking about this the wrong way round, imagining some small app on the Pi that would render xcancel in place, and it makes no difference what the app does, because the certificate check happens before the app is ever consulted.
 
-So you either run your own CA or you do not do this at the network layer. And running one means a key on your LAN can impersonate any site to every device that trusts it, which is a fine thing to accept deliberately and a bad thing to accept casually.
+So you either run your own CA or you do not do this at the network layer. And running one means a key sitting on your LAN can impersonate any site to every device that trusts it. That is a big thing to sign up for on the way to reading tweets slightly faster.
 
-A couple of details close off the escape hatches you might reach for. `twitter.com` is in the [HSTS preload list](https://hstspreload.org/) that ships inside Chrome, and for an HSTS host the browser [does not offer you a way to click through](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Strict-Transport-Security) a certificate error at all. `x.com` is not preloaded, which looks like a loophole until you remember that real x.com sends the HSTS header itself, so any browser that has been there once behaves the same way.
+Two things rule out the workarounds you might reach for. `twitter.com` is in the [HSTS preload list](https://hstspreload.org/) that ships inside Chrome, and for an HSTS host the browser [does not offer you a way to click through](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Strict-Transport-Security) a certificate error at all. `x.com` is not preloaded, which looks like a loophole until you remember that real x.com sends the HSTS header itself, so any browser that has been there once behaves the same way.
 
 The detail that actually settled it for me is Android specific. Since [Android 7](https://android-developers.googleblog.com/2016/07/changes-to-trusted-certificate.html), apps do not trust user-installed certificate authorities [by default](https://developer.android.com/privacy-and-security/security-config), so a locally signed x.com certificate would satisfy Chrome while getting rejected inside Slack's in-app browser. Covering those in-app browsers is the main thing the network-wide approach is supposed to buy you, and on the platform I care about most it does not buy it.
 
@@ -36,7 +36,7 @@ Android turns out to be the good case, because an app there can register as the 
 
 Install it through Obtainium pointed at the repo, or from IzzyOnDroid as `com.blankdev.sidestep`. It is not on Play. The steps below are against version 1.2.5, so expect the labels to drift.
 
-Then the step the whole thing hinges on. If the X app is installed, go to Settings, Apps, X, Open by default, and turn off "Open supported links". Android 12 and up verifies x.com against a file X publishes at `/.well-known/assetlinks.json`, and a [verified handler](https://developer.android.com/training/app-links/verify-android-applinks) outranks anything you approved by hand, so Sidestep will not get a look at the link until that toggle is off. Uninstalling X does the job too.
+Now the part that actually blocks people. If the X app is installed, go to Settings, Apps, X, Open by default, and turn off "Open supported links". Android 12 and up verifies x.com against a file X publishes at `/.well-known/assetlinks.json`, and a [verified handler](https://developer.android.com/training/app-links/verify-android-applinks) outranks anything you approved by hand, so Sidestep will not get a look at the link until that toggle is off. Uninstalling X does the job too.
 
 After that, set Sidestep as the handler for those domains, turn on the Twitter to Nitter redirect, pick xcancel in the instance picker, and enable immediate navigation.
 
@@ -54,7 +54,7 @@ If you would rather write the rule yourself than rely on a service list, [URLChe
 }
 ```
 
-It shows a small interstitial before handing off to the browser unless you turn on auto-apply, so it is less seamless than Sidestep and more predictable.
+It shows a small interstitial before handing off to the browser unless you turn on auto-apply, so it is a bit clunkier than Sidestep. You do know exactly what it will do, though.
 
 ## macOS
 
@@ -82,13 +82,13 @@ In v4 the `url` function gets a real JavaScript `URL` object, so you mutate the 
 
 ## iOS
 
-iOS is the bad case, and it is bad structurally rather than by accident. An app can only claim `https://` links for domains it can [prove it owns](https://developer.apple.com/documentation/xcode/supporting-associated-domains), by hosting a file on them, so nobody but X can claim x.com. The only other route in is the [default browser entitlement](https://developer.apple.com/documentation/xcode/preparing-your-app-to-be-the-default-browser), which Apple has to grant you, and which comes with a rule that a default browser is not allowed to claim links for specific domains anyway. Both doors are shut on purpose.
+iOS is the bad case, and Apple has shut both doors on purpose. An app can only claim `https://` links for domains it can [prove it owns](https://developer.apple.com/documentation/xcode/supporting-associated-domains), by hosting a file on them, so nobody but X can claim x.com. The other way in is the [default browser entitlement](https://developer.apple.com/documentation/xcode/preparing-your-app-to-be-the-default-browser), which Apple has to grant you, and a default browser is then not allowed to claim links for specific domains anyway.
 
 What is left is a Safari extension, free for a single rule in the case of Redirect Web for Safari, which covers Safari and not other apps' in-app browsers. Or [Orion](https://kagi.com/orion/), the [first browser](https://help.kagi.com/orion/browser-extensions/ios-ipados-extensions.html) to run Chrome and Firefox extensions on iOS and therefore the only way to get [LibRedirect](https://libredirect.manerakai.com/) onto a phone, where support is preliminary by Kagi's own description and request rewriting is the flakiest category of extension.
 
 ## Windows and Linux
 
-Both have Finicky equivalents that intercept at the OS level, BrowserTamer and LinkRouter on Windows, `handlr` or an `xdg-open` wrapper on Linux. I am listing rather than recommending, since I have not tried any of them. The dependable fallback on either is LibRedirect or [Redirector](https://github.com/einaregilsson/Redirector) inside Firefox, which only covers links you click in that browser.
+Both have Finicky equivalents that intercept at the OS level, BrowserTamer and LinkRouter on Windows, `handlr` or an `xdg-open` wrapper on Linux. I have not tried any of them, so treat those as search terms and not as a recommendation. The dependable fallback on either is LibRedirect or [Redirector](https://github.com/einaregilsson/Redirector) inside Firefox, which only covers links you click in that browser.
 
 ## The instances are the fragile part
 
@@ -96,4 +96,4 @@ Nitter mostly died in early 2024 when X removed guest accounts, which is what th
 
 xcancel is the most active survivor and it is in LibRedirect's default instance list. [twiiit.com](https://twiiit.com/) is a different thing, a meta-redirector that pings instances every few minutes and forwards you to one that is up, preserving the path, so `twiiit.com/user/status/123` lands you on the same tweet wherever it sends you. It is not in the default list, so add it as a custom rule if you would rather have round-robin than a fixed instance.
 
-Which is the one real argument for the round-robin option. A fixed instance means you find out it died by tapping a link and getting nothing, then going and editing config. twiiit means you find out because a page took an extra second to load.
+If you pin xcancel and it goes down, you find out by tapping a link and getting nothing, then you go and edit config. With twiiit you mostly just notice that a page took an extra second.

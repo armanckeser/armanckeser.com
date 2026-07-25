@@ -436,6 +436,104 @@ textarea {
 	--tw-prose-code: hsl(var(--accent));
 }
 
+/* Syntax highlighting.
+   mdsvex highlights fenced code blocks with Prism at build time and emits
+   .token classes, so all that is needed here is the palette. Strings use the
+   site accent so code reads as part of the same system in both themes. */
+@layer base {
+	:root {
+		--syntax-comment: 240 3.8% 46.1%;
+		--syntax-punctuation: 240 5% 40%;
+		--syntax-keyword: 282 52% 42%;
+		--syntax-string: 98 68% 31%;
+		--syntax-number: 22 78% 38%;
+		--syntax-function: 211 68% 38%;
+	}
+
+	.dark {
+		--syntax-comment: 240 5% 58%;
+		--syntax-punctuation: 240 5% 66%;
+		--syntax-keyword: 283 70% 76%;
+		--syntax-string: 152.6 76.9% 49%;
+		--syntax-number: 32 88% 68%;
+		--syntax-function: 205 84% 71%;
+	}
+}
+
+pre[class*="language-"],
+code[class*="language-"] {
+	tab-size: 2;
+	hyphens: none;
+	white-space: pre;
+}
+
+/* Prism token roles, grouped as Prism itself groups them */
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+	color: hsl(var(--syntax-comment));
+	font-style: italic;
+}
+
+.token.punctuation {
+	color: hsl(var(--syntax-punctuation));
+}
+
+.token.property,
+.token.tag,
+.token.constant,
+.token.symbol,
+.token.deleted {
+	color: hsl(var(--syntax-keyword));
+}
+
+.token.boolean,
+.token.number {
+	color: hsl(var(--syntax-number));
+}
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.inserted {
+	color: hsl(var(--syntax-string));
+}
+
+.token.operator,
+.token.entity,
+.token.url {
+	color: hsl(var(--syntax-punctuation));
+}
+
+.token.atrule,
+.token.attr-value,
+.token.keyword {
+	color: hsl(var(--syntax-keyword));
+}
+
+.token.function,
+.token.class-name {
+	color: hsl(var(--syntax-function));
+}
+
+.token.regex,
+.token.important,
+.token.variable {
+	color: hsl(var(--syntax-number));
+}
+
+.token.important,
+.token.bold {
+	font-weight: 600;
+}
+
+.token.italic {
+	font-style: italic;
+}
+
 /* Consolidated prose styling for blog posts and content pages */
 @layer components {
 	.prose-blog {
@@ -486,6 +584,12 @@ textarea {
 
 		& pre > code {
 			@apply bg-transparent border-none p-0;
+		}
+
+		/* Typography plugin wraps inline code in literal backticks */
+		& code::before,
+		& code::after {
+			content: none;
 		}
 	}
 }
