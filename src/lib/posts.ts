@@ -1,5 +1,17 @@
+import { dev } from "$app/environment"
 import { base } from "$app/paths"
 import type { BlogPost } from "../types"
+
+/**
+ * A post is visible unless it opts out with `published: false`.
+ *
+ * Drafts stay visible under `vite dev` so they can be previewed, and are kept
+ * out of every production surface (listings, RSS, sitemap, prerendered routes).
+ * Unfinished pages are a site-wide quality signal, not just a dead URL.
+ */
+export function isVisible(post: Pick<BlogPost, "published">): boolean {
+	return dev || post.published !== false
+}
 
 export function getPosts(): BlogPost[] {
 	const posts = Object.entries(
@@ -21,7 +33,7 @@ export function getPosts(): BlogPost[] {
 		}
 	})
 
-	return posts.sort(
-		(a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-	)
+	return posts
+		.filter(isVisible)
+		.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
 }

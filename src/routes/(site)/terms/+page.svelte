@@ -1,10 +1,12 @@
 <script lang="ts">
+import Seo from "$lib/components/Seo.svelte"
 </script>
 
-<svelte:head>
-  <title>Terms of Service | Armanc Keser</title>
-  <meta name="description" content="Terms of Service for armanckeser.com" />
-</svelte:head>
+<Seo
+  title="Terms of Service"
+  description="Terms of Service for armanckeser.com"
+  path="/terms"
+/>
 
 <article class="container justify-around p-4 flex flex-col">
   <div class="flex-1 max-w-[65ch] lg:max-w-[75ch] xl:max-w-[85ch] mx-auto">

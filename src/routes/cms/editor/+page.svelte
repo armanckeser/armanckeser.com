@@ -250,6 +250,7 @@ $effect(() => {
 								command="cat {title ? title.toLowerCase().replace(/[^a-z0-9]+/g, '-') : 'untitled'}.md"
 								title={title || "Untitled"}
 								description={description || undefined}
+								headingLevel="h2"
 							/>
 
 							<div class="prose-blog">

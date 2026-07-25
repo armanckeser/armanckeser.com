@@ -35,7 +35,14 @@ const config = {
 	],
 
 	kit: {
-		adapter: isCmsMode ? adapterNode() : adapterStatic({ strict: false }),
+		adapter: isCmsMode
+			? adapterNode()
+			: adapterStatic({
+					// GitHub Pages serves 404.html with a real 404 status, so unknown
+					// URLs land on the site's own error page instead of a dead end.
+					fallback: "404.html",
+					strict: false,
+				}),
 	},
 }
 

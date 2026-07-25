@@ -1,6 +1,8 @@
 <script lang="ts">
 import { preloadCode, preloadData } from "$app/navigation"
 import CompactCard from "$lib/components/CompactCard.svelte"
+import Seo from "$lib/components/Seo.svelte"
+import { blogJsonLd, breadcrumbJsonLd } from "$lib/seo"
 import type { BlogPost } from "../../../types"
 import type { PageData } from "./$types"
 
@@ -66,23 +68,28 @@ $effect(() => {
 })
 </script>
 
-<svelte:head>
-  <title>~/writing - Armanc Keser</title>
-  <meta
-    name="description"
-    content="Product insights, book notes, and learnings"
-  />
-</svelte:head>
+<Seo
+  title="~/writing"
+  description="Product insights, book notes, and learnings"
+  path="/writing"
+  jsonLd={[
+    blogJsonLd(posts),
+    breadcrumbJsonLd([
+      { name: 'Home', path: '/' },
+      { name: 'Writing', path: '/writing' },
+    ]),
+  ]}
+/>
 
 <div class="relative mx-auto max-w-3xl px-2 sm:px-4 py-12 sm:py-16">
   <header class="mb-8 space-y-4">
-    <div
-      class="flex items-center gap-2 font-mono text-lg text-muted-foreground"
+    <h1
+      class="flex items-center gap-2 font-mono text-lg font-normal text-muted-foreground"
     >
       <span>$</span>
       <span class="text-primary">~/writing</span>
-      <span class="animate-pulse text-accent">▋</span>
-    </div>
+      <span class="animate-pulse text-accent" aria-hidden="true">▋</span>
+    </h1>
     <p class="font-mono text-base text-muted-foreground">
       Product insights, book notes, and learnings. <br />Use
       <kbd class="px-1.5 py-0.5 text-xs bg-accent/10 rounded">j</kbd>/<kbd

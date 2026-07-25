@@ -2,19 +2,22 @@
 import Card from "$lib/components/Card.svelte"
 import ContentSection from "$lib/components/ContentSection.svelte"
 import ExternalLink from "$lib/components/ExternalLink.svelte"
+import Seo from "$lib/components/Seo.svelte"
+import { personJsonLd, websiteJsonLd } from "$lib/seo"
 import type { PageData } from "./$types"
 const props = $props<{ data: PageData }>()
 const posts = $derived(props.data.posts)
 const projects = $derived(props.data.projects)
 </script>
 
+<Seo
+  path="/"
+  description="Engineer learning the skills for the next steps"
+  jsonLd={[websiteJsonLd(), personJsonLd()]}
+/>
+
 <svelte:head>
-  <title>Armanc Keser</title>
   <link rel="dns-prefetch" href="https://github.com" />
-  <meta
-    name="description"
-    content="Engineer learning the skills for the next steps"
-  />
 </svelte:head>
 
 <main class="container mx-auto px-4 py-8 md:px-8 md:py-16">

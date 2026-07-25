@@ -1,11 +1,13 @@
 <script lang="ts">
+import Seo from "$lib/components/Seo.svelte"
 import TerminalHeader from "$lib/components/TerminalHeader.svelte"
 </script>
 
-<svelte:head>
-  <title>Privacy Policy | Armanc Keser</title>
-  <meta name="description" content="Privacy Policy for armanckeser.com" />
-</svelte:head>
+<Seo
+  title="Privacy Policy"
+  description="Privacy Policy for armanckeser.com"
+  path="/privacy"
+/>
 
 <article class="container justify-around p-4 flex flex-col">
   <div class="flex-1 max-w-[65ch] lg:max-w-[75ch] xl:max-w-[85ch] mx-auto">

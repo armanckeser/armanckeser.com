@@ -218,6 +218,7 @@ async function handleDelete(): Promise<void> {
 								command="cat {data.post.slug}.md"
 								title={title || "Untitled"}
 								description={description || undefined}
+								headingLevel="h2"
 							/>
 
 							<div class="prose-blog">

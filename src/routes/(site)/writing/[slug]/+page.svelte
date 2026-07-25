@@ -2,7 +2,9 @@
 import { page } from "$app/state"
 import PostSidebar from "$lib/components/PostSidebar.svelte"
 import ScrollTracker from "$lib/components/ScrollTracker.svelte"
+import Seo from "$lib/components/Seo.svelte"
 import TerminalHeader from "$lib/components/TerminalHeader.svelte"
+import { blogPostingJsonLd, breadcrumbJsonLd } from "$lib/seo"
 import { cn, formatDate } from "$lib/utils"
 import Giscus from "@giscus/svelte"
 import { Clock } from "lucide-svelte"
@@ -29,25 +31,28 @@ const getTagClasses = (tag: string) => {
 }
 
 const viewId = $derived(`-writing-${page.params.slug}`)
+
+const structuredData = $derived([
+	blogPostingJsonLd(data.meta),
+	breadcrumbJsonLd([
+		{ name: "Home", path: "/" },
+		{ name: "Writing", path: "/writing" },
+		{ name: data.meta.title, path: data.meta.slug },
+	]),
+])
 </script>
 
+<Seo
+	title={data.meta.title}
+	description={data.meta.description}
+	path={data.meta.slug}
+	type="article"
+	publishedTime={data.meta.date}
+	tags={data.meta.tags}
+	jsonLd={structuredData}
+/>
+
 <svelte:head>
-	<title
-		>{data.meta.title
-			? `${data.meta.title} - Armanc Keser`
-			: 'Blog - Armanc Keser'}</title
-	>
-	{#if data.meta.description}
-		<meta name="description" content={data.meta.description} />
-	{/if}
-	<link rel="canonical" href={data.meta.slug} />
-	<meta property="og:type" content="article" />
-	<meta property="og:title" content={data.meta.title} />
-	<meta property="og:description" content={data.meta.description} />
-	<meta property="og:url" content={data.meta.slug} />
-	<meta property="og:site_name" content="Armanc Keser" />
-	<meta property="article:published_time" content={data.meta.date} />
-	<meta property="article:author" content="Armanc Keser" />
     <style>
         /* Anchor link styles */
         .anchor-link {

@@ -1,6 +1,7 @@
 <script lang="ts">
 import { page } from "$app/state"
 import PostSidebar from "$lib/components/PostSidebar.svelte"
+import Seo from "$lib/components/Seo.svelte"
 import TerminalHeader from "$lib/components/TerminalHeader.svelte"
 
 const errorData = $derived({
@@ -11,9 +12,12 @@ const errorData = $derived({
 })
 </script>
 
-<svelte:head>
-  <title>{errorData.status} - {errorData.message}</title>
-</svelte:head>
+<Seo
+  title="{errorData.status} {errorData.message}"
+  description="That page does not exist on armanckeser.com."
+  path={errorData.path}
+  noindex
+/>
 
 <article class="container justify-around p-4 flex flex-col lg:flex-row gap-8">
   <div class="flex-1 max-w-[65ch] lg:max-w-[75ch] xl:max-w-[85ch]">
