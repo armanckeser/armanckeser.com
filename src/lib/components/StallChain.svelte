@@ -5,14 +5,14 @@ interface Step {
 	stat?: string
 }
 
-const { steps } = $props<{ steps: Step[] }>()
+const { steps, title } = $props<{ steps: Step[]; title: string }>()
 
 let shown = $state(1)
 </script>
 
 <div class="terminal-block not-prose" data-variant="tip">
   <div class="flex items-center justify-between gap-4 px-4 py-2 border-b border-accent/20">
-    <span class="font-mono text-sm text-muted-foreground">why a mouse app made everything stutter</span>
+    <span class="font-mono text-sm text-muted-foreground">{title}</span>
     <span class="font-mono text-xs text-muted-foreground tabular-nums">{shown}/{steps.length}</span>
   </div>
   <ol class="p-4 space-y-3">

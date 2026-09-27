@@ -1,88 +1,98 @@
 ---
-title: "My mouse software was choking my GPU, and a restart would have hidden it"
-description: "Razer's background service left 32,709 dead programs behind, and Windows checked every one of them each time a game needed graphics memory"
-tags: [windows, debugging, gaming, ai]
+title: "Restarting fixes Windows because your apps are broken"
+description: "I couldn't reboot, so I found out what the reboot would have hidden: 12.7 GB leaked by NVIDIA, and 32,709 dead processes from Razer slowing down every frame on my screen"
+tags: [windows, debugging, gaming]
 date: "2026-09-27"
 published: true
 ---
 
 <script lang="ts">
-  import ZombieGrid from "$lib/components/ZombieGrid.svelte"
-  import StallChain from "$lib/components/StallChain.svelte"
   import SuspectList from "$lib/components/SuspectList.svelte"
+  import StallChain from "$lib/components/StallChain.svelte"
+  import LinearScan from "$lib/components/LinearScan.svelte"
 </script>
 
-For years my computer has had problems I didn't understand. Games would stutter out of nowhere. Things would lag for no reason. I had no idea what was going on, so I did what everyone does: restart and hope. Sometimes it worked, as if by magic, and I never learned why.
+For years my PC had problems I couldn't explain. Games would stutter out of nowhere, and the desktop would lag for no reason. I had exactly one fix: restart it. Sometimes that worked, and I never asked why.
 
-Today I found one of those reasons. My Razer mouse software was quietly leaving dead programs behind, tens of thousands of them. Each one made Windows' graphics memory manager a little slower, until the whole machine stuttered, not just the game. A restart would have fixed it, and I would never have known.
+Today I couldn't restart. My wife was halfway through a movie streaming from the media server on this same machine. So for the first time I had to find out what a restart actually fixes.
 
-## 2 fps, then stutter
+It fixes broken apps. Mine had two. NVIDIA's overlay had leaked 12.7 GB of memory. And Razer's mouse software had left 32,709 dead processes behind, which made every frame on my screen wait while the kernel walked a list of programs that no longer existed.
 
-Subnautica 2 had run smoothly the last time I played. Today it ran at 2 fps. My wife was streaming a movie from the media server on the same machine, so restarting was out. Instead I asked Claude Code, which runs in a terminal on my PC, to figure out what was wrong.
+## 30 fps last time, 2 fps today
 
-Getting from 2 fps back to a playable 30 was the easy part. The movie was being re-encoded on my GPU because of a subtitle track, and turning the subtitles off fixed that. But the constant stutter stayed. Then I noticed the terminal itself was hitching too, and that changed the question. This wasn't a game problem. Something underneath everything was stalling.
-
-## The suspects
-
-Every guess became a command that ran in seconds and either held up or didn't:
+Subnautica 2 had been smooth the last time I played it. Today it ran at 2 fps. I pointed Claude Code at the problem, and we worked through the suspects. Each guess became a command, and each command either backed it up or ruled it out:
 
 <SuspectList suspects={[
-  { name: "A movie transcoding on the same GPU", evidence: "real: decode engine at 76%. Fixed it, 2 → 30 fps, still stuttering", guilty: false },
+  { name: "A 4K movie transcoding on the same GPU", evidence: "real: Jellyfin was burning subtitles into a 4K HDR stream, decoder at 76%. Fixed. 2 → 30 fps, but still stuttering", guilty: false },
   { name: "Thermals", evidence: "CPU at 94 °C, but still boosting to 3.9 GHz. Not throttling", guilty: false },
-  { name: "NVIDIA Overlay leaking 12.7 GB of memory", evidence: "real, and killed. Stutter unchanged", guilty: false },
-  { name: "Frame pacing / G-Sync", evidence: "turned G-Sync on. Still stuttering, and the terminal was too", guilty: false },
-  { name: "The Windows kernel itself", evidence: "System process burning 1.1–1.4 CPU cores nonstop, with no game-related reason", guilty: true },
+  { name: "NVIDIA Overlay leaking memory", evidence: "real: one overlay process from 20 days ago held 12.7 GB, with commit at 48.6 of 49.9 GB. Killed it. Stutter unchanged", guilty: false },
+  { name: "Frame pacing, G-Sync", evidence: "turned G-Sync on. Still stuttering, and now I noticed the terminal was too", guilty: false },
+  { name: "Something inside the Windows kernel", evidence: "the System process was burning 1.1–1.4 cores nonstop", guilty: true },
 ]} />
 
-## Tracing the kernel
+Two of those "not the cause" rows are real bugs that a restart would have quietly wiped away. The terminal stuttering was the real clue. If everything stutters, the problem sits below everything.
 
-Claude wrote a script that recorded 10 seconds of what the CPU was doing, including the kernel's call stacks, and I ran it as admin. Three quarters of the System process's time was going into a single function inside Windows' graphics memory manager:
+## The trace
+
+A 10-second kernel trace with call stacks (xperf, run as admin) showed where the System process was spending its time:
 
 ```
-dxgmms2.sys!VIDMM_GLOBAL::HandleTrimWnf      75.28%
-  ntkrnlmp.exe!NtUpdateWnfStateData          74.68%
-    ntkrnlmp.exe!ExpWnfFindScopeInstance     74.30%   ← searching a list, one entry at a time
+dxgmms2.sys!VidMmWorkerThreadProc              75.81%
+  dxgmms2.sys!VIDMM_GLOBAL::HandleTrimWnf      75.28%
+    ntkrnlmp.exe!NtUpdateWnfStateData          74.68%
+      ntkrnlmp.exe!ExpWnfFindScopeInstance     74.30%   (57.9% exclusive)
+ntkrnlmp.exe!memcmp                            15.97%   (exclusive)
 ```
 
-Why would a list search be slow? Because the list was enormous:
+To see why that stalls your whole screen, you need to know a little about how Windows draws.
+
+<StallChain title="how a dead program stalls your screen" steps={[
+  { plain: "Every window, your game and your terminal included, renders into GPU memory. The Desktop Window Manager (DWM) composites those surfaces into the frame you see.", kernel: "dwm.exe, dxgkrnl.sys" },
+  { plain: "GPU memory is shared, so one part of the kernel manages it for everyone: the video memory manager, VidMm.", kernel: "dxgmms2.sys!VidMmWorkerThreadProc" },
+  { plain: "When memory gets tight (a game using 7 of 8 GB will do it), VidMm evicts allocations and notifies processes so they can shrink.", kernel: "VIDMM_GLOBAL::HandleTrimWnf" },
+  { plain: "That notification goes through WNF, the kernel's internal pub/sub. Before it can publish, the kernel has to find the right scope instance, and it does that by walking a list and comparing entries one by one.", kernel: "ExpWnfFindScopeInstance + memcmp", stat: "74% of System CPU" },
+  { plain: "The list was bloated by processes that had exited but never been cleaned up.", kernel: "33,015 process objects, 306 alive", stat: "32,709 zombies" },
+  { plain: "While VidMm's worker is busy walking that list, every app waiting on GPU memory waits too, and that includes DWM. So the whole screen hitches, not just the game.", kernel: "System process", stat: "~1.25 cores, nonstop" },
+]} />
+
+## 32,709 processes that don't exist
+
+When a program exits but something still holds a handle to it, Windows can't free it, and it stays around as a zombie. I compared the kernel's process object count with the list of processes actually running:
 
 ```
 Live processes: 306   Process objects in kernel: 33,015   => zombies ~ 32,709
 ```
 
-## 32,709 programs that no longer existed
+The top handle holders were Razer Game Manager (33,695 handles) and Razer Synapse Service (28,193). Game Manager watches every process you launch, so it can tell when you start a game. It looks like it opens a handle to each one and never closes it. Over the 20 days since my last restart, that's about 1,600 new zombies a day, and every one makes the list longer.
 
-When a program exits but something still holds a reference to it, Windows can't clean it up. It becomes a zombie. My PC had 306 programs running, and was still keeping track of 32,709 dead ones. Almost all of the references were held by Razer Game Manager, a background service that watches every program you launch so it can tell when you start a game. It apparently never lets go.
+Drag the slider back to zero to see what a restart does:
 
-<ZombieGrid before={{ live: 306, zombies: 32709 }} after={{ live: 306, zombies: 260 }} />
+<LinearScan />
 
-Here is how that turns into a stuttering desktop:
+A linear search is fine when the list is short, and fresh after a reboot it is. By day 20 every lookup is about 100 times more expensive, and it happens every time a game pushes GPU memory. That's why the slowdown creeps up over weeks, and why a restart "fixes" it.
 
-<StallChain steps={[
-  { plain: "A game (or anything on screen) needs graphics memory, and the GPU is getting full.", kernel: "dxgmms2.sys!VidMmWorkerThreadProc" },
-  { plain: "Windows' graphics memory manager frees some up, and announces that it did.", kernel: "VIDMM_GLOBAL::HandleTrimWnf" },
-  { plain: "To send the announcement, the kernel looks up an entry in a list, one item at a time.", kernel: "ExpWnfFindScopeInstance + memcmp", stat: "74% of System CPU" },
-  { plain: "The list is bloated by every dead program Razer never let go of.", kernel: "33,015 process objects for 306 live processes", stat: "32,709 zombies" },
-  { plain: "While that search runs, everything waiting on graphics memory waits too: the game, the desktop, my terminal.", kernel: "System process: ~1.25 cores busy" },
-  { plain: "A restart clears the list. So restarting 'fixes' it, until it builds back up.", kernel: "481 hours of uptime ≈ 1,600 new zombies a day" },
-]} />
+I stopped both Razer services. Within a minute the zombies dropped from 32,709 to 260, and the System process fell from about 1.25 cores to 0.2. The stutter disappeared, with no restart and no interrupted movie.
 
-Stopping the two Razer services cleared it within a minute, without a restart and without interrupting the movie. Zombies went from 32,709 to 260, and the System process from about 1.25 cores to 0.2. The stutter was gone.
-
-(The chain is the measured stack plus my reading of it. I haven't seen Windows' source code, but the zombies and the CPU usage both dropped at the same moment, by the same factor.)
+To be clear about what's proven: the stack and the before-and-after numbers are measured. That the zombies are what bloats this particular list is my reading of the evidence. The two dropped together, at the same moment and by about the same factor. But I haven't seen the Windows source.
 
 ## Check yours
 
-If your PC gets slower the longer it stays on, this takes one line in PowerShell:
+Open PowerShell and run:
 
 ```powershell
 (Get-Counter '\Objects\Processes').CounterSamples[0].CookedValue - (Get-Process).Count
 ```
 
-A few hundred is normal. Tens of thousands means something is leaking. `Get-Process | Sort HandleCount -Desc | Select -First 5` will usually tell you what. My gaming script now disables Razer's services and warns me if the count climbs again.
+A few hundred is normal. If you see thousands, something is leaking, and this will usually tell you what:
 
-## Restart and pray
+```powershell
+Get-Process | Sort HandleCount -Desc | Select -First 5 Name, HandleCount
+```
 
-A few years ago I would have restarted and moved on, and this would have become one more piece of computer magic. It probably has been, many times, over the years: every stutter a reboot "fixed", and I never knew why.
+I'd love to know what other people find. Post your number and your top offender in the comments.
 
-I still couldn't have found this on my own. I didn't know xperf could print kernel stacks, that zombie processes were a thing I could count, or what `ExpWnfFindScopeInstance` is. What changed is that I don't need to. I bring what I know about my own machine: it was smooth before, the terminal stutters too, don't reboot. Claude turns that into commands, rules things out with data, and keeps going down a layer until the numbers explain it. It got four suspects wrong on the way. None of those mistakes cost more than a few seconds.
+## The restart was hiding things
+
+Restarting is a great fix and a terrible diagnosis. It clears every leak at once, so you never learn which app leaked, and the problem just builds back up. Being unable to restart was the best thing that could have happened to this PC. In one afternoon it turned up a 12.7 GB leak in NVIDIA's overlay, a media server burning subtitles into 4K video on my gaming GPU, and my mouse software quietly slowing every frame on my screen.
+
+My gaming script now disables Razer's services and warns me if the zombie count climbs again. And I keep wondering how many of the restarts I've done over the years to "fix" a stutter were hiding something like this.
