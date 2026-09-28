@@ -134,15 +134,13 @@ what:
 Get-Process | Sort HandleCount -Desc | Select -First 5 Name, HandleCount
 ```
 
-## Restarting was hiding things
+If you run these, please let me know your number and your top offender, I am really curious what
+other people find.
 
-All those years of guides and control panel settings, and this time the thing eating my frames
-wasn't a setting, it was the apps that are supposed to make things better, slowly breaking in the
-background while I restarted them away without ever knowing which one it was. Restarting is a great fix and a
-terrible diagnosis, it clears every leak at once, so you never learn who leaked, and it all just
-builds back up.
+## A look behind the curtain
 
-My gaming script now stops Razer's services before a game and warns me if the zombie count starts
-climbing again (also written by Opus, obviously). I keep wondering how many of my restarts over the
-years were hiding something like this, so if you run the commands above, please let me know your
-number and your top offender, I am really curious what other people find.
+Restarting is a good idea, because it keeps problems like these from happening in the first place,
+but for the first time ever I do feel like I get a look behind the curtain. "Game has low FPS" has
+always been such an abstract problem that always made me feel uneasy, but now I can get to an actual
+answer. So next time something is going wrong with your computer, I recommend letting an agent loose
+to figure it out. What it finds might surprise you, and maybe even teach you a few tricks.
