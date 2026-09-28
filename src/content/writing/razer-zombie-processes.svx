@@ -12,10 +12,10 @@ published: true
   import LinearScan from "$lib/components/LinearScan.svelte"
 </script>
 
-**TL;DR:** after years of not knowing why my laptops would have worse performance than I thought
-they should, coding agents helped me finally figure out that Windows apps are broken (like the Razer
-apps or the NVIDIA overlay on your PC right now), but a few scripts and adjustments can fix them
-ad hoc! A feeling I never thought I would have.
+> TLDR: after years of not knowing why my laptops would have worse performance than I thought
+> they should, coding agents helped me finally figure out that Windows apps are broken (like the Razer
+> apps or the NVIDIA overlay on your PC right now), but a few scripts and adjustments can fix them
+> ad hoc! A feeling I never thought I would have.
 
 Growing up, my friends and I couldn't afford any gaming computers, and having a laptop and a desktop
 was out of the question, so we always had to milk the last ounce of performance from whatever we
@@ -30,18 +30,20 @@ anything" with friends.
 Today was such a day. We found time, booted up the game, and... 2 FPS?
 
 Normally I would have maybe gone for a restart, but since I started using this computer as a
-server, restarting is a huge hassle, as I have to make sure all the services come back up etc. Worse,
-my wife was already using an app hosted on this computer, and I didn't want to cut her flow off. So
-with Opus 5.5 at hand, I wanted to finally figure out what was going on. I was previously burned by
-memory leaks in `audiodg.exe` from Nahimic, so a memory leak, in addition to plain old thermal
-throttling, were the first culprits in my mind. However, I had just never learned how to diagnose
-these issues properly.
+server, restarting is a huge hassle as I have to make sure all services are up etc, worse, my wife
+was already using an app hosted on this computer and I didn't want to cut her flow off. But with
+Opus 5.5, I wanted to finally figure out what was going on. I was previously burned by memory leaks
+in `audiodg.exe` from Nahimic, so a memory leak in addition to just thermal throttling were the first
+few culprits in my mind, however I just never learned how to diagnose these issues properly.
 
-## Rounding up the usual suspects
+So I opened a terminal, told Opus the game was running at 2 FPS, that I couldn't restart, and to
+figure out why. And then I mostly watched (my main contribution to this investigation was approving
+permission prompts).
 
-The nice thing about doing this with an agent is that every hunch turns into a command, and every
-command either backs the hunch up or kills it, and you don't have to know the incantations yourself.
-So we went down my list, and then some:
+## The usual suspects
+
+It went through pretty much the same list I would have, just a lot faster and with actual numbers
+instead of vibes, and it found real problems on the way, just not the one that mattered:
 
 <SuspectList suspects={[
   { name: "Another app on the same GPU", evidence: "real: one of the services I host on this machine was using the GPU way more than it should. Moved it off. 2 → 30 fps, but still stuttering", guilty: false },
@@ -51,19 +53,18 @@ So we went down my list, and then some:
   { name: "Something inside the Windows kernel", evidence: "the System process was burning 1.1–1.4 cores nonstop", guilty: true },
 ]} />
 
-So my memory leak hunch was right, just not about the app I expected. It wasn't Nahimic this time,
-it was the NVIDIA overlay, sitting on 12.7 GB for 20 days (the exact kind of thing a restart would
-have quietly wiped away without me ever knowing). Killing it felt great, and changed nothing.
+So my memory leak instinct was right, just about the wrong app (sorry Nahimic, not you this time).
+The NVIDIA overlay had been sitting on 12.7 GB for 20 days, which is exactly the kind of thing a
+restart would have quietly wiped away without me ever knowing. Killing it didn't fix anything
+though. What actually moved things forward was noticing, while watching Opus work, that the terminal
+was stuttering too, which meant the problem wasn't the game at all, it was something underneath
+everything.
 
-The thing that actually mattered was almost an accident. After turning G-Sync on I noticed the
-terminal I was typing into was stuttering too. A terminal! That is not a game fighting for GPU
-memory, so whatever this was sat below everything, somewhere in Windows itself, and that is a place
-I had honestly never looked before.
+## Into the kernel
 
-## Going into the kernel
-
-This is the part I would have never done alone. Opus suggested a 10 second kernel trace with call
-stacks (xperf, run as admin), to see what the System process was actually spending its time on:
+Honestly, this is the point where I would have given up and restarted, I am not even sure I knew you
+could get a stack trace of the Windows kernel. Opus ran a 10 second kernel trace with call stacks
+(xperf, as admin) and came back with this:
 
 ```
 dxgmms2.sys!VidMmWorkerThreadProc              75.81%
@@ -73,8 +74,8 @@ dxgmms2.sys!VidMmWorkerThreadProc              75.81%
 ntkrnlmp.exe!memcmp                            15.97%   (exclusive)
 ```
 
-I could read maybe half of those words at first, so here is the version I wish someone had given me,
-about how Windows draws things and how this stalls all of it:
+Which, if you are like me, means nothing at first glance, so here is what it is actually saying (or
+at least how it was explained to me):
 
 <StallChain title="how a dead program stalls your screen" steps={[
   { plain: "Every window, your game and your terminal included, renders into GPU memory. The Desktop Window Manager (DWM) composites those surfaces into the frame you see.", kernel: "dwm.exe, dxgkrnl.sys" },
@@ -87,65 +88,62 @@ about how Windows draws things and how this stalls all of it:
 
 ## 32,709 processes that don't exist
 
-When a program exits but something still holds a handle to it, Windows can't free it, and it sticks
-around as a zombie. Comparing the kernel's process object count with the processes actually running
-gave me this:
+When a program exits but something still holds a handle to it, Windows can't clean it up, and it
+sticks around as a zombie. Opus compared how many process objects the kernel had against how many
+processes were actually running:
 
 ```
 Live processes: 306   Process objects in kernel: 33,015   => zombies ~ 32,709
 ```
 
-Thirty two thousand. On a laptop that was running maybe three hundred things.
-
 The top handle holders were Razer Game Manager (33,695 handles) and Razer Synapse Service (28,193).
-Game Manager watches every process you launch so it can tell when you start a game, and it looks
-like it opens a handle to each one and just never closes it. Over the 20 days since my last restart
-that's about 1,600 new zombies a day, and every single one makes that list a little longer.
+Game Manager watches every process you launch so it can tell when you start a game, and it looks like
+it opens a handle to each one and never closes it. It had been 20 days since my last restart, so
+that is about 1,600 new zombies a day, every one of them making that list a little longer (the
+software that makes my mouse glow was slowing down every frame on my screen, great).
 
 Drag the slider back to zero to see what a restart does:
 
 <LinearScan />
 
-A linear search is totally fine when the list is short, and fresh after a reboot it is. By day 20
-every lookup is about 100 times more expensive, and it happens every time a game pushes on GPU
-memory. Which is why the slowdown creeps up over weeks, and why a restart "fixes" it, and why I spent
-years thinking my laptop just got tired sometimes.
+A linear search is fine when the list is short, and right after a restart it is. By day 20 every
+lookup is about 100 times more expensive, and it happens every time a game pushes on GPU memory.
+That's why it creeps up over weeks, that's why a restart "fixes" it, and that's probably why so many
+of my gaming sessions over the years started with a restart "just in case".
 
-So I stopped both Razer services, and within a minute the zombies dropped from 32,709 to 260, and the
-System process went from about 1.25 cores to 0.2. The stutter was gone. No restart, and nobody's flow
-got cut off.
+Opus stopped both Razer services and within a minute the zombies went from 32,709 to 260, the System
+process went from about 1.25 cores to 0.2, and the stutter was gone. No restart, and my wife didn't
+even notice anything happened.
 
-To be fair about what's proven here: the stack and the before and after numbers are measured. That
-the zombies are what bloats this particular list is my reading of the evidence. They dropped together,
-at the same moment and by about the same factor, but I haven't seen the Windows source, so take that
-part with a grain of salt.
+To be fair about what's actually proven: the stack and the before and after numbers are measured.
+That the zombies are what bloats this specific list is an inference, they dropped together at the
+same time and by about the same factor, but neither Opus nor I have seen the Windows source, so take
+that part with a grain of salt.
 
 ## Check yours
 
-This is the part I actually wanted to bring back to my friends (and you). Open PowerShell and run:
+If you are on Windows, open PowerShell and run:
 
 ```powershell
 (Get-Counter '\Objects\Processes').CounterSamples[0].CookedValue - (Get-Process).Count
 ```
 
-A few hundred is normal. If you see thousands, something is leaking, and this will usually tell you
-who:
+A few hundred is normal. If you see thousands, something is leaking, and this will probably tell you
+what:
 
 ```powershell
 Get-Process | Sort HandleCount -Desc | Select -First 5 Name, HandleCount
 ```
 
-I'd love to know what other people find, so post your number and your top offender in the comments.
-
-## The restart was hiding things
+## Restarting was hiding things
 
 All those years of guides and control panel settings, and the thing eating my frames was never a
-setting. It was the apps that are supposed to help, the mouse software and the overlay, slowly
-breaking in the background, and me clearing it all away with a restart every time without ever
-knowing which one did it. Restarting is a great fix and a terrible diagnosis. It clears every leak at
-once, so you never learn who leaked, and the problem just builds back up.
+setting, it was the apps that are supposed to make things better, slowly breaking in the background
+while I restarted them away without ever knowing which one it was. Restarting is a great fix and a
+terrible diagnosis, it clears every leak at once, so you never learn who leaked, and it all just
+builds back up.
 
-Not being able to restart ended up being the best thing that could have happened to this laptop. My
-gaming script now disables Razer's services before a game and warns me if the zombie count starts
-climbing again, and I keep wondering how many of the restarts I've done over the years were hiding
-something like this.
+My gaming script now stops Razer's services before a game and warns me if the zombie count starts
+climbing again (also written by Opus, obviously). I keep wondering how many of my restarts over the
+years were hiding something like this, so if you run the commands above, please let me know your
+number and your top offender, I am really curious what other people find.
