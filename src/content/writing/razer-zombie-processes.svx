@@ -53,9 +53,8 @@ instead of vibes, and it found real problems on the way, just not the one that m
   { name: "Something inside the Windows kernel", evidence: "the System process was burning 1.1–1.4 cores nonstop", guilty: true },
 ]} />
 
-So my memory leak instinct was right, just about the wrong app (sorry Nahimic, not you this time).
-The NVIDIA overlay had been sitting on 12.7 GB for 20 days, which is exactly the kind of thing a
-restart would have quietly wiped away without me ever knowing. Killing it didn't fix anything
+So the memory leak instinct was right, the NVIDIA overlay had been sitting on 12.7 GB for 20 days,
+which is exactly the kind of thing a restart would have quietly wiped away without me ever knowing. Killing it didn't fix anything
 though. What actually moved things forward was noticing, while watching Opus work, that the terminal
 was stuttering too, which meant the problem wasn't the game at all, it was something underneath
 everything.
@@ -137,9 +136,9 @@ Get-Process | Sort HandleCount -Desc | Select -First 5 Name, HandleCount
 
 ## Restarting was hiding things
 
-All those years of guides and control panel settings, and the thing eating my frames was never a
-setting, it was the apps that are supposed to make things better, slowly breaking in the background
-while I restarted them away without ever knowing which one it was. Restarting is a great fix and a
+All those years of guides and control panel settings, and this time the thing eating my frames
+wasn't a setting, it was the apps that are supposed to make things better, slowly breaking in the
+background while I restarted them away without ever knowing which one it was. Restarting is a great fix and a
 terrible diagnosis, it clears every leak at once, so you never learn who leaked, and it all just
 builds back up.
 
