@@ -3,6 +3,10 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [main]
+  # The project list is read from GitHub at build time, so a daily rebuild is
+  # what makes a newly published repository (topic: portfolio) appear.
+  schedule:
+    - cron: "0 12 * * *"
   workflow_dispatch:
 
 permissions:

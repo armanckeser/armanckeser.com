@@ -2,12 +2,16 @@
 import Card from "$lib/components/Card.svelte"
 import ContentSection from "$lib/components/ContentSection.svelte"
 import ExternalLink from "$lib/components/ExternalLink.svelte"
+import ProjectCard from "$lib/components/ProjectCard.svelte"
 import Seo from "$lib/components/Seo.svelte"
 import { personJsonLd, websiteJsonLd } from "$lib/seo"
 import type { PageData } from "./$types"
 const props = $props<{ data: PageData }>()
 const posts = $derived(props.data.posts)
-const projects = $derived(props.data.projects)
+// The endpoint returns an error object instead of a list when GitHub is unreachable.
+const projects = $derived(
+	Array.isArray(props.data.projects) ? props.data.projects : []
+)
 </script>
 
 <Seo
@@ -58,11 +62,22 @@ const projects = $derived(props.data.projects)
       </div>
     </section>
 
+    <!-- Projects Section -->
+    <ContentSection title="~/projects" subtitle="Apps and tools I've built" id="projects">
+      <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {#each projects as project, i (project.title)}
+          <div class="rise" style="--i: {i}">
+            <ProjectCard {...project} />
+          </div>
+        {/each}
+      </div>
+    </ContentSection>
+
     <!-- Blog Posts Section -->
     <ContentSection title="~/writing" subtitle="Insights, learnings, thoughts" id="writing">
       <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {#each posts as post, i}
-          <div class="animate-slide-in" style="animation-delay: {i * 100}ms">
+        {#each posts as post, i (post.slug)}
+          <div class="rise" style="--i: {i}">
             <Card
               title={post.title}
               description={post.description}
@@ -73,23 +88,20 @@ const projects = $derived(props.data.projects)
         {/each}
       </div>
     </ContentSection>
-
-    <!-- Projects Section -->
-    <ContentSection title="~/projects" subtitle="Apps and tools I've built" id="projects">
-      <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {#each projects as project, i}
-          <div class="animate-slide-in" style="animation-delay: {i * 100}ms">
-            <Card
-              title={project.title}
-              description={project.description}
-              tag={project.homepage ? "page" : "repo"}
-              stars={project.stars}
-              href={project.homepage || project.url}
-              date={project.updated}
-            />
-          </div>
-        {/each}
-      </div>
-    </ContentSection>
   </div>
 </main>
+
+<style>
+  /* Cards rise in one after another; the cap keeps a long list from making the last ones wait. */
+  .rise {
+    animation: rise 320ms cubic-bezier(0.23, 1, 0.32, 1) both;
+    animation-delay: calc(min(var(--i), 8) * 40ms);
+  }
+
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+  }
+</style>
