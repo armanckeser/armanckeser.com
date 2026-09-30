@@ -13,8 +13,8 @@ export type Project = {
 	name: string
 	title: string
 	description: string
-	/** Repository topics, minus `portfolio`. */
-	topics: string[]
+	/** What sort of thing it is, in words: "Self-hosted app", "Try it in your browser". */
+	kind: string
 	stars: number
 	/** The repository page, or null for a private repository a visitor cannot open. */
 	url: string | null
@@ -27,3 +27,10 @@ export type Project = {
 /** Where a click on the project should go: the running app if there is one. */
 export const projectHref = (p: Pick<Project, "homepage" | "url">) =>
 	p.homepage ?? p.url
+
+/** A plain-language label from the repo's topics, instead of showing the topics (framework names) themselves. */
+export function kindOf(topics: string[], homepage: string | null): string {
+	if (topics.includes("self-hosted")) return "Self-hosted app"
+	if (homepage) return "Try it in your browser"
+	return "Open source"
+}

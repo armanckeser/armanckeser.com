@@ -1,35 +1,16 @@
 <script lang="ts">
 import type { Project } from "$lib/projects"
 import { projectHref } from "$lib/projects"
-import ProjectTile from "./ProjectTile.svelte"
+import ShowcaseCard from "./ShowcaseCard.svelte"
 
 const { projects } = $props<{ projects: Project[] }>()
 
-const featured = $derived(projects.filter((p: Project) => p.cover))
+const shown = $derived(projects.filter((p: Project) => p.cover))
 const rest = $derived(projects.filter((p: Project) => !p.cover))
 
-/**
- * Deals tiles into columns, each going to the currently shortest one. Heights
- * are known ahead of time from the cover sizes, so this runs at build time and
- * the prerendered page needs no layout script. Keeps the newest work on the
- * top row, which CSS columns would scatter down the first column.
- */
-function columns(items: Project[], n: number): Project[][] {
-	const cols: Project[][] = Array.from({ length: n }, () => [])
-	const heights = new Array(n).fill(0)
-	for (const p of items) {
-		const i = heights.indexOf(Math.min(...heights))
-		cols[i].push(p)
-		const ratio = p.cover
-			? Math.min(p.cover.height / p.cover.width, 1.05)
-			: 0
-		heights[i] += ratio + 0.45 // the caption, in tile-widths
-	}
-	return cols
-}
-
-const three = $derived(columns(featured, 3))
-const two = $derived(columns(featured, 2))
+// The newest project leads as a wide card. On a two-column grid an odd one out
+// would leave a hole, so the last card goes wide too.
+const wide = (i: number, n: number) => i === 0 || (i === n - 1 && n % 2 === 0)
 
 const month = (iso: string) =>
 	new Date(iso).toLocaleDateString("en-US", {
@@ -38,32 +19,20 @@ const month = (iso: string) =>
 	})
 </script>
 
-{#if featured.length}
-  <!-- Phones: one swipeable shelf instead of a long scroll. -->
+{#if shown.length}
+  <!-- Phones: one swipeable row instead of a long scroll. -->
   <div class="shelf -mx-4 flex gap-3 overflow-x-auto px-4 pb-2 md:hidden" role="region" aria-label="Projects">
-    {#each featured as project, i (project.name)}
-      <div class="flex w-[78%] shrink-0 snap-start">
-        <ProjectTile {project} eager={i < 2} uniform />
+    {#each shown as project, i (project.name)}
+      <div class="w-[84%] shrink-0 snap-start">
+        <ShowcaseCard {project} eager={i < 2} />
       </div>
     {/each}
   </div>
 
-  <div class="hidden gap-4 md:grid md:grid-cols-2 lg:hidden">
-    {#each two as col}
-      <div class="flex flex-col gap-4">
-        {#each col as project (project.name)}
-          <ProjectTile {project} />
-        {/each}
-      </div>
-    {/each}
-  </div>
-
-  <div class="hidden gap-4 lg:grid lg:grid-cols-3">
-    {#each three as col}
-      <div class="flex flex-col gap-4">
-        {#each col as project, r (project.name)}
-          <ProjectTile {project} eager={r === 0} />
-        {/each}
+  <div class="hidden gap-5 md:grid md:grid-cols-2">
+    {#each shown as project, i (project.name)}
+      <div class={wide(i, shown.length) ? "md:col-span-2" : ""}>
+        <ShowcaseCard {project} featured={wide(i, shown.length)} eager={i < 3} />
       </div>
     {/each}
   </div>
