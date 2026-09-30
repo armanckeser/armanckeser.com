@@ -7,7 +7,8 @@ import NavBar from "./NavBar.svelte"
 import ShellInput from "./ShellInput.svelte"
 
 // Time management
-let currentTime = $state<string>("00:00:00")
+// Empty until mounted: the page is prerendered, and a baked-in time would be wrong for everyone.
+let currentTime = $state("")
 let timeInterval = $state<ReturnType<typeof setInterval>>()
 
 // Lifecycle management
@@ -81,13 +82,13 @@ $effect(() => {
 
       <!-- Time display -->
       <div
-        class="hidden items-center gap-2 md:flex"
+        class={cn("hidden items-center gap-2", currentTime && "md:flex")}
         aria-live="off"
         aria-label="Current time"
       >
         <span class="text-accent" aria-hidden="true">│</span>
         <Clock class="h-4 w-4" aria-hidden="true" />
-        <span class="animate-fade-in">{currentTime}</span>
+        <span class="tabular-nums">{currentTime}</span>
       </div>
     </div>
   </div>

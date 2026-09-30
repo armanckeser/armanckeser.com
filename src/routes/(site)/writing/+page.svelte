@@ -30,6 +30,13 @@ $effect(() => {
 
 $effect(() => {
 	const handleKeydown = (e: KeyboardEvent) => {
+		// Letters typed into the command line (or any field) are text, not navigation.
+		const target = e.target as HTMLElement
+		if (
+			target.isContentEditable ||
+			/^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName)
+		)
+			return
 		if (e.key === "j" || e.key === "ArrowDown") {
 			e.preventDefault()
 			const currentIndex = selectedPost

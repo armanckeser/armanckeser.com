@@ -2,7 +2,7 @@
 import Card from "$lib/components/Card.svelte"
 import ContentSection from "$lib/components/ContentSection.svelte"
 import ExternalLink from "$lib/components/ExternalLink.svelte"
-import ProjectCard from "$lib/components/ProjectCard.svelte"
+import ProjectShelf from "$lib/components/ProjectShelf.svelte"
 import Seo from "$lib/components/Seo.svelte"
 import { personJsonLd, websiteJsonLd } from "$lib/seo"
 import type { PageData } from "./$types"
@@ -62,17 +62,6 @@ const projects = $derived(
       </div>
     </section>
 
-    <!-- Projects Section -->
-    <ContentSection title="~/projects" subtitle="Apps and tools I've built" id="projects">
-      <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {#each projects as project, i (project.title)}
-          <div class="rise" style="--i: {i}">
-            <ProjectCard {...project} />
-          </div>
-        {/each}
-      </div>
-    </ContentSection>
-
     <!-- Blog Posts Section -->
     <ContentSection title="~/writing" subtitle="Insights, learnings, thoughts" id="writing">
       <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -87,6 +76,11 @@ const projects = $derived(
           </div>
         {/each}
       </div>
+    </ContentSection>
+
+    <!-- Projects Section -->
+    <ContentSection title="~/projects" subtitle="Apps and tools I've built" id="projects">
+      <ProjectShelf {projects} />
     </ContentSection>
   </div>
 </main>
@@ -105,3 +99,4 @@ const projects = $derived(
     }
   }
 </style>
+
