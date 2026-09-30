@@ -1,8 +1,13 @@
 import { GH_PAT } from "$env/static/private"
+import type { Project } from "$lib/projects"
 import { Octokit } from "@octokit/rest"
 import { json } from "@sveltejs/kit"
 import { capitalCase } from "change-case"
 import type { RequestHandler } from "./$types"
+
+const OWNER = "armanckeser"
+const COVER = "img/cover.png"
+const PREVIEW = "img/hero.gif"
 
 // capitalCase gets product names wrong ("Uscis", "Github"); these win.
 const WORDS: Record<string, string> = {
@@ -17,11 +22,18 @@ const titleOf = (name: string) =>
 		.map(w => WORDS[w] ?? w)
 		.join(" ")
 
-/**
- * A repository is a project when it carries the `portfolio` topic. Private
- * repositories only appear when they have a homepage, since a visitor cannot
- * open the repository itself.
- */
+const raw = (repo: string, path: string) =>
+	`https://raw.githubusercontent.com/${OWNER}/${repo}/HEAD/${path}`
+
+/** Width and height from a PNG's IHDR chunk, so tiles reserve their space before the image loads. */
+async function pngSize(src: string) {
+	const res = await fetch(src, { headers: { Range: "bytes=0-31" } })
+	if (!res.ok) return null
+	const bytes = new DataView(await res.arrayBuffer())
+	if (bytes.byteLength < 24) return null
+	return { width: bytes.getUint32(16), height: bytes.getUint32(20) }
+}
+
 export const GET: RequestHandler = async () => {
 	try {
 		const octokit = new Octokit({ auth: GH_PAT })
@@ -33,23 +45,58 @@ export const GET: RequestHandler = async () => {
 				direction: "desc",
 				per_page: 100,
 			})
-		const projects = repos
-			.filter(
-				repo =>
-					!repo.fork &&
-					!repo.archived &&
-					repo.topics?.includes("portfolio") &&
-					(!repo.private || repo.homepage)
-			)
-			.map(repo => ({
-				title: titleOf(repo.name),
-				description: repo.description || "No description",
-				stars: repo.stargazers_count,
-				url: repo.private ? null : repo.html_url,
-				updated: repo.pushed_at ?? repo.updated_at,
-				language: repo.language,
-				homepage: repo.homepage || null,
-			}))
+
+		const projects = await Promise.all(
+			repos
+				// Private repositories only appear when a visitor has somewhere to go.
+				.filter(
+					repo =>
+						!repo.fork &&
+						!repo.archived &&
+						repo.topics?.includes("portfolio") &&
+						(!repo.private || repo.homepage)
+				)
+				.map(async (repo): Promise<Project> => {
+					// Images are served straight from GitHub, which only works for public repositories.
+					const files = repo.private
+						? []
+						: await octokit.rest.repos
+								.getContent({
+									owner: OWNER,
+									repo: repo.name,
+									path: "img",
+								})
+								.then(r =>
+									Array.isArray(r.data)
+										? r.data.map(f => f.path)
+										: []
+								)
+								.catch(() => [])
+					const coverSrc = files.includes(COVER)
+						? raw(repo.name, COVER)
+						: null
+					const size = coverSrc ? await pngSize(coverSrc) : null
+					return {
+						name: repo.name,
+						title: titleOf(repo.name),
+						description: repo.description || "No description",
+						topics: (repo.topics ?? []).filter(
+							t => t !== "portfolio"
+						),
+						stars: repo.stargazers_count ?? 0,
+						url: repo.private ? null : repo.html_url,
+						homepage: repo.homepage || null,
+						updated: repo.pushed_at ?? repo.updated_at ?? "",
+						cover:
+							coverSrc && size
+								? { src: coverSrc, ...size }
+								: null,
+						preview: files.includes(PREVIEW)
+							? raw(repo.name, PREVIEW)
+							: null,
+					}
+				})
+		)
 		return json(projects, {
 			headers: {
 				"Cache-Control": "public, max-age=3600",

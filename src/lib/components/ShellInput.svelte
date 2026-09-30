@@ -1,297 +1,205 @@
-<!--
-TODO: [ ] **Focus Effects**
-  - Change background to screenlike background when focused
-
-TODO: [ ] **Command Completion**
-  - Show preview of completed command in muted text
-  - Accept completion on:
-    - Right arrow key
-    - Click/tap on suggestion
-  - Handle partial matches
-*/
--->
 <script lang="ts">
 import {
-	commands,
-	get_completions,
-	normalizeCommandInput,
+	type Completion,
+	type Line,
+	completionsFor,
+	parse,
+	run,
+	warmUp,
 } from "$lib/terminal/commands"
 import { cn } from "$lib/utils"
 
-class CommandState {
-	ref = $state<HTMLDivElement>(null!)
+let input = $state<HTMLInputElement>()
+let value = $state("")
+let focused = $state(false)
+/** What the last command printed. Cleared as soon as you type again. */
+let output = $state<Line[]>([])
+let selected = $state(-1)
+/** Suggestions stay closed until you type or press Tab, so focusing is quiet. */
+let suggesting = $state(false)
+/** Bumped when the project list arrives, so `open` completions appear without another keystroke. */
+let loaded = $state(0)
 
-	full_command = $state("")
-	command = $derived(this.full_command.split(" ")[0])
-	arguments = $derived(this.full_command.split(" ").slice(1))
+/**
+ * While Tab or the arrows cycle through candidates, each one is written into the
+ * prompt (as zsh does), and the list keeps coming from what was typed before cycling.
+ */
+let typed = $state<string | null>(null)
 
-	isComposing = $state(false)
+const suggestions = $derived<Completion[]>(
+	suggesting && loaded >= 0 ? completionsFor(typed ?? value) : []
+)
+const panelOpen = $derived(
+	focused && (output.length > 0 || suggestions.length > 0)
+)
 
-	// Selection tracking
-	offsets = $state({
-		start: 0,
-		end: 0,
-	})
-	hasSelection = $derived(this.offsets.start < this.offsets.end)
-	needsBlinkingCursor = $derived(
-		!this.hasSelection &&
-			this.offsets.end === (this.ref?.textContent || "").length
-	)
-
-	reset = () => {
-		this.full_command = ""
-		this.ref.innerHTML = ""
-		this.offsets = {
-			start: 0,
-			end: 0,
-		}
-	}
-
-	updateFullCommand = (command?: string) => {
-		if (command) {
-			this.ref.textContent = command
-		}
-		this.full_command = normalizeCommandInput(this.ref.textContent || "")
-	}
-
-	updateSelection() {
-		const sel = window.getSelection()
-		if (!sel || !this.ref.contains(sel.anchorNode)) return
-
-		const range = sel.getRangeAt(0)
-		const preCaretRange = range.cloneRange()
-		preCaretRange.selectNodeContents(this.ref)
-
-		preCaretRange.setEnd(range.startContainer, range.startOffset)
-		const preCaretRangeStart = preCaretRange.toString().length
-
-		preCaretRange.setEnd(range.endContainer, range.endOffset)
-		const preCaretRangeEnd = preCaretRange.toString().length
-
-		if (preCaretRangeStart > preCaretRangeEnd) return
-
-		this.offsets = {
-			start: preCaretRangeStart,
-			end: preCaretRangeEnd,
-		}
-	}
+/** The input with the part being completed (the command, or its argument) replaced by `c`. */
+function complete(from: string, c: Completion) {
+	const { name, hasArg } = parse(from)
+	return hasArg ? `${name} ${c.value}` : `${c.value} `
 }
 
-class DropdownState {
-	commandState: CommandState
-	isVisible = $state(false)
-	selectedIndex = $state(-1)
-
-	filteredCompletions = $derived.by(() =>
-		get_completions(commandState.full_command)
-	)
-
-	constructor(commandState: CommandState) {
-		this.commandState = commandState
-	}
-
-	reset = () => {
-		this.selectedIndex = -1
-		this.hide()
-	}
-
-	show = () => {
-		this.isVisible = true
-	}
-	hide = () => {
-		this.isVisible = false
-	}
-
-	incrementIndex = () => {
-		this.selectedIndex =
-			(this.selectedIndex + 1) % this.filteredCompletions.length
-	}
-
-	decrementIndex = () => {
-		this.selectedIndex =
-			(this.selectedIndex - 1 + this.filteredCompletions.length) %
-			this.filteredCompletions.length
-	}
-
-	clampIndex = () => {
-		this.selectedIndex = Math.max(
-			-1,
-			Math.min(this.selectedIndex, this.filteredCompletions.length - 1)
-		)
-	}
+/** Accepts a candidate outright (a click, or the only match): the list moves on to what comes next. */
+function apply(c: Completion) {
+	value = complete(typed ?? value, c)
+	typed = null
+	selected = -1
+	input?.focus()
 }
 
-// State instances
-const commandState = new CommandState()
-const dropdown = new DropdownState(commandState)
+function cycle(step: number) {
+	const list = completionsFor(typed ?? value)
+	if (!list.length) return
+	suggesting = true
+	if (list.length === 1) return apply(list[0])
+	typed ??= value
+	selected = (selected + step + list.length) % list.length
+	value = complete(typed, list[selected])
+}
 
-$effect(() => {
-	const update = () => commandState.updateSelection()
-	document.addEventListener("selectionchange", update)
-	return () => document.removeEventListener("selectionchange", update)
-})
+async function submit() {
+	const line = value
+	value = ""
+	typed = null
+	suggesting = false
+	selected = -1
+	output = await run(line)
+}
 
-function handleKeydown(e: KeyboardEvent) {
-	if (commandState.isComposing) return
-
+function onkeydown(e: KeyboardEvent) {
+	if (e.isComposing) return
 	switch (e.key) {
 		case "Tab":
+			e.preventDefault()
+			cycle(e.shiftKey ? -1 : 1)
+			break
 		case "ArrowDown":
-		case "ArrowUp": {
+		case "ArrowUp":
+			if (!suggestions.length) return
 			e.preventDefault()
-			if (!dropdown.isVisible) {
-				dropdown.show()
-				break
-			}
-
-			// Handle navigation
-			if (e.shiftKey || e.key === "ArrowUp") {
-				dropdown.decrementIndex()
+			cycle(e.key === "ArrowDown" ? 1 : -1)
+			break
+		case "Enter":
+			e.preventDefault()
+			submit()
+			break
+		case "Escape":
+			if (panelOpen) {
+				output = []
+				suggesting = false
+				typed = null
 			} else {
-				dropdown.incrementIndex()
+				input?.blur()
 			}
-
-			// Update command and cursor position
-			const completion =
-				dropdown.filteredCompletions[dropdown.selectedIndex]
-			if (!completion) return
-			if (completion.type === "command") {
-				commandState.ref.innerHTML = completion.text
-			} else {
-				commandState.ref.innerHTML =
-					commandState.command + " " + completion.text
-			}
-			const range = document.createRange()
-			const sel = window.getSelection()
-			range.selectNodeContents(commandState.ref)
-			range.collapse(false)
-			sel?.removeAllRanges()
-			sel?.addRange(range)
 			break
-		}
-		case "Enter": {
-			e.preventDefault()
-			commandState.updateFullCommand()
-			const handler = commands.get(commandState.command)
-			handler?.execute(...commandState.arguments)
-			commandState.reset()
-			dropdown.reset()
-			break
-		}
-		case "Escape": {
-			e.preventDefault()
-			dropdown.hide()
-			break
-		}
-		default: {
-			commandState.updateFullCommand()
-			dropdown.reset()
-		}
 	}
+}
+
+// "/" or Cmd/Ctrl+K from anywhere on the page, unless you're already typing somewhere.
+function onGlobalKeydown(e: KeyboardEvent) {
+	const target = e.target as HTMLElement
+	const typing =
+		target.isContentEditable ||
+		/^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName)
+	const shortcut =
+		(e.key === "k" && (e.metaKey || e.ctrlKey)) ||
+		(e.key === "/" && !typing)
+	if (!shortcut || (typing && target !== input)) return
+	e.preventDefault()
+	input?.focus()
 }
 </script>
 
-<!-- Shell input container -->
-<div class="hidden sm:flex items-center gap-2 w-full min-w-0 font-mono text-sm">
-  <!-- Shell prompt -->
-  <div class="shrink-0 text-blue-600 dark:text-blue-400">❯</div>
+<svelte:window onkeydown={onGlobalKeydown} />
 
-  <div class="flex flex-col w-full min-w-0">
+<div class="relative hidden w-full min-w-0 items-center gap-2 font-mono text-sm sm:flex">
+  <span class="shrink-0 text-blue-600 dark:text-blue-400" aria-hidden="true">❯</span>
+  <input
+    bind:this={input}
+    bind:value
+    {onkeydown}
+    oninput={() => {
+      suggesting = true
+      typed = null
+      selected = -1
+      output = []
+    }}
+    onfocus={() => {
+      focused = true
+      warmUp().then(() => loaded++)
+    }}
+    onblur={() => {
+      focused = false
+      suggesting = false
+      output = []
+    }}
+    class="shell-input w-full min-w-0 bg-transparent text-foreground outline-none focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-muted-foreground"
+    placeholder={focused ? "" : "type a command…"}
+    aria-label="Command line. Type help for commands."
+    aria-autocomplete="list"
+    aria-controls="shell-panel"
+    aria-expanded={panelOpen}
+    autocomplete="off"
+    autocapitalize="off"
+    spellcheck="false"
+  />
+
+  {#if !focused}
+    <kbd class="pointer-events-none shrink-0 rounded border border-border px-1.5 text-xs text-muted-foreground">/</kbd>
+  {/if}
+
+  {#if panelOpen}
+    <!-- mousedown is cancelled so clicking a row doesn't blur the input and close the panel first. -->
     <div
-      bind:this={commandState.ref}
-      role="textbox"
+      id="shell-panel"
+      role="listbox"
       tabindex="-1"
-      aria-haspopup="listbox"
-      aria-controls="command-suggestions"
-      class={cn(
-        // Layout and positioning
-        'caret-container relative w-full min-w-0 outline-none min-h-[1.5em] whitespace-nowrap text-nowrap block line-height-[1.2em]',
-        'focus:[box-shadow:none]',
-
-        // Text colors
-        'text-foreground dark:text-foreground',
-
-        // Placeholder
-        'empty:before:content-[attr(placeholder)] before:text-muted-foreground',
-        'before:opacity-100 empty:focus:before:content-[""]',
-
-        // Cursor
-        commandState.needsBlinkingCursor
-          ? 'focus:after:inline'
-          : 'focus:after:hidden caret-accent',
-
-        'focus:after:animate-[blink_1s_step-end_infinite] focus:after:content-[""] focus:after:absolute focus:after:top-[0.2em] focus:after:w-[0.6em] focus:after:h-[1.2em] focus:after:bg-accent',
-
-        // Add these to prevent <br> insertion
-        '[&>br]:hidden',
-      )}
-      contenteditable="true"
-      placeholder="type a command..."
-      spellcheck={false}
-      onkeydown={handleKeydown}
-      oncompositionstart={() => (commandState.isComposing = true)}
-      oncompositionend={() => (commandState.isComposing = false)}
-      onblur={() => {
-        dropdown.hide();
-        if (commandState.ref.textContent?.trim() === '') {
-          commandState.ref.innerHTML = '';
-        }
-      }}
-	  oninput={()=> {
-		commandState.updateFullCommand();
-	  }}
-    ></div>
-    {#if dropdown.isVisible}
-      <div
-        class={cn(
-          'flex flex-col',
-          // Positioning
-          'absolute top-full z-50',
-          // Sizing
-          'w-full min-w-[25rem] max-w-[40rem] overflow-y-auto overflow-x-auto',
-          // Borders and shadows
-          'border border-border shadow-lg',
-          // Background and text
-          'bg-background font-mono text-sm',
-        )}
-      >
-        {#each dropdown.filteredCompletions as { text, help, type }, i (text)}
+      class="absolute left-0 top-[calc(100%+0.75rem)] z-50 max-h-[60vh] w-full min-w-[26rem] max-w-[40rem] overflow-y-auto rounded-md border border-border bg-background/95 py-1.5 shadow-lg backdrop-blur"
+      onmousedown={e => e.preventDefault()}
+    >
+      {#if suggestions.length}
+        {#each suggestions as s, i (s.value)}
           <button
+            type="button"
+            role="option"
+            aria-selected={i === selected}
             class={cn(
-              // Layout
-              'flex items-center w-full px-4 py-2',
-              // Interaction
-              'cursor-pointer transition-colors',
-              // Hover state
-              'hover:bg-accent/10 hover:text-accent-foreground',
-              // Selected state
-              i === dropdown.selectedIndex
-                ? 'bg-accent/20 text-accent-foreground border-l-4 border-accent'
-                : 'bg-transparent',
-              // Animation
-              'duration-200 ease-in-out',
-              type === 'command' ? 'pl-4' : 'pl-6'
+              'flex w-full items-baseline gap-3 px-3 py-1 text-left',
+              i === selected ? 'bg-accent/15 text-primary' : 'text-foreground hover:bg-accent/10',
             )}
+            onclick={() => apply(s)}
           >
-            <span class="text-primary">{text}</span>
-            {#if help}
-              <div class="flex-1 mx-2 border-b border-border"></div>
-              <span class="text-right text-muted-foreground">{help}</span>
-            {/if}
+            <span>{s.value}</span>
+            {#if s.help}<span class="truncate text-muted-foreground">{s.help}</span>{/if}
           </button>
         {/each}
-      </div>
-    {/if}
-  </div>
+      {:else}
+        {#each output as line}
+          {#if line.href}
+            <a
+              href={line.href}
+              class="block whitespace-pre px-3 py-0.5 text-foreground hover:bg-accent/10 hover:text-accent"
+              onclick={() => input?.blur()}
+            >{line.text}</a>
+          {:else}
+            <p
+              class={cn(
+                'whitespace-pre px-3 py-0.5',
+                line.tone === 'error' && 'text-red-500 dark:text-red-400',
+                line.tone === 'muted' && 'text-muted-foreground',
+                line.tone === 'accent' && 'text-accent',
+              )}
+            >{line.text}</p>
+          {/if}
+        {/each}
+      {/if}
+    </div>
+  {/if}
 </div>
 
 <style>
-  .caret-container {
-    box-shadow: none;
-    caret-color: transparent;
-  }
-
-  div {
-    scrollbar-width: none;
+  .shell-input {
+    caret-color: hsl(var(--accent));
+    caret-shape: block;
   }
 </style>
