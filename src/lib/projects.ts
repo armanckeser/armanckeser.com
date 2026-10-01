@@ -30,7 +30,8 @@ export const projectHref = (p: Pick<Project, "homepage" | "url">) =>
 
 /** A plain-language label from the repo's topics, instead of showing the topics (framework names) themselves. */
 export function kindOf(topics: string[], homepage: string | null): string {
-	if (topics.includes("self-hosted")) return "Self-hosted app"
+	// A running copy wins: several self-hosted apps also have one a visitor can open.
 	if (homepage) return "Try it in your browser"
+	if (topics.includes("self-hosted")) return "Self-hosted app"
 	return "Open source"
 }
