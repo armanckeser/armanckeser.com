@@ -1,7 +1,7 @@
 import { getPosts } from "$lib/posts"
 import type { PageLoad } from "./$types"
 
-export const load: PageLoad = async ({ fetch }) => {
+export const load: PageLoad = async ({ fetch, data }) => {
 	const [posts, projects] = await Promise.all([
 		getPosts(),
 		fetch("/api/projects").then(r => r.json()),
@@ -15,5 +15,6 @@ export const load: PageLoad = async ({ fetch }) => {
 	return {
 		posts: sortedPosts,
 		projects,
+		openings: data.openings,
 	}
 }

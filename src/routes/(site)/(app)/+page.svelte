@@ -1,7 +1,7 @@
 <script lang="ts">
-import Card from "$lib/components/Card.svelte"
 import ContentSection from "$lib/components/ContentSection.svelte"
 import ExternalLink from "$lib/components/ExternalLink.svelte"
+import PostShelf from "$lib/components/PostShelf.svelte"
 import ProjectShelf from "$lib/components/ProjectShelf.svelte"
 import Seo from "$lib/components/Seo.svelte"
 import { personJsonLd, websiteJsonLd } from "$lib/seo"
@@ -64,18 +64,7 @@ const projects = $derived(
 
     <!-- Blog Posts Section -->
     <ContentSection title="~/writing" subtitle="Insights, learnings, thoughts" id="writing">
-      <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {#each posts as post, i (post.slug)}
-          <div class="rise" style="--i: {i}">
-            <Card
-              title={post.title}
-              description={post.description}
-              date={post.date}
-              href={post.slug}
-            />
-          </div>
-        {/each}
-      </div>
+      <PostShelf {posts} openings={props.data.openings} />
     </ContentSection>
 
     <!-- Projects Section -->
@@ -84,19 +73,3 @@ const projects = $derived(
     </ContentSection>
   </div>
 </main>
-
-<style>
-  /* Cards rise in one after another; the cap keeps a long list from making the last ones wait. */
-  .rise {
-    animation: rise 320ms cubic-bezier(0.23, 1, 0.32, 1) both;
-    animation-delay: calc(min(var(--i), 8) * 40ms);
-  }
-
-  @keyframes rise {
-    from {
-      opacity: 0;
-      transform: translateY(8px);
-    }
-  }
-</style>
-
