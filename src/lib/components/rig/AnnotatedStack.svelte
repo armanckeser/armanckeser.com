@@ -40,7 +40,7 @@ const frames = [
 		{/each}
 	</ol>
 	<figcaption class="font-serif">
-		Ten seconds of the System process, by share of its CPU time. Each line calls the one below it.
+		Ten seconds of the System process, by share of its CPU time.
 	</figcaption>
 </figure>
 
