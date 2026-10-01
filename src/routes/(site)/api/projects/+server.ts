@@ -1,5 +1,5 @@
 import { GH_PAT } from "$env/static/private"
-import { type Project, kindOf } from "$lib/projects"
+import { type Project, actionOf, kindOf } from "$lib/projects"
 import { Octokit } from "@octokit/rest"
 import { json } from "@sveltejs/kit"
 import { capitalCase } from "change-case"
@@ -89,6 +89,7 @@ export const GET: RequestHandler = async () => {
 						title: titleOf(repo.name),
 						description: repo.description || "No description",
 						kind: kindOf(repo.topics ?? [], repo.homepage || null),
+						action: actionOf(repo.topics ?? [], repo.homepage || null),
 						stars: repo.stargazers_count ?? 0,
 						url: repo.private ? null : repo.html_url,
 						homepage: repo.homepage || null,

@@ -15,6 +15,8 @@ export type Project = {
 	description: string
 	/** What sort of thing it is, in words: "Self-hosted app", "Use it in your browser". */
 	kind: string
+	/** The label on the link out: "Preview" for a demo, "Try it" for the app itself. */
+	action: string
 	stars: number
 	/** The repository page, or null for a private repository a visitor cannot open. */
 	url: string | null
@@ -42,4 +44,10 @@ export function kindOf(topics: string[], homepage: string | null): string {
 	if (homepage) return "Use it in your browser"
 	if (selfHosted) return "Self-hosted app"
 	return "Open source"
+}
+
+/** The short label for the link out, so the card never has to print a hostname. */
+export function actionOf(topics: string[], homepage: string | null): string {
+	if (!homepage) return "GitHub"
+	return topics.includes("preview") ? "Preview" : "Try it"
 }
