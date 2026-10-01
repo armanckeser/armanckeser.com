@@ -12,29 +12,29 @@ published: true
   import LinearScan from "$lib/components/LinearScan.svelte"
 </script>
 
-> TLDR: after years of not knowing why my laptops would have worse performance than I thought
-> they should, coding agents helped me finally figure out that Windows apps are broken (like the Razer
+> TLDR: after years of not knowing why my laptops performed worse than I thought they should,
+> coding agents helped me finally figure out that Windows apps are broken (like the Razer
 > apps or the NVIDIA overlay on your PC right now), but a few scripts and adjustments can fix them
 > ad hoc! A feeling I never thought I would have.
 
 Growing up, my friends and I couldn't afford any gaming computers, and having a laptop and a desktop
-was out of the question, so we always had to milk the last ounce of performance from whatever we
-had. Countless videos watched and guides read to get the NVIDIA Control Panel settings as good as we
-knew how, learning what each setting in the game did to find the most "value for buck" setup, etc.
-As time passed, things like the GeForce app started automating these, and now that I can afford
-(well, maybe could, a few years ago before the RAM prices) a desktop, I only get to use it once a
-month, being so far away from everyone. But I still have a personal laptop, a Legion with a 3070
-laptop GPU, which is good enough for my occasional "hop on Discord to play Peak or Subnautica 2 or
-anything" with friends.
+was out of the question, so we always had to squeeze the last ounce of performance out of whatever
+we had. We watched countless videos and read countless guides to get the NVIDIA Control Panel
+settings as good as we knew how, and learned what each setting in a game did to find the best
+"bang for the buck" setup. As time passed, things like the GeForce app started automating all of
+this, and now that I can afford a desktop (well, maybe could, a few years ago, before the RAM
+prices), I never bought one: being so far away from everyone, I would only get to use it once a
+month. So I still just have a personal laptop, a Legion with a 3070 laptop GPU, which is good enough
+for the occasional "hop on Discord to play Peak or Subnautica 2 or anything" with friends.
 
 Today was such a day. We found time, booted up the game, and... 2 FPS?
 
-Normally I would have maybe gone for a restart, but since I started using this computer as a
-server, restarting is a huge hassle as I have to make sure all services are up etc, worse, my wife
-was already using an app hosted on this computer and I didn't want to cut her flow off. But with
-Opus 5.5, I wanted to finally figure out what was going on. I was previously burned by memory leaks
-in `audiodg.exe` from Nahimic, so a memory leak in addition to just thermal throttling were the first
-few culprits in my mind, however I just never learned how to diagnose these issues properly.
+Normally I would have just gone for a restart, but since I started using this computer as a server,
+restarting is a huge hassle, as I have to make sure all the services come back up. Worse, my wife
+was already using an app hosted on this computer and I didn't want to interrupt her flow. And with
+Opus 5.5 around, I wanted to finally figure out what was going on. I had been burned before by
+memory leaks in `audiodg.exe` from Nahimic, so a memory leak and plain thermal throttling were the
+first culprits on my mind, but I had never learned how to diagnose these issues properly.
 
 So I opened a terminal, told Opus the game was running at 2 FPS, that I couldn't restart, and to
 figure out why. And then I mostly watched (my main contribution to this investigation was approving
@@ -43,26 +43,26 @@ permission prompts).
 ## The usual suspects
 
 It went through pretty much the same list I would have, just a lot faster and with actual numbers
-instead of vibes, and it found real problems on the way, just not the one that mattered:
+instead of vibes, and it found real problems along the way, just not the one that mattered:
 
 <SuspectList suspects={[
-  { name: "Another app on the same GPU", evidence: "real: one of the services I host on this machine was using the GPU way more than it should. Moved it off. 2 → 30 fps, but still stuttering", guilty: false },
+  { name: "Another app on the same GPU", evidence: "real: one of the services I host on this machine was using the GPU way more than it should. Moved it off. 2 → 30 FPS, but still stuttering", guilty: false },
   { name: "Thermals", evidence: "CPU at 94 °C, but still boosting to 3.9 GHz. Not throttling", guilty: false },
   { name: "NVIDIA Overlay leaking memory", evidence: "real: one overlay process from 20 days ago held 12.7 GB, with commit at 48.6 of 49.9 GB. Killed it. Stutter unchanged", guilty: false },
   { name: "Frame pacing, G-Sync", evidence: "turned G-Sync on. Still stuttering, and now I noticed the terminal was too", guilty: false },
   { name: "Something inside the Windows kernel", evidence: "the System process was burning 1.1–1.4 cores nonstop", guilty: true },
 ]} />
 
-So the memory leak instinct was right, the NVIDIA overlay had been sitting on 12.7 GB for 20 days,
-which is exactly the kind of thing a restart would have quietly wiped away without me ever knowing. Killing it didn't fix anything
-though. What actually moved things forward was noticing, while watching Opus work, that the terminal
-was stuttering too, which meant the problem wasn't the game at all, it was something underneath
-everything.
+So the memory leak instinct was right: the NVIDIA overlay had been sitting on 12.7 GB for 20 days,
+which is exactly the kind of thing a restart would have quietly wiped away without me ever knowing.
+Killing it didn't fix anything, though. What actually moved things forward was noticing, while
+watching Opus work, that the terminal was stuttering too, which meant the problem wasn't the game at
+all. It was something underneath everything.
 
 ## Into the kernel
 
-Honestly, this is the point where I would have given up and restarted, I am not even sure I knew you
-could get a stack trace of the Windows kernel. Opus ran a 10 second kernel trace with call stacks
+Honestly, this is the point where I would have given up and restarted. I am not even sure I knew you
+could get a stack trace of the Windows kernel. Opus ran a 10-second kernel trace with call stacks
 (xperf, as admin) and came back with this:
 
 ```
@@ -112,12 +112,12 @@ of my gaming sessions over the years started with a restart "just in case".
 
 Opus stopped both Razer services and within a minute the zombies went from 32,709 to 260, the System
 process went from about 1.25 cores to 0.2, and the stutter was gone. No restart, and my wife didn't
-even notice anything happened.
+even notice anything had happened.
 
-To be fair about what's actually proven: the stack and the before and after numbers are measured.
-That the zombies are what bloats this specific list is an inference, they dropped together at the
-same time and by about the same factor, but neither Opus nor I have seen the Windows source, so take
-that part with a grain of salt.
+To be fair about what's actually proven: the stack and the before-and-after numbers are measured.
+That the zombies are what bloats this specific list is an inference. They dropped at the same time
+and by about the same factor, but neither Opus nor I have seen the Windows source, so take that part
+with a grain of salt.
 
 ## Check yours
 
@@ -134,13 +134,13 @@ what:
 Get-Process | Sort HandleCount -Desc | Select -First 5 Name, HandleCount
 ```
 
-If you run these, please let me know your number and your top offender, I am really curious what
+If you run these, please let me know your number and your top offender. I am really curious what
 other people find.
 
 ## A look behind the curtain
 
-Restarting is a good idea, because it keeps problems like these from happening in the first place,
-but for the first time ever I do feel like I get a look behind the curtain. "Game has low FPS" has
-always been such an abstract problem that always made me feel uneasy, but now I can get to an actual
-answer. So next time something is going wrong with your computer, I recommend letting an agent loose
+Restarting is still a good idea, because it keeps problems like these from building up in the first
+place, but for the first time ever I feel like I got a look behind the curtain. "Game has low FPS"
+has always been such an abstract problem, one that made me feel uneasy, but now I can get to an
+actual answer. So next time something is going wrong with your computer, I recommend letting an agent loose
 to figure it out. What it finds might surprise you, and maybe even teach you a few tricks.

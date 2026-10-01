@@ -50,8 +50,6 @@ const hue = $derived(
   {#if excerpt.length}
     <div class="stage" aria-hidden="true">
       <div class="page">
-        <p class="page-head">armanckeser.com/writing</p>
-        <p class="page-title">{title}</p>
         {#each excerpt as paragraph, i}
           <p class:lede={i === 0}>{paragraph}</p>
         {/each}
@@ -160,23 +158,6 @@ const hue = $derived(
   .page p + p {
     margin-top: 0.7em;
     text-indent: 1.4em;
-  }
-
-  .page-head {
-    font-family: ui-monospace, "JetBrains Mono", monospace;
-    font-size: 0.6rem;
-    letter-spacing: 0.08em;
-    color: #8a8478;
-  }
-
-  .page-title {
-    margin-top: 0.6em !important;
-    margin-bottom: 0.4em;
-    text-indent: 0 !important;
-    font-weight: 700;
-    font-size: 1.35em;
-    line-height: 1.2;
-    color: #1d1b17;
   }
 
   .page p.lede {
