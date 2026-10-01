@@ -19,6 +19,12 @@ const href = $derived(projectHref(project))
 const phone = $derived(
 	!!project.cover && project.cover.height > project.cover.width
 )
+// Width over height of the screen, so the device can be sized to always run off the card's bottom edge.
+const ratio = $derived(
+	phone && project.cover
+		? project.cover.width / project.cover.height
+		: 16 / 11
+)
 
 // The demo GIF is a few MB: fetched only once someone points at the card, and
 // only shown once loaded, so the still never blinks out.
@@ -34,6 +40,7 @@ function startPreview(e: PointerEvent) {
 }
 </script>
 
+<div class="frame">
 <article
   class="card group relative isolate flex overflow-hidden rounded-2xl border border-white/10 bg-zinc-950"
   class:featured
@@ -74,11 +81,11 @@ function startPreview(e: PointerEvent) {
 
   {#if project.cover}
     <div class="stage" aria-hidden="true">
-    <figure class="device" class:phone class:window={!phone}>
+    <figure class="device" class:phone class:window={!phone} style:--ratio={ratio}>
       {#if !phone}
         <div class="chrome"><span></span><span></span><span></span></div>
       {/if}
-      <div class="screen" style:aspect-ratio={phone && project.cover ? `${project.cover.width} / ${project.cover.height}` : undefined}>
+      <div class="screen" style:aspect-ratio={ratio}>
         <img src={project.cover.src} width={project.cover.width} height={project.cover.height} alt="" loading={eager ? "eager" : "lazy"} decoding="async" />
         {#if previewSrc}
           <img
@@ -95,8 +102,14 @@ function startPreview(e: PointerEvent) {
     </div>
   {/if}
 </article>
+</div>
 
 <style>
+  /* Lets a card lay itself out by its own width rather than the viewport's. */
+  .frame {
+    container: card / inline-size;
+  }
+
   .card {
     height: 30rem;
     flex-direction: column;
@@ -108,11 +121,6 @@ function startPreview(e: PointerEvent) {
   /* Pressed: the card gives a little, so the tap is felt before the page changes. */
   .card:active:not(:has(.star:active)) {
     scale: 0.985;
-  }
-
-  .card.featured {
-    height: 27rem;
-    flex-direction: row;
   }
 
   .ambient {
@@ -134,10 +142,6 @@ function startPreview(e: PointerEvent) {
     background: linear-gradient(180deg, rgb(9 9 11 / 0.72) 0%, rgb(9 9 11 / 0.3) 55%, rgb(9 9 11 / 0.05) 100%);
   }
 
-  .featured .scrim {
-    background: linear-gradient(90deg, rgb(9 9 11 / 0.78) 0%, rgb(9 9 11 / 0.35) 50%, rgb(9 9 11 / 0.05) 100%);
-  }
-
   .copy {
     flex-shrink: 0;
   }
@@ -146,10 +150,6 @@ function startPreview(e: PointerEvent) {
     font-size: 1.5rem;
     line-height: 1.1;
     letter-spacing: -0.02em;
-  }
-
-  .featured .title {
-    font-size: clamp(2rem, 3.5vw, 3rem);
   }
 
   .tagline {
@@ -162,27 +162,25 @@ function startPreview(e: PointerEvent) {
     overflow: hidden;
   }
 
-  .featured .copy {
-    width: 44%;
-    justify-content: center;
-  }
-
-  .featured .tagline {
-    font-size: 1.05rem;
-    -webkit-line-clamp: 3;
-    line-clamp: 3;
-  }
-
-  /* The device gets whatever room the copy leaves and runs off the bottom edge, like store art. */
+  /*
+   * The device gets whatever room the copy leaves and always runs off the bottom
+   * edge, like store art: it is anchored there and sized from the stage's height,
+   * so a short screenshot never floats with its whole frame showing.
+   */
   .stage {
+    --top: 0.5rem;
+    --bleed: 2.5rem;
     position: relative;
     flex: 1;
     min-height: 0;
+    container-type: size;
   }
 
   .device {
+    /* The screen's height when the device spans the stage and bleeds off it. */
+    --fit: calc(100cqh - var(--top) + var(--bleed) - var(--frame));
     position: absolute;
-    top: 0.5rem;
+    bottom: calc(-1 * var(--bleed));
     left: 50%;
     margin: 0;
     transform: translateX(-50%);
@@ -194,29 +192,21 @@ function startPreview(e: PointerEvent) {
       0 0 0 1px rgb(255 255 255 / 0.1);
   }
 
-  .featured .device {
-    top: 2.5rem;
-  }
-
   .device.window {
-    width: 86%;
+    --frame: 24px;
+    --cap: 86%;
+    width: min(var(--cap), var(--fit) * var(--ratio));
     border-radius: 0.6rem;
     background: #18181b;
   }
 
   .device.phone {
-    width: min(46%, 15rem);
+    --frame: 10px;
+    --cap: min(46%, 15rem);
+    width: min(var(--cap), var(--fit) * var(--ratio) + var(--frame));
     padding: 5px;
     border-radius: 1.75rem;
     background: #0c0c0e;
-  }
-
-  .featured .device.window {
-    width: 92%;
-  }
-
-  .featured .device.phone {
-    width: min(48%, 19rem);
   }
 
   .chrome {
@@ -235,7 +225,6 @@ function startPreview(e: PointerEvent) {
   .screen {
     position: relative;
     overflow: hidden;
-    aspect-ratio: 16 / 11;
     border-radius: 0 0 0.6rem 0.6rem;
   }
 
@@ -320,27 +309,77 @@ function startPreview(e: PointerEvent) {
     }
   }
 
-  @media (max-width: 767px) {
-    .card,
-    .card.featured {
-      height: 28rem;
-      flex-direction: column;
-    }
-    .featured .copy {
-      width: auto;
+  /*
+   * Side layout, copy beside the device: the lead card on the desktop grid.
+   * The same rules are repeated below for phone-shelf cards wide enough for it.
+   */
+  @media (min-width: 768px) {
+    .featured {
+      height: 27rem;
+      flex-direction: row;
     }
     .featured .scrim {
-      background: linear-gradient(180deg, rgb(9 9 11 / 0.72) 0%, rgb(9 9 11 / 0.3) 55%, rgb(9 9 11 / 0.05) 100%);
+      background: linear-gradient(90deg, rgb(9 9 11 / 0.78) 0%, rgb(9 9 11 / 0.35) 50%, rgb(9 9 11 / 0.05) 100%);
     }
-    .featured .device {
-      top: 0.5rem;
-    }
-    .device.phone,
-    .featured .device.phone {
-      width: 64%;
+    .featured .copy {
+      width: 44%;
+      justify-content: center;
     }
     .featured .title {
-      font-size: 1.5rem;
+      font-size: clamp(2rem, 3.5vw, 3rem);
+    }
+    .featured .tagline {
+      font-size: 1.05rem;
+      -webkit-line-clamp: 3;
+      line-clamp: 3;
+    }
+    .featured .stage {
+      --top: 2.5rem;
+    }
+    .featured .device.window {
+      --cap: 92%;
+    }
+    .featured .device.phone {
+      --cap: min(48%, 19rem);
+    }
+  }
+
+  @media (max-width: 767px) {
+    .card {
+      height: 28rem;
+    }
+    .device.phone {
+      --cap: 64%;
+    }
+  }
+
+  /* A large phone or small tablet: the shelf card is wide enough to sit side by side, so it does. */
+  @container card (min-width: 32rem) {
+    @media (max-width: 767px) {
+      .card {
+        height: 24rem;
+        flex-direction: row;
+      }
+      .scrim {
+        background: linear-gradient(90deg, rgb(9 9 11 / 0.78) 0%, rgb(9 9 11 / 0.35) 50%, rgb(9 9 11 / 0.05) 100%);
+      }
+      .copy {
+        width: 46%;
+        justify-content: center;
+      }
+      .tagline {
+        -webkit-line-clamp: 4;
+        line-clamp: 4;
+      }
+      .stage {
+        --top: 2rem;
+      }
+      .device.window {
+        --cap: 92%;
+      }
+      .device.phone {
+        --cap: 62%;
+      }
     }
   }
 
