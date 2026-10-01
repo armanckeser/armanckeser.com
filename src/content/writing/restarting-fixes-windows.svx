@@ -64,7 +64,7 @@ Get-Process | Sort-Object PM -Descending |
 Most things were good after that, until I wanted to play with friends and realized the laptop was
 still struggling. I restarted (of course), 3D-printed a riser to lift the back, because this laptop
 pulls air in from underneath, and cleaned the fins with an air gun. That did improve things,
-although I couldn't tell you by how much, since I had no way of measuring any of it.
+although I couldn't tell you by how much, since it never occurred to me to measure any of it.
 
 <Step is="measure" />
 
