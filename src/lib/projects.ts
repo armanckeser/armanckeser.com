@@ -13,7 +13,7 @@ export type Project = {
 	name: string
 	title: string
 	description: string
-	/** What sort of thing it is, in words: "Self-hosted app", "Try it in your browser". */
+	/** What sort of thing it is, in words: "Self-hosted app", "Use it in your browser". */
 	kind: string
 	stars: number
 	/** The repository page, or null for a private repository a visitor cannot open. */
@@ -28,9 +28,18 @@ export type Project = {
 export const projectHref = (p: Pick<Project, "homepage" | "url">) =>
 	p.homepage ?? p.url
 
-/** A plain-language label from the repo's topics, instead of showing the topics (framework names) themselves. */
+/**
+ * A plain-language label from the repo's topics, instead of showing the topics (framework names) themselves.
+ *
+ * A homepage means there is something to open, and the `preview` topic says what:
+ * with it, the page is a demo on made-up data and the real thing is elsewhere;
+ * without it, the page is the app itself and a visitor can start using it there.
+ */
 export function kindOf(topics: string[], homepage: string | null): string {
-	if (topics.includes("self-hosted")) return "Self-hosted app"
-	if (homepage) return "Try it in your browser"
+	const selfHosted = topics.includes("self-hosted")
+	if (homepage && topics.includes("preview"))
+		return selfHosted ? "Try the demo, then self-host" : "Try the demo"
+	if (homepage) return "Use it in your browser"
+	if (selfHosted) return "Self-hosted app"
 	return "Open source"
 }
