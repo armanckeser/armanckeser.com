@@ -15,11 +15,6 @@ const {
 }>()
 
 const href = $derived(projectHref(project))
-const host = $derived(
-	project.homepage
-		? new URL(project.homepage).host.replace(/^www\./, "")
-		: "github.com"
-)
 // Portrait screenshots are phone apps and go in a phone; everything else in a window.
 const phone = $derived(
 	!!project.cover && project.cover.height > project.cover.width
@@ -66,7 +61,7 @@ function startPreview(e: PointerEvent) {
     </h3>
     <p class="tagline text-white/75">{project.description}</p>
     <p class="mt-1 flex items-center gap-4 font-mono text-xs">
-      <span class="text-white">{host}<span class="arrow inline-block" aria-hidden="true">&nbsp;↗</span></span>
+      <span class="text-white"><span class="whitespace-nowrap">{project.action}<span class="arrow inline-block" aria-hidden="true">&nbsp;↗</span></span></span>
       {#if project.url}
         <!-- Above the stretched link, so the repository (and its star button) stays reachable on its own. -->
         <a href={project.url} target="_blank" rel="noopener" class="star relative z-30" aria-label="Star {project.title} on GitHub">
