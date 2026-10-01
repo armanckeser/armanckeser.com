@@ -1,5 +1,6 @@
 <script lang="ts">
 import { type Project, projectHref } from "$lib/projects"
+import { Star } from "lucide-svelte"
 
 const {
 	project,
@@ -64,10 +65,11 @@ function startPreview(e: PointerEvent) {
     <p class="tagline text-white/75">{project.description}</p>
     <p class="mt-1 flex items-center gap-4 font-mono text-xs">
       <span class="text-white">{host}<span class="arrow inline-block" aria-hidden="true">&nbsp;↗</span></span>
-      {#if project.homepage && project.url}
-        <!-- Above the stretched link, so the source stays reachable on its own. -->
-        <a href={project.url} target="_blank" rel="noopener" class="source relative z-30 text-white/55" aria-label="{project.title} source on GitHub">
-          source
+      {#if project.url}
+        <!-- Above the stretched link, so the repository (and its star button) stays reachable on its own. -->
+        <a href={project.url} target="_blank" rel="noopener" class="star relative z-30" aria-label="Star {project.title} on GitHub">
+          <Star class="star-icon" size={13} strokeWidth={2.25} aria-hidden="true" />
+          Star{#if project.stars > 0}<span class="count">{project.stars}</span>{/if}
         </a>
       {/if}
     </p>
@@ -257,8 +259,29 @@ function startPreview(e: PointerEvent) {
     transition: transform 200ms cubic-bezier(0.23, 1, 0.32, 1);
   }
 
-  .source {
-    transition: color 150ms ease;
+  .star {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.3rem 0.65rem;
+    border: 1px solid rgb(255 255 255 / 0.18);
+    border-radius: 9999px;
+    background: rgb(9 9 11 / 0.35);
+    color: rgb(255 255 255 / 0.8);
+    transition:
+      color 150ms ease,
+      border-color 150ms ease,
+      background-color 150ms ease;
+  }
+
+  .star :global(.star-icon) {
+    color: #fbbf24;
+    transition: fill 150ms ease;
+  }
+
+  .count {
+    padding-left: 0.4rem;
+    border-left: 1px solid rgb(255 255 255 / 0.18);
   }
 
   .card:has(a:focus-visible) {
@@ -276,8 +299,13 @@ function startPreview(e: PointerEvent) {
     .card:hover .arrow {
       transform: translate(2px, -2px);
     }
-    .source:hover {
+    .star:hover {
       color: white;
+      border-color: rgb(251 191 36 / 0.6);
+      background: rgb(9 9 11 / 0.6);
+    }
+    .star:hover :global(.star-icon) {
+      fill: currentColor;
     }
   }
 
