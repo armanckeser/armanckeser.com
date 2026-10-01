@@ -16,6 +16,14 @@ const WORDS: Record<string, string> = {
 	Youtube: "YouTube",
 }
 
+// These lead the list, in this order; everything else follows by most recent push.
+const PINNED = ["kumbara", "wishlist"]
+
+const rank = (name: string) => {
+	const i = PINNED.indexOf(name)
+	return i === -1 ? PINNED.length : i
+}
+
 const titleOf = (name: string) =>
 	capitalCase(name)
 		.split(" ")
@@ -95,6 +103,8 @@ export const GET: RequestHandler = async () => {
 					}
 				})
 		)
+		// The sort is stable, so unpinned projects keep GitHub's order.
+		projects.sort((a, b) => rank(a.name) - rank(b.name))
 		return json(projects, {
 			headers: {
 				"Cache-Control": "public, max-age=3600",
