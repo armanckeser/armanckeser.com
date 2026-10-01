@@ -9,7 +9,10 @@ const {
 	eager = false,
 } = $props<{
 	project: Project
-	/** The wide card that leads the shelf. */
+	/**
+	 * May set the copy beside the device once the card is wide enough: the lead
+	 * card on the desktop grid, and every card on the phone shelf.
+	 */
 	featured?: boolean
 	eager?: boolean
 }>()
@@ -19,7 +22,7 @@ const href = $derived(projectHref(project))
 const phone = $derived(
 	!!project.cover && project.cover.height > project.cover.width
 )
-// Width over height of the screen, so the device can be sized to always run off the card's bottom edge.
+// Width over height of the screen, which the device and the stage are both sized from.
 const ratio = $derived(
 	phone && project.cover
 		? project.cover.width / project.cover.height
@@ -42,10 +45,11 @@ function startPreview(e: PointerEvent) {
 
 <div class="frame">
 <article
-  class="card group relative isolate flex overflow-hidden rounded-2xl border border-white/10 bg-zinc-950"
+  class="card group relative isolate grid overflow-hidden rounded-2xl border border-white/10 bg-zinc-950"
   class:featured
   onpointerenter={startPreview}
   onpointerleave={() => (pointing = false)}
+  style:--ratio={ratio}
   use:tilt
 >
   {#if project.cover}
@@ -54,7 +58,7 @@ function startPreview(e: PointerEvent) {
   {/if}
   <div class="scrim" aria-hidden="true"></div>
 
-  <div class="copy relative z-10 flex flex-col gap-2 p-6 md:p-7">
+  <div class="head relative z-10 flex flex-col gap-2">
     <p class="font-mono text-[0.7rem] uppercase tracking-[0.14em] text-white/60">{project.kind}</p>
     <h3 class="title font-mono font-bold text-white">
       {#if href}
@@ -66,6 +70,9 @@ function startPreview(e: PointerEvent) {
         {project.title}
       {/if}
     </h3>
+  </div>
+
+  <div class="body relative z-10 flex flex-col gap-2">
     <p class="tagline text-white/75">{project.description}</p>
     <p class="mt-1 flex items-center gap-4 font-mono text-xs">
       <span class="text-white"><span class="whitespace-nowrap">{project.action}<span class="arrow inline-block" aria-hidden="true">&nbsp;↗</span></span></span>
@@ -81,7 +88,7 @@ function startPreview(e: PointerEvent) {
 
   {#if project.cover}
     <div class="stage" aria-hidden="true">
-    <figure class="device" class:phone class:window={!phone} style:--ratio={ratio}>
+    <figure class="device" class:phone class:window={!phone}>
       {#if !phone}
         <div class="chrome"><span></span><span></span><span></span></div>
       {/if}
@@ -108,11 +115,14 @@ function startPreview(e: PointerEvent) {
   /* Lets a card lay itself out by its own width rather than the viewport's. */
   .frame {
     container: card / inline-size;
+    height: 100%;
   }
 
+  /* Stacked: copy over the device, at a fixed height the device fills and runs off. */
   .card {
+    --pad: 1.5rem;
     height: 30rem;
-    flex-direction: column;
+    grid-template: "head" auto "body" auto "stage" minmax(0, 1fr) / minmax(0, 1fr);
     transition:
       border-color 200ms ease,
       scale 160ms var(--ease-out);
@@ -142,8 +152,14 @@ function startPreview(e: PointerEvent) {
     background: linear-gradient(180deg, rgb(9 9 11 / 0.72) 0%, rgb(9 9 11 / 0.3) 55%, rgb(9 9 11 / 0.05) 100%);
   }
 
-  .copy {
-    flex-shrink: 0;
+  .head {
+    grid-area: head;
+    padding: var(--pad) var(--pad) 0;
+  }
+
+  .body {
+    grid-area: body;
+    padding: 0.5rem var(--pad) var(--pad);
   }
 
   .title {
@@ -170,8 +186,8 @@ function startPreview(e: PointerEvent) {
   .stage {
     --top: 0.5rem;
     --bleed: 2.5rem;
+    grid-area: stage;
     position: relative;
-    flex: 1;
     min-height: 0;
     container-type: size;
   }
@@ -183,7 +199,7 @@ function startPreview(e: PointerEvent) {
     bottom: calc(-1 * var(--bleed));
     left: 50%;
     margin: 0;
-    transform: translateX(-50%);
+    transform: translateX(var(--shift, -50%));
     /* The device slides a little against the card as the card leans (see $lib/tilt). */
     translate: calc(var(--tilt-x, 0) * -7px) calc(var(--tilt-y, 0) * -5px);
     transition: transform 300ms var(--ease-out);
@@ -194,16 +210,14 @@ function startPreview(e: PointerEvent) {
 
   .device.window {
     --frame: 24px;
-    --cap: 86%;
-    width: min(var(--cap), var(--fit) * var(--ratio));
+    width: min(86%, var(--fit) * var(--ratio));
     border-radius: 0.6rem;
     background: #18181b;
   }
 
   .device.phone {
     --frame: 10px;
-    --cap: min(46%, 15rem);
-    width: min(var(--cap), var(--fit) * var(--ratio) + var(--frame));
+    width: min(min(64%, 15rem), var(--fit) * var(--ratio) + var(--frame));
     padding: 5px;
     border-radius: 1.75rem;
     background: #0c0c0e;
@@ -294,7 +308,7 @@ function startPreview(e: PointerEvent) {
       border-color: rgb(255 255 255 / 0.2);
     }
     .card:hover .device {
-      transform: translate(-50%, -10px);
+      transform: translate(var(--shift, -50%), -10px);
     }
     .card:hover .arrow {
       transform: translate(2px, -2px);
@@ -309,38 +323,9 @@ function startPreview(e: PointerEvent) {
     }
   }
 
-  /*
-   * Side layout, copy beside the device: the lead card on the desktop grid.
-   * The same rules are repeated below for phone-shelf cards wide enough for it.
-   */
   @media (min-width: 768px) {
-    .featured {
-      height: 27rem;
-      flex-direction: row;
-    }
-    .featured .scrim {
-      background: linear-gradient(90deg, rgb(9 9 11 / 0.78) 0%, rgb(9 9 11 / 0.35) 50%, rgb(9 9 11 / 0.05) 100%);
-    }
-    .featured .copy {
-      width: 44%;
-      justify-content: center;
-    }
-    .featured .title {
-      font-size: clamp(2rem, 3.5vw, 3rem);
-    }
-    .featured .tagline {
-      font-size: 1.05rem;
-      -webkit-line-clamp: 3;
-      line-clamp: 3;
-    }
-    .featured .stage {
-      --top: 2.5rem;
-    }
-    .featured .device.window {
-      --cap: 92%;
-    }
-    .featured .device.phone {
-      --cap: min(48%, 19rem);
+    .card {
+      --pad: 1.75rem;
     }
   }
 
@@ -348,38 +333,60 @@ function startPreview(e: PointerEvent) {
     .card {
       height: 28rem;
     }
-    .device.phone {
-      --cap: 64%;
-    }
   }
 
-  /* A large phone or small tablet: the shelf card is wide enough to sit side by side, so it does. */
+  /*
+   * Side by side: the title across the top, the description beside the device
+   * under it. Here the device sets the card's height rather than filling what is
+   * left: the stage shows a fixed share of the screenshot from the top, enough to
+   * read the app, and the rest runs off the bottom. No room is left empty, and no
+   * device shows too little to make sense of.
+   */
   @container card (min-width: 32rem) {
-    @media (max-width: 767px) {
-      .card {
-        height: 24rem;
-        flex-direction: row;
-      }
-      .scrim {
-        background: linear-gradient(90deg, rgb(9 9 11 / 0.78) 0%, rgb(9 9 11 / 0.35) 50%, rgb(9 9 11 / 0.05) 100%);
-      }
-      .copy {
-        width: 46%;
-        justify-content: center;
-      }
-      .tagline {
-        -webkit-line-clamp: 4;
-        line-clamp: 4;
-      }
-      .stage {
-        --top: 2rem;
-      }
-      .device.window {
-        --cap: 92%;
-      }
-      .device.phone {
-        --cap: 62%;
-      }
+    .featured {
+      --show: 0.8;
+      height: 100%;
+      grid-template:
+        "head head" auto
+        "body stage" auto
+        / minmax(13rem, 2fr) minmax(0, 3fr);
+      column-gap: 1.5rem;
+    }
+    /* A phone is narrow: its column is only as wide as the phone. */
+    .featured:has(.phone) {
+      --show: 0.55;
+      grid-template-columns: minmax(0, 1fr) min(16rem, 42cqw);
+    }
+    .featured .scrim {
+      background:
+        linear-gradient(180deg, rgb(9 9 11 / 0.55) 0%, rgb(9 9 11 / 0) 40%),
+        linear-gradient(90deg, rgb(9 9 11 / 0.7) 0%, rgb(9 9 11 / 0.25) 50%, rgb(9 9 11 / 0.05) 100%);
+    }
+    .featured .head {
+      padding-bottom: 1.25rem;
+    }
+    .featured .body {
+      padding-top: 0;
+    }
+    .featured .title {
+      font-size: clamp(1.75rem, 4cqw, 3rem);
+    }
+    .featured .tagline {
+      font-size: clamp(0.9rem, 1.6cqw, 1.05rem);
+      -webkit-line-clamp: 4;
+      line-clamp: 4;
+    }
+    .featured .stage {
+      align-self: start;
+      margin-right: var(--pad);
+      aspect-ratio: calc(var(--ratio) / var(--show));
+    }
+    .featured .device {
+      --shift: 0;
+      top: 0;
+      bottom: auto;
+      left: 0;
+      width: 100%;
     }
   }
 

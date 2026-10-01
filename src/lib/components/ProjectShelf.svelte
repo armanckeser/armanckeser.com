@@ -24,7 +24,7 @@ const month = (iso: string) =>
   <div class="shelf -mx-4 flex gap-3 overflow-x-auto px-4 pb-2 md:hidden" role="region" aria-label="Projects">
     {#each shown as project, i (project.name)}
       <div class="shelf-slot w-[84%] shrink-0 snap-start">
-        <ShowcaseCard {project} eager={i < 2} />
+        <ShowcaseCard {project} featured eager={i < 2} />
       </div>
     {/each}
   </div>
