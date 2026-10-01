@@ -49,6 +49,8 @@ function places(): Map<string, string> {
 		["/", "/"],
 		["writing", "/writing"],
 		["projects", "/#projects"],
+		["films", "/#films"],
+		["books", "/#books"],
 		["privacy", "/privacy"],
 		["terms", "/terms"],
 	])
@@ -78,7 +80,7 @@ export const commands: Record<string, Command> = {
 			if (!dir)
 				return [
 					{
-						text: "writing/  projects/  privacy  terms",
+						text: "writing/  projects/  films  books  privacy  terms",
 						tone: "accent",
 					},
 				]

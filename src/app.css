@@ -160,8 +160,6 @@ html[data-theme-switch]::view-transition-new(root) {
 		--paper-edge: 40 18% 84%;
 		--ink: 36 12% 14%;
 		--ink-soft: 36 7% 36%;
-		/* The green bars of listing paper. */
-		--bar: 98 45% 40% / 0.09;
 
 		--radius: 0.5rem;
 
@@ -206,7 +204,80 @@ html[data-theme-switch]::view-transition-new(root) {
 		--paper-edge: 40 6% 17%;
 		--ink: 40 22% 88%;
 		--ink-soft: 40 9% 64%;
-		--bar: 152.6 70% 45% / 0.07;
+	}
+
+	/* Rooms.
+	   The site is a terminal, and that is its chrome everywhere: the header,
+	   the section labels, the small print. But what the terminal shows comes in
+	   four kinds, and each gets a room with one material and one accent:
+
+	     code     apps and the command line   cool grey, phosphor green
+	     writing  posts                       paper, ink, rust
+	     film     what I have watched         a dark cinema, projector amber
+	     books    what I have read            a reading room, cloth navy
+
+	   A room re-declares the same tokens the rest of the site reads, so anything
+	   inside it (and the header, while that room is under it) takes its colours
+	   with no further styling. The home page walks through all four; every other
+	   page lives in one. */
+	[data-room="writing"] {
+		--background: 40 22% 90%;
+		--foreground: 36 12% 14%;
+		--primary: 36 12% 14%;
+		--muted-foreground: 36 7% 36%;
+		--border: 38 14% 78%;
+		--accent: 14 62% 36%;
+		--accent-foreground: 42 38% 97%;
+		--ring: 36 7% 46%;
+	}
+
+	.dark [data-room="writing"],
+	.dark[data-room="writing"] {
+		--background: 40 6% 6%;
+		--foreground: 40 22% 88%;
+		--primary: 40 22% 88%;
+		--muted-foreground: 40 9% 62%;
+		--border: 40 6% 16%;
+		--accent: 18 64% 66%;
+		--accent-foreground: 40 7% 9.5%;
+		--ring: 40 9% 62%;
+	}
+
+	/* A cinema is dark whatever the theme. */
+	[data-room="film"],
+	.dark [data-room="film"],
+	.dark[data-room="film"] {
+		--background: 30 8% 5%;
+		--foreground: 40 20% 90%;
+		--primary: 40 20% 90%;
+		--muted-foreground: 35 8% 60%;
+		--border: 30 6% 17%;
+		--accent: 32 95% 58%;
+		--accent-foreground: 30 8% 5%;
+		--ring: 35 8% 60%;
+	}
+
+	[data-room="books"] {
+		--background: 34 30% 87%;
+		--foreground: 24 20% 14%;
+		--primary: 24 20% 14%;
+		--muted-foreground: 24 10% 34%;
+		--border: 30 18% 74%;
+		--accent: 218 48% 34%;
+		--accent-foreground: 34 30% 94%;
+		--ring: 24 10% 44%;
+	}
+
+	.dark [data-room="books"],
+	.dark[data-room="books"] {
+		--background: 22 16% 7%;
+		--foreground: 34 24% 86%;
+		--primary: 34 24% 86%;
+		--muted-foreground: 30 10% 60%;
+		--border: 24 10% 17%;
+		--accent: 214 70% 74%;
+		--accent-foreground: 22 16% 7%;
+		--ring: 30 10% 60%;
 	}
 
 	* {
@@ -592,16 +663,35 @@ code[class*="language-"] {
 /* Paper.
    A sheet is the surface writing is printed on: a post, a policy, a listing.
    It sets its own ink, so what is on it reads the same whatever the theme
-   paints the rest of the site. `--hue` is the post's ink colour (see $lib/ink). */
+   paints the rest of the site. */
 @layer components {
 	.sheet {
-		--post-ink: hsl(var(--hue, 98) 55% 36%);
 		background-color: hsl(var(--paper));
 		color: hsl(var(--ink));
 	}
 
-	.dark .sheet {
-		--post-ink: hsl(var(--hue, 153) 62% 68%);
+	/* A room paints its own ground and sets its own text colour, since colour
+	   is inherited as a value and would otherwise stay the outer room's. */
+	.room {
+		position: relative;
+		background-color: hsl(var(--background));
+		color: hsl(var(--foreground));
+	}
+
+	/* On the home page the rooms are bands, and each one fades in over the end
+	   of the one before, so scrolling walks from room to room instead of
+	   crossing a line. */
+	.band {
+		padding-block: 4rem 7rem;
+	}
+
+	.band + .band::before {
+		content: "";
+		position: absolute;
+		inset: -7rem 0 auto;
+		height: 7rem;
+		background: linear-gradient(transparent, hsl(var(--background)));
+		pointer-events: none;
 	}
 
 	/* Prose set on a sheet: posts, the policy pages, and the editor's preview. */
@@ -617,7 +707,7 @@ code[class*="language-"] {
 		--tw-prose-bullets: hsl(var(--ink-soft) / 0.55);
 		--tw-prose-hr: hsl(var(--ink) / 0.14);
 		--tw-prose-quotes: hsl(var(--ink-soft));
-		--tw-prose-quote-borders: var(--post-ink, hsl(var(--accent)));
+		--tw-prose-quote-borders: hsl(var(--accent));
 		--tw-prose-captions: hsl(var(--ink-soft));
 		--tw-prose-code: hsl(var(--ink));
 		--tw-prose-pre-code: hsl(var(--foreground));
@@ -670,7 +760,7 @@ code[class*="language-"] {
 			text-decoration-line: underline;
 			text-decoration-color: color-mix(
 				in srgb,
-				var(--post-ink, hsl(var(--accent))) 45%,
+				hsl(var(--accent)) 45%,
 				transparent
 			);
 			text-decoration-thickness: 0.09em;
@@ -786,7 +876,7 @@ code[class*="language-"] {
 
 	@media (hover: hover) and (pointer: fine) {
 		.prose-blog :where(a):not(.anchor-link):hover {
-			text-decoration-color: var(--post-ink, hsl(var(--accent)));
+			text-decoration-color: hsl(var(--accent));
 		}
 
 		.prose-blog :where(#contents + ul a):hover {

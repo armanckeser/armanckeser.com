@@ -56,7 +56,7 @@ function handleThemeSwitch(e: MouseEvent) {
   class={cn(
     'site-header sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur',
     'supports-[backdrop-filter]:bg-background/75',
-    'h-14 px-4 sm:px-8'
+    'h-14 px-4 text-foreground sm:px-8'
   )}
   aria-label="Application header"
 >
@@ -66,7 +66,7 @@ function handleThemeSwitch(e: MouseEvent) {
     <ShellInput />
 
     <div class="flex shrink-0 items-center gap-2 justify-self-end">
-      <div class="flex items-center gap-2 text-highlight">
+      <div class="flex items-center gap-2 text-accent">
         <GitBranch class="h-4 w-4" aria-hidden="true" />
         <button
           class="switch rounded-md px-1.5 py-0.5 outline outline-[0.5px] outline-zinc-300 dark:outline-zinc-700"
@@ -96,6 +96,10 @@ function handleThemeSwitch(e: MouseEvent) {
      beneath it. During a theme switch it joins the page and is revealed with it. */
   .site-header {
     view-transition-name: header;
+    /* The room under the header changes as the home page scrolls. */
+    transition:
+      background-color 400ms ease,
+      border-color 400ms ease;
   }
 
   :global(html[data-theme-switch]) .site-header {

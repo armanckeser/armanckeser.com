@@ -1,6 +1,6 @@
 ---
 title: "Restarting fixes Windows because your apps are broken"
-description: "I couldn't reboot, so I found out what the reboot would have hidden: 12.7 GB leaked by NVIDIA, and 32,709 dead processes from Razer slowing down every frame on my screen"
+description: "My game ran at 2 FPS, and the cause was 32,709 zombie processes that Razer's software had left behind. Two commands will tell you if your PC has them too."
 tags: [windows, debugging, gaming]
 date: "2026-09-27"
 published: true

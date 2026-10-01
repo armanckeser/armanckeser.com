@@ -72,8 +72,8 @@ $effect(() => {
   ]}
 />
 
-<!-- The header says where you are; the page is what `ls -l` printed there. -->
-<div class="mx-auto max-w-3xl px-2.5 pb-16 sm:px-6">
+<!-- The header says where you are; the page is the index of what is there. -->
+<div class="mx-auto max-w-3xl px-3 pb-16 sm:px-6">
   <h1 class="sr-only">Writing</h1>
 
   <PostListing {posts} minutes={data.minutes} {selected} feed />

@@ -1,7 +1,6 @@
 <!-- A post as a printed page: the sheet of paper, its masthead, and the prose.
      Shared by the post route and the editor's preview so the two cannot drift. -->
 <script lang="ts">
-import { inkHue } from "$lib/ink"
 import { formatDate } from "$lib/utils"
 import type { Snippet } from "svelte"
 
@@ -10,7 +9,6 @@ const {
 	description,
 	date,
 	minutes,
-	path,
 	headingLevel = "h1",
 	plain = false,
 	children,
@@ -19,19 +17,15 @@ const {
 	description?: string
 	date?: string
 	minutes?: number
-	/** The post's path. Its ink colour is picked from it. */
-	path?: string
 	/** The title is the document h1; editor previews pass a lower level. */
 	headingLevel?: "h1" | "h2"
 	/** A page that is not a piece of writing (a policy): no drop cap. */
 	plain?: boolean
 	children: Snippet
 }>()
-
-const hue = $derived(path ? inkHue(path) : undefined)
 </script>
 
-<article class="sheet post" class:plain style:--hue={hue}>
+<article class="sheet post" class:plain>
   <header class="masthead">
     {#if date}
       <p class="meta font-mono">
@@ -97,21 +91,21 @@ const hue = $derived(path ? inkHue(path) : undefined)
     text-wrap: pretty;
   }
 
-  /* A short rule in the post's ink closes the masthead. */
+  /* A short rule in the room's ink closes the masthead. */
   .masthead::after {
     content: "";
     display: block;
     width: 2.5rem;
     height: 3px;
     margin-top: 1.75rem;
-    background: var(--post-ink);
+    background: hsl(var(--accent));
   }
 
   /* The first paragraph of the piece opens with a drop cap, as on its card. */
   .post:not(.plain) :global(.prose-blog > p:first-of-type::first-letter) {
     float: left;
     padding: 0.08em 0.1em 0 0;
-    color: var(--post-ink);
+    color: hsl(var(--accent));
     font-size: 3.35em;
     font-weight: 700;
     line-height: 0.82;

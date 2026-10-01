@@ -14,144 +14,97 @@ const {
 	minutes?: Record<string, number>
 	/** The slug of the row the keyboard is on, if any. */
 	selected?: string | null
-	/** Feed the paper out of the header when the page opens. */
+	/** Slide the sheet out from under the header when the page opens. */
 	feed?: boolean
-	/** A closing line that leads to the full listing. */
+	/** A closing line that leads to the full index. */
 	more?: { href: string; label: string }
 }>()
 
 const fileOf = (slug: string) => slug.split("/").pop() ?? slug
 const yearOf = (iso: string) => new Date(iso).getUTCFullYear()
 
-// Continuous paper folds once a year.
 const years = $derived.by(() => {
-	const groups: { year: number; posts: { post: BlogPost; n: number }[] }[] =
-		[]
-	posts.forEach((post: BlogPost, n: number) => {
+	const groups: { year: number; posts: BlogPost[] }[] = []
+	for (const post of posts as BlogPost[]) {
 		const year = yearOf(post.date)
 		const last = groups[groups.length - 1]
-		if (last?.year === year) last.posts.push({ post, n })
-		else groups.push({ year, posts: [{ post, n }] })
-	})
+		if (last?.year === year) last.posts.push(post)
+		else groups.push({ year, posts: [post] })
+	}
 	return groups
 })
 </script>
 
 <!--
-  A line-printer listing: continuous green-bar paper, with the sprocket holes
-  down both margins and a perforated fold where the year changes.
-  The wrapper carries the shadow so it can follow the torn bottom edge.
+  The index of posts, set as a contents page on the same paper the posts are
+  printed on: year, then each title with its line of description.
 -->
-<div class="printout" class:feed>
-  <div class="paper sheet font-mono">
-    {#each years as group, g (group.year)}
-      <section aria-labelledby="year-{group.year}">
-        <h2 id="year-{group.year}" class="fold" class:first={g === 0}>{group.year}</h2>
-        <ol>
-          {#each group.posts as { post, n } (post.slug)}
-            <li class="row" class:bar={n % 2 === 0} class:selected={selected === post.slug} data-sheet={fileOf(post.slug)}>
-              <a href={post.slug} aria-current={selected === post.slug ? "true" : undefined}>
-                <p class="meta">
-                  <time datetime={post.date}>{formatDate(post.date, { month: "short", day: "numeric" })}</time>{#if minutes[fileOf(post.slug)]}<span class="sep" aria-hidden="true">·</span><span>{minutes[fileOf(post.slug)]} min</span>{/if}
-                </p>
-                <h3 class="title">{post.title}</h3>
-                {#if post.description}
-                  <p class="dek font-sans">{post.description}</p>
-                {/if}
-                <span class="arrow" aria-hidden="true">→</span>
-              </a>
-            </li>
-          {/each}
-        </ol>
-      </section>
-    {/each}
+<div class="index sheet" class:feed>
+  {#each years as group (group.year)}
+    <section aria-labelledby="year-{group.year}">
+      <h2 id="year-{group.year}" class="year font-mono">{group.year}</h2>
+      <ol>
+        {#each group.posts as post (post.slug)}
+          <li class="row" class:selected={selected === post.slug} data-sheet={fileOf(post.slug)}>
+            <a href={post.slug} aria-current={selected === post.slug ? "true" : undefined}>
+              <p class="meta font-mono">
+                <time datetime={post.date}>{formatDate(post.date, { month: "short", day: "numeric" })}</time>{#if minutes[fileOf(post.slug)]}<span class="sep" aria-hidden="true">·</span><span>{minutes[fileOf(post.slug)]} min</span>{/if}
+              </p>
+              <h3 class="title font-serif">{post.title}</h3>
+              {#if post.description}
+                <p class="dek font-serif">{post.description}</p>
+              {/if}
+            </a>
+          </li>
+        {/each}
+      </ol>
+    </section>
+  {/each}
 
-    {#if more}
-      <a href={more.href} class="more">{more.label} <span class="arrow" aria-hidden="true">→</span></a>
-    {/if}
-  </div>
+  {#if more}
+    <a href={more.href} class="more font-mono">{more.label} <span class="arrow" aria-hidden="true">→</span></a>
+  {/if}
 </div>
 
 <style>
-  .printout {
-    --strip: 1.125rem;
-    --feed-line: 1.5rem;
-    filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.08)) drop-shadow(0 14px 22px rgb(0 0 0 / 0.1));
+  .index {
+    --pad: 1.25rem;
+    padding-bottom: 0.75rem;
+    border-radius: 0 0 0.375rem 0.375rem;
+    box-shadow:
+      0 1px 1px rgb(0 0 0 / 0.06),
+      0 14px 30px -12px rgb(0 0 0 / 0.16);
   }
 
-  :global(.dark) .printout {
-    filter: drop-shadow(0 0 0.5px hsl(var(--paper-edge))) drop-shadow(0 18px 30px rgb(0 0 0 / 0.6));
+  :global(.dark) .index {
+    box-shadow:
+      0 0 0 1px hsl(var(--paper-edge) / 0.6),
+      0 18px 36px -12px rgb(0 0 0 / 0.7);
   }
 
-  .paper {
-    position: relative;
-    padding: 0 var(--strip) 1.75rem;
-    /* A torn-off perforation along the bottom. */
-    mask: conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / 12px 100%;
-  }
-
-  /* Sprocket holes: the desk shows through, with a hint of the paper's thickness. */
-  .paper::before,
-  .paper::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    width: var(--strip);
-    background:
-      radial-gradient(
-        circle at 50% 50%,
-        hsl(var(--background)) 0 0.22rem,
-        hsl(var(--ink) / 0.22) 0.22rem 0.27rem,
-        transparent 0.3rem
-      )
-      0 0.25rem / 100% var(--feed-line) repeat-y;
-    pointer-events: none;
-  }
-
-  .paper::before {
-    left: 0;
-    border-right: 1px dashed hsl(var(--ink) / 0.14);
-  }
-
-  .paper::after {
-    right: 0;
-    border-left: 1px dashed hsl(var(--ink) / 0.14);
-  }
-
-  /* The fold between years: a perforation, and the crease it leaves below. */
-  .fold {
+  .year {
     margin: 0;
-    padding: 0.55rem 1rem 0.45rem;
-    border-top: 1px dashed hsl(var(--ink) / 0.28);
-    background: linear-gradient(hsl(var(--ink) / 0.055), transparent 0.6rem);
+    padding: 1.75rem var(--pad) 0.6rem;
     color: hsl(var(--ink-soft));
-    font-family: inherit;
     font-size: 0.6875rem;
     font-weight: 500;
     line-height: 1;
     letter-spacing: 0.16em;
   }
 
-  /* The first one is the paper leaving the printer, so the shade is the slot's. */
-  .fold.first {
-    padding-top: 0.9rem;
-    border-top: 0;
-    background: linear-gradient(hsl(var(--ink) / 0.1), transparent 0.75rem);
+  /* The first one sits under the header the sheet comes out from. */
+  section:first-child .year {
+    background: linear-gradient(hsl(var(--ink) / 0.07), transparent 0.75rem);
   }
 
   .row a {
-    position: relative;
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    gap: 0.3rem;
-    padding: 0.9rem 1rem 1rem;
+    gap: 0.35rem;
+    margin-inline: var(--pad);
+    padding-block: 1rem 1.1rem;
+    border-top: 1px solid hsl(var(--ink) / 0.12);
     color: inherit;
-    transition: background-color 150ms ease;
-  }
-
-  .row.bar a {
-    background-color: hsl(var(--bar));
   }
 
   .meta {
@@ -167,77 +120,76 @@ const years = $derived.by(() => {
 
   .title {
     color: hsl(var(--ink));
-    font-family: inherit;
-    font-size: 1rem;
+    font-size: 1.3125rem;
     font-weight: 700;
-    line-height: 1.3;
-    letter-spacing: -0.02em;
+    line-height: 1.18;
+    letter-spacing: -0.015em;
+    text-decoration: underline;
+    text-decoration-color: transparent;
+    text-decoration-thickness: 0.07em;
+    text-underline-offset: 0.18em;
+    transition: text-decoration-color 150ms ease;
   }
 
   .dek {
     display: -webkit-box;
     overflow: hidden;
     color: hsl(var(--ink-soft));
-    font-size: 0.875rem;
-    line-height: 1.5;
+    font-size: 1rem;
+    line-height: 1.45;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 3;
     line-clamp: 3;
   }
 
-  /* The arrow is a pointer's affordance; under a thumb the whole row is the target. */
-  .row .arrow {
-    display: none;
+  .more {
+    display: flex;
+    gap: 0.5em;
+    margin-inline: var(--pad);
+    padding-block: 1rem 0.5rem;
+    border-top: 1px solid hsl(var(--ink) / 0.12);
+    color: hsl(var(--ink-soft));
+    font-size: 0.8125rem;
+    transition: color 150ms ease;
   }
 
   .arrow {
     transition: transform 200ms var(--ease-out);
   }
 
-  .more {
-    display: flex;
-    gap: 0.5em;
-    padding: 0.9rem 1rem 0.2rem;
-    border-top: 1px dashed hsl(var(--ink) / 0.28);
-    color: hsl(var(--ink-soft));
-    font-size: 0.8125rem;
-    transition: color 150ms ease;
-  }
-
-  /* Press: the answer is immediate, the release eases. */
-  .row a:active {
-    background-color: hsl(var(--ink) / 0.09);
+  /* Press: the answer is immediate. */
+  .row a:active .title {
+    text-decoration-color: hsl(var(--accent));
     transition-duration: 0ms;
   }
 
   .row a:focus-visible,
   .more:focus-visible {
     outline: 2px solid hsl(var(--accent));
-    outline-offset: -2px;
+    outline-offset: 2px;
     box-shadow: none;
   }
 
+  /* The keyboard's place in the list: a mark in the margin, in the room's ink. */
   .row.selected a {
-    background-color: hsl(var(--ink) / 0.06);
-    box-shadow: inset 2px 0 0 var(--post-ink);
+    box-shadow: calc(var(--pad) * -0.5) 0 0 -0.3rem hsl(var(--accent));
+  }
+
+  .row.selected .title {
+    text-decoration-color: hsl(var(--accent));
   }
 
   @media (min-width: 640px) {
-    .printout {
-      --strip: 1.5rem;
-    }
-
-    .fold {
-      padding-inline: 1.5rem;
+    .index {
+      --pad: 2.5rem;
     }
 
     .row a {
-      grid-template-columns: 5.5rem minmax(0, 1fr) auto;
+      grid-template-columns: 5rem minmax(0, 1fr) auto;
       column-gap: 1.5rem;
-      padding: 1rem 1.5rem 1.1rem;
     }
 
-    /* The date and time-to-read split into the outer columns, `ls -l` style. */
+    /* The date and the time to read move to the outer columns. */
     .meta {
       display: contents;
     }
@@ -248,50 +200,28 @@ const years = $derived.by(() => {
 
     .meta time {
       grid-area: 1 / 1;
-      padding-top: 0.3rem;
+      padding-top: 0.5rem;
     }
 
     .meta span:last-child {
       grid-area: 1 / 3;
-      padding-top: 0.3rem;
+      padding-top: 0.5rem;
       text-align: right;
     }
 
     .title {
       grid-area: 1 / 2;
-      font-size: 1.0625rem;
+      font-size: 1.4375rem;
     }
 
     .dek {
       grid-area: 2 / 2;
     }
-
-    .more {
-      padding-inline: 1.5rem;
-    }
   }
 
   @media (hover: hover) and (pointer: fine) {
-    .row a:hover {
-      background-color: hsl(var(--ink) / 0.05);
-    }
-
-    .row .arrow {
-      display: block;
-      position: absolute;
-      right: 1.5rem;
-      bottom: 1rem;
-      color: hsl(var(--ink-soft));
-      opacity: 0;
-      transition:
-        transform 200ms var(--ease-out),
-        opacity 150ms ease;
-    }
-
-    .row a:hover .arrow,
-    .row.selected .arrow {
-      opacity: 1;
-      transform: translateX(3px);
+    .row a:hover .title {
+      text-decoration-color: hsl(var(--accent));
     }
 
     .more:hover {
@@ -303,15 +233,15 @@ const years = $derived.by(() => {
     }
   }
 
-  /* The page opens with the paper feeding out from under the header. */
-  .printout.feed {
-    animation: feed 560ms var(--ease-out) both;
+  /* The page opens with the sheet coming out from under the header. */
+  .index.feed {
+    animation: feed 480ms var(--ease-out) both;
   }
 
   @keyframes feed {
     from {
       clip-path: inset(0 -3rem 100% -3rem);
-      transform: translateY(-3rem);
+      transform: translateY(-2rem);
     }
     to {
       clip-path: inset(0 -3rem -3rem -3rem);

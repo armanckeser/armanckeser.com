@@ -49,6 +49,40 @@ If you clone this somewhere new, recreate those excludes before running `git add
 Svelte components can be imported into a post for custom interactives, see
 `sixth-year.svx` using `CommitmentGrid`.
 
+## Rooms
+
+The site is a terminal, and that stays its chrome everywhere (header, section labels,
+small print). What it shows comes in four kinds, each with one material and one accent,
+defined as token overrides under "Rooms" in `src/app.css`:
+
+| Room | Shows | Material |
+|---|---|---|
+| `code` | projects, the home hero | cool grey, green |
+| `writing` | posts, `/writing`, the policy pages | paper and ink, rust |
+| `film` | what I watched | a dark cinema, a strip of film, amber |
+| `books` | what I read | a reading room, books on a shelf, navy |
+
+A page lives in one room, picked from its path in `src/lib/room.svelte.ts`. The home
+page walks through all four as bands (`.room.band`), and the header takes the colours of
+whichever is on screen. Anything new should go in the room it belongs to and read the
+ordinary tokens (`bg-background`, `text-accent`), not bring its own palette.
+
+## Films and books
+
+`/api/films` and `/api/books` are built from the public RSS feeds of my Letterboxd diary
+and Goodreads shelves (`src/lib/server/feeds.ts`), which need no key. The member name and
+user id are in `src/lib/config.ts`. They are read when the site is built, so the daily
+rebuild is what picks up a new film or book.
+
+If a feed cannot be reached from the build machine, the endpoint serves the last list
+committed in `src/lib/data/*.json` instead, so the section goes stale rather than
+missing. To refresh those snapshots, run the dev server and save the endpoints' output:
+
+```bash
+curl localhost:5173/api/films > src/lib/data/films.json
+curl localhost:5173/api/books > src/lib/data/books.json
+```
+
 ## Deploying
 
 Pushing to `main` triggers `.github/workflows/deploy-pages.yml`, which runs

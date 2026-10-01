@@ -3,7 +3,6 @@ import PostListing from "$lib/components/PostListing.svelte"
 import PostSheet from "$lib/components/PostSheet.svelte"
 import ScrollTracker from "$lib/components/ScrollTracker.svelte"
 import Seo from "$lib/components/Seo.svelte"
-import { inkHue } from "$lib/ink"
 import { getPosts } from "$lib/posts"
 import { blogPostingJsonLd, breadcrumbJsonLd } from "$lib/seo"
 import Giscus from "@giscus/svelte"
@@ -45,7 +44,7 @@ const structuredData = $derived([
 <ScrollTracker />
 
 <!-- How far through the page you are, drawn along the header's bottom edge. -->
-<div class="progress" style:--hue={inkHue(data.meta.slug)} aria-hidden="true"></div>
+<div class="progress" aria-hidden="true"></div>
 
 <div class="mx-auto max-w-[46rem] pb-16 sm:px-6">
 	<PostSheet
@@ -53,7 +52,6 @@ const structuredData = $derived([
 		description={data.meta.description}
 		date={data.meta.date}
 		minutes={data.minutes[file]}
-		path={data.meta.slug}
 	>
 		<data.content />
 	</PostSheet>
@@ -78,9 +76,9 @@ const structuredData = $derived([
 	</div>
 
 	{#if others.length}
-		<aside class="mt-12 px-2.5 sm:px-0" aria-labelledby="more-writing">
-			<h2 id="more-writing" class="mb-3 px-2.5 font-mono text-sm font-normal text-muted-foreground sm:px-0">
-				<span class="text-blue-600 dark:text-blue-400" aria-hidden="true">❯</span> ls -t ~/writing | head -{others.length}
+		<aside class="mt-12 px-3 sm:px-0" aria-labelledby="more-writing">
+			<h2 id="more-writing" class="mb-3 px-1 font-mono text-sm font-normal text-muted-foreground sm:px-0">
+				<span class="text-accent" aria-hidden="true">❯</span> ls -t ~/writing | head -{others.length}
 			</h2>
 			<PostListing posts={others} minutes={data.minutes} more={{ href: "/writing", label: "cd ~/writing" }} />
 		</aside>
@@ -91,7 +89,7 @@ const structuredData = $derived([
 	/* Anchor links beside headings: there for a pointer, out of the way otherwise. */
 	:global(.anchor-link) {
 		margin-left: 0.25rem;
-		color: var(--post-ink);
+		color: hsl(var(--accent));
 		font-size: 0.75em;
 		text-decoration: none;
 		opacity: 0;
@@ -118,14 +116,10 @@ const structuredData = $derived([
 			z-index: 40;
 			width: 100%;
 			height: 2px;
-			background: hsl(var(--hue) 60% 45%);
+			background: hsl(var(--accent));
 			transform-origin: left;
 			animation: progress linear both;
 			animation-timeline: scroll(root);
-		}
-
-		:global(.dark) .progress {
-			background: hsl(var(--hue) 62% 62%);
 		}
 
 		@keyframes progress {
