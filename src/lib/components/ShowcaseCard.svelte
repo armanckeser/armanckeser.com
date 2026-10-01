@@ -151,6 +151,7 @@ function startPreview(e: PointerEvent) {
     line-height: 1.5;
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
@@ -163,6 +164,7 @@ function startPreview(e: PointerEvent) {
   .featured .tagline {
     font-size: 1.05rem;
     -webkit-line-clamp: 3;
+    line-clamp: 3;
   }
 
   /* The device gets whatever room the copy leaves and runs off the bottom edge, like store art. */
