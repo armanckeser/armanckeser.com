@@ -60,7 +60,7 @@ $effect(() => {
 					{#if latest}
 						<span class:bad={latest.bad}>{latest.key} {latest.value}</span>
 					{:else}
-						no instruments yet
+						not measuring yet
 					{/if}
 				</p>
 				<div class="foot font-mono">
