@@ -46,7 +46,7 @@ const structuredData = $derived([
 <!-- How far through the page you are, drawn along the header's bottom edge. -->
 <div class="progress" aria-hidden="true"></div>
 
-<div class="mx-auto max-w-[46rem] pb-16 sm:px-6">
+<div class="column mx-auto max-w-[46rem] pb-16 sm:px-6">
 	<PostSheet
 		title={data.meta.title}
 		description={data.meta.description}
@@ -104,6 +104,19 @@ const structuredData = $derived([
 
 	.progress {
 		display: none;
+	}
+
+	/* A post with a laptop beside its text (see Story.svelte) is set as a
+	   spread: a wider sheet, the text in its usual measure on the left. */
+	@media (min-width: 1180px) {
+		.column:has(:global(.rig-track)) {
+			/* The sheet's padding, the text, the gap, and the laptop's lane. */
+			max-width: calc(47rem + clamp(22rem, 100vw - 54rem, 27rem));
+		}
+
+		.column:has(:global(.rig-track)) :global(.prose-blog > :not(.pair)) {
+			max-width: 37.5rem;
+		}
 	}
 
 	/* Driven by the scroll position itself, so it costs no script and never lags. */
