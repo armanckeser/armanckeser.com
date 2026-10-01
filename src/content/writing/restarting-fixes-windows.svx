@@ -1,6 +1,6 @@
 ---
 title: "Restarting fixes Windows because your apps are broken"
-description: "A game on my laptop went from 2 FPS back to 60 without a restart. The causes were a movie, NVIDIA's overlay and 32,709 dead processes that Razer's software never let go of."
+description: "How I got a game from 2 FPS back to 60 without restarting: a Jellyfin transcode, a leaking NVIDIA overlay and 32,709 zombie processes from Razer."
 tags: [windows, debugging, gaming]
 date: "2026-09-27"
 published: true
@@ -19,15 +19,11 @@ published: true
 A few days ago Subnautica 2 was running at 2 FPS on my laptop, and about an hour later it was back
 at 60, without a restart, a driver update or a single graphics setting changed. Three things did
 it: we turned off the subtitles on my wife's iPad, killed an NVIDIA process that was sitting on
-12.7 GB of memory, and stopped two Razer services that were holding on to 32,709 processes that had
-already exited.
+12.7 GB of memory, and stopped two Razer services that had left 32,709 zombie processes behind.
 
 Normally I would have restarted, which would have fixed two of those three and taught me nothing,
 and that is pretty much how I have dealt with slow computers my whole life. This time I couldn't,
-so I ended up learning how to actually look, and this post is everything I picked up along the way,
-in the order I picked it up. The laptop you see next to the text is a simulation: it always shows
-the same scene, redrawn at whatever frame rate I had at that point, and the readouts on its screen
-show up as I learned to read them. Where it says `??`, I had no idea what my frame rate was.
+so I ended up learning how to actually look.
 
 <Story>
 
@@ -35,9 +31,9 @@ show up as I learned to read them. Where it says `??`, I had no idea what my fra
 
 ## A server that sometimes plays games
 
-It started with wanting to self-host a few things (Jellyfin, mostly). I don't have a server with a
-good GPU, but I do have a Legion 5 with a 3070 in it, so the laptop went on top of the TV unit,
-plugged into the TV, and has been on ever since.
+It started with wanting to self-host Immich, and these days the same machine is also my media
+server (Jellyfin). I don't have a server with a good GPU, but I do have a Legion 5 with a 3070 in
+it, so the laptop went on top of the TV unit, plugged into the TV, and has been on ever since.
 
 After a few days of being on it would get really slow. This was back when I was using Cursor, and
 with its help I figured out that Nahimic (the audio "enhancer" Lenovo preinstalls) was leaking
@@ -70,8 +66,8 @@ although I couldn't tell you by how much, since it never occurred to me to measu
 
 ## The GPU will tell you why it is slow
 
-I only learned this recently and I wish I had known it ten years ago: when an NVIDIA GPU runs below
-its full clock speed, it knows why, and you can ask it:
+I only learned this recently and I wish I had known it ten years ago: you can use `nvidia-smi` to
+see whether the GPU is being throttled and why:
 
 ```powershell
 nvidia-smi --query-gpu=clocks_event_reasons.active,clocks.gr,temperature.gpu,power.draw --format=csv -l 2
@@ -115,8 +111,8 @@ plan, turns on the 15 W GPU boost, applies the fan curve and the CPU cap, and st
 competing for the disk.
 
 I learned two things while we wrote them. `powercfg` by itself doesn't raise the GPU's power limit,
-because that is set by the laptop's embedded controller, so the scripts read the mode back to check
-that it took. And the power button had been glowing red for "performance" the whole time the GPU
+because that is set by the laptop's embedded controller, so the scripts set the mode there and then
+check that it actually changed. And the power button had been glowing red for "performance" the whole time the GPU
 was capped at 115 W out of its 130 (`nvidia-smi -q -d POWER` shows the limit that is really being
 enforced).
 
@@ -140,8 +136,8 @@ The first thing it found was the movie. The GPU was drawing 100 W at 83 °C befo
 open, with its video decoder 76% busy, its encoder 43% busy, and 2.8 of its 8 GB of memory already
 in use.
 
-My wife had subtitles on. They were the kind that are stored as images (PGS, the Blu-ray format),
-which the iPad app can't draw by itself, so Jellyfin was burning them into the video: decoding a 4K
+My wife had subtitles on. They were PGS, which the iPad app can't render (unlike text subtitles
+such as SubRip), so Jellyfin was burning them into the video: decoding a 4K
 HDR movie, tone-mapping it, drawing the subtitles on top and re-encoding the result at 1080p, all
 on the same GPU I was trying to play on. Subnautica 2 is an Unreal Engine 5 game that wants most of
 those 8 GB, and my best guess for the 2 FPS is that it ran out and spilled into system memory.
@@ -196,8 +192,7 @@ xperf -i trace.etl -symbols -a stack -pid 4 -butterfly 50   # pid 4 is System
 
 <AnnotatedStack />
 
-The notes under each line are how it was explained to me. The short version is that every window,
-your game and your terminal included, gets drawn into GPU memory, and the Desktop Window Manager
+Every window, your game and your terminal included, gets drawn into GPU memory, and the Desktop Window Manager
 puts those together into the frame you see. One kernel thread manages that memory for everyone, and
 it was spending three quarters of its time walking a list. While it does that, everything waiting
 on GPU memory waits too, which is why the whole screen hitched and not just the game.
@@ -233,11 +228,6 @@ Stop-Service 'Razer Game Manager Service', 'Razer Synapse Service' -Force
 
 Within a minute the zombies went from 32,709 to 260, the System process went from about 1.25 cores
 to 0.2, and the stutter was gone. No restart, and my wife didn't even notice anything had happened.
-
-To be fair about what's actually proven: the stack and the before-and-after numbers are measured,
-and stopping other services afterwards made no difference. That the zombies are what bloats this
-specific list is an inference. They dropped at the same time and by about the same factor, but
-neither Opus nor I have seen the Windows source, so take that part with a grain of salt.
 
 </Story>
 

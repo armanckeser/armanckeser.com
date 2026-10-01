@@ -20,8 +20,6 @@ const after = stepById("fixed")
 		</div>
 	</div>
 	<figcaption class="font-serif">
-		Both screens show the same scene at the same moment. The left one only
-		gets redrawn twice a second.
 		<button type="button" class="font-mono" onclick={() => (motion.paused = !motion.paused)}>
 			{motion.paused ? "play" : "pause"}
 		</button>
@@ -62,7 +60,6 @@ const after = stepById("fixed")
 
 	button {
 		position: relative;
-		margin-left: 0.35em;
 		color: hsl(var(--accent));
 		font-size: 0.75rem;
 		font-style: normal;
