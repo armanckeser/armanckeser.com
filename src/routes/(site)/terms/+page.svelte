@@ -1,4 +1,5 @@
 <script lang="ts">
+import PostSheet from "$lib/components/PostSheet.svelte"
 import Seo from "$lib/components/Seo.svelte"
 </script>
 
@@ -8,26 +9,8 @@ import Seo from "$lib/components/Seo.svelte"
   path="/terms"
 />
 
-<article class="container justify-around p-4 flex flex-col">
-  <div class="flex-1 max-w-[65ch] lg:max-w-[75ch] xl:max-w-[85ch] mx-auto">
-    <!-- Terminal-style header -->
-    <div class="font-mono border-b border-accent/20 pb-4 mb-8">
-      <div class="text-sm text-muted-foreground flex items-center gap-4">
-        <span>$ cat terms-of-service.md</span>
-      </div>
-    </div>
-
-    <!-- Content -->
-    <div class="prose dark:prose-invert max-w-none prose-lg
-      // Base typography
-      prose-headings:font-heading prose-headings:tracking-tight
-      prose-headings:scroll-mt-24
-      prose-strong:text-primary prose-strong:font-semibold
-      prose-p:leading-relaxed 
-      prose-p:text-muted-foreground">
-
-      <h1>Terms of Service</h1>
-      
+<div class="mx-auto max-w-[46rem] pb-16 sm:px-6">
+  <PostSheet title="Terms of Service" plain>
       <p><em>Last updated: {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</em></p>
       
       <h2>1. Introduction</h2>
@@ -73,6 +56,5 @@ import Seo from "$lib/components/Seo.svelte"
       <h2>11. Contact Information</h2>
       
       <p>If you have any questions about these Terms, please contact me through the contact information provided on the Website.</p>
-    </div>
-  </div>
-</article> 
+  </PostSheet>
+</div>

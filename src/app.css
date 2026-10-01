@@ -32,8 +32,14 @@
 
 /* Global view transition settings */
 :root {
-	--view-transition-duration: 600ms;
-	--view-transition-easing: cubic-bezier(0.16, 1, 0.3, 1);
+	--view-transition-duration: 220ms;
+	--view-transition-easing: ease;
+
+	/* Motion: the built-in easings are too soft to feel deliberate. */
+	--ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+	--ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+	--ease-sheet: cubic-bezier(0.32, 0.72, 0, 1);
+
 	scrollbar-gutter: stable;
 	overflow-y: scroll; /* Force scrollbar space allocation */
 
@@ -72,35 +78,47 @@
 	}
 }
 
-/* View transition animations */
-::view-transition {
-	animation-duration: var(--view-transition-duration, 600ms);
-	animation-timing-function: var(
-		--view-transition-easing,
-		cubic-bezier(0.16, 1, 0.3, 1)
-	);
-}
-
+/* View transitions.
+   Pages cross-fade quickly. The header is its own group so it holds still. */
 ::view-transition-old(root),
 ::view-transition-new(root) {
-	mix-blend-mode: normal;
+	animation-duration: var(--view-transition-duration);
+	animation-timing-function: var(--view-transition-easing);
 }
 
-.dark::view-transition-old(root) {
-	z-index: 1;
+/* Opening a post: the sheet you picked (a card's page, a line of the listing)
+   grows into the top of the post, and shrinks back when you return. The layout
+   names both ends "sheet" for the length of the transition. */
+::view-transition-group(sheet) {
+	animation-duration: 380ms;
+	animation-timing-function: var(--ease-sheet);
 }
 
-.dark::view-transition-new(root) {
-	z-index: 999;
+::view-transition-old(sheet),
+::view-transition-new(sheet) {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	object-position: top left;
+	animation-duration: 200ms;
 }
 
-::view-transition-old(page),
-::view-transition-new(page) {
-	animation-duration: var(--view-transition-duration, 600ms);
-	animation-timing-function: var(
-		--view-transition-easing,
-		cubic-bezier(0.16, 1, 0.3, 1)
-	);
+/* Switching theme: the new theme opens from the switch you pressed. */
+html[data-theme-switch]::view-transition-old(root) {
+	animation: none;
+}
+
+html[data-theme-switch]::view-transition-new(root) {
+	animation: theme-reveal 480ms var(--ease-in-out);
+}
+
+@keyframes theme-reveal {
+	from {
+		clip-path: circle(0 at var(--switch-x, 100%) var(--switch-y, 0));
+	}
+	to {
+		clip-path: circle(150vmax at var(--switch-x, 100%) var(--switch-y, 0));
+	}
 }
 
 @layer base {
@@ -136,6 +154,12 @@
 		--destructive-foreground: 0 0% 98%;
 
 		--ring: 240 5% 64.9%;
+
+		/* Paper: what posts and listings are printed on, and the ink they use. */
+		--paper: 42 38% 97%;
+		--paper-edge: 40 18% 84%;
+		--ink: 36 12% 14%;
+		--ink-soft: 36 7% 36%;
 
 		--radius: 0.5rem;
 
@@ -174,6 +198,86 @@
 		--destructive-foreground: 0 0% 98%;
 
 		--ring: 240 4.9% 83.9%;
+
+		/* At night the paper goes dark and the ink light: a lit page, not a lamp. */
+		--paper: 40 7% 9.5%;
+		--paper-edge: 40 6% 17%;
+		--ink: 40 22% 88%;
+		--ink-soft: 40 9% 64%;
+	}
+
+	/* Rooms.
+	   The site is a terminal, and that is its chrome everywhere: the header,
+	   the section labels, the small print. But what the terminal shows comes in
+	   four kinds, and each gets a room with one material and one accent:
+
+	     code     apps and the command line   cool grey, phosphor green
+	     writing  posts                       paper, ink, rust
+	     film     what I have watched         a dark cinema, projector amber
+	     books    what I have read            a reading room, cloth navy
+
+	   A room re-declares the same tokens the rest of the site reads, so anything
+	   inside it (and the header, while that room is under it) takes its colours
+	   with no further styling. The home page walks through all four; every other
+	   page lives in one. */
+	[data-room="writing"] {
+		--background: 40 22% 90%;
+		--foreground: 36 12% 14%;
+		--primary: 36 12% 14%;
+		--muted-foreground: 36 7% 36%;
+		--border: 38 14% 78%;
+		--accent: 14 62% 36%;
+		--accent-foreground: 42 38% 97%;
+		--ring: 36 7% 46%;
+	}
+
+	.dark [data-room="writing"],
+	.dark[data-room="writing"] {
+		--background: 40 6% 6%;
+		--foreground: 40 22% 88%;
+		--primary: 40 22% 88%;
+		--muted-foreground: 40 9% 62%;
+		--border: 40 6% 16%;
+		--accent: 18 64% 66%;
+		--accent-foreground: 40 7% 9.5%;
+		--ring: 40 9% 62%;
+	}
+
+	/* A cinema is dark whatever the theme. */
+	[data-room="film"],
+	.dark [data-room="film"],
+	.dark[data-room="film"] {
+		--background: 30 8% 5%;
+		--foreground: 40 20% 90%;
+		--primary: 40 20% 90%;
+		--muted-foreground: 35 8% 60%;
+		--border: 30 6% 17%;
+		--accent: 32 95% 58%;
+		--accent-foreground: 30 8% 5%;
+		--ring: 35 8% 60%;
+	}
+
+	[data-room="books"] {
+		--background: 34 30% 87%;
+		--foreground: 24 20% 14%;
+		--primary: 24 20% 14%;
+		--muted-foreground: 24 10% 34%;
+		--border: 30 18% 74%;
+		--accent: 218 48% 34%;
+		--accent-foreground: 34 30% 94%;
+		--ring: 24 10% 44%;
+	}
+
+	.dark [data-room="books"],
+	.dark[data-room="books"] {
+		--background: 22 16% 7%;
+		--foreground: 34 24% 86%;
+		--primary: 34 24% 86%;
+		--muted-foreground: 30 10% 60%;
+		--border: 24 10% 17%;
+		--accent: 214 70% 74%;
+		--accent-foreground: 22 16% 7%;
+		--ring: 30 10% 60%;
 	}
 
 	* {
@@ -281,6 +385,36 @@
 		display: none;
 	}
 
+	/* A swipeable shelf of cards (phones). Each card turns to face you as it
+	   reaches the middle and turns away as it leaves: the position of your
+	   thumb is the animation's clock, so there is nothing to wait for.
+	   The slot keeps still for scroll-snap; only the card inside it moves. */
+	@supports (animation-timeline: view()) {
+		@media (prefers-reduced-motion: no-preference) {
+			.shelf-slot {
+				view-timeline: --shelf-slot inline;
+			}
+
+			.shelf-slot > * {
+				animation: shelf-depth linear both;
+				animation-timeline: --shelf-slot;
+			}
+		}
+	}
+
+	@keyframes shelf-depth {
+		from {
+			transform: perspective(60rem) rotateY(-9deg) scale(0.94);
+		}
+		42%,
+		60% {
+			transform: none;
+		}
+		to {
+			transform: perspective(60rem) rotateY(9deg) scale(0.94);
+		}
+	}
+
 	/* Transparent caret utility */
 	.transparent-caret {
 		caret-color: transparent;
@@ -323,11 +457,8 @@
 	/* Custom utility class for smooth view transitions */
 	.smooth-view-transition {
 		view-transition-name: var(--view-name, auto);
-		animation-duration: var(--view-transition-duration, 600ms);
-		animation-timing-function: var(
-			--view-transition-easing,
-			cubic-bezier(0.16, 1, 0.3, 1)
-		);
+		animation-duration: var(--view-transition-duration);
+		animation-timing-function: var(--view-transition-easing);
 	}
 }
 
@@ -431,11 +562,6 @@ textarea {
 	@apply text-accent;
 }
 
-.prose code {
-	--tw-prose-code-bg: hsl(var(--accent) / 0.1);
-	--tw-prose-code: hsl(var(--accent));
-}
-
 /* Syntax highlighting.
    mdsvex highlights fenced code blocks with Prism at build time and emits
    .token classes, so all that is needed here is the palette. Strings use the
@@ -534,83 +660,237 @@ code[class*="language-"] {
 	font-style: italic;
 }
 
-/* Consolidated prose styling for blog posts and content pages */
+/* Paper.
+   A sheet is the surface writing is printed on: a post, a policy, a listing.
+   It sets its own ink, so what is on it reads the same whatever the theme
+   paints the rest of the site. */
 @layer components {
+	.sheet {
+		background-color: hsl(var(--paper));
+		color: hsl(var(--ink));
+	}
+
+	/* A room paints its own ground and sets its own text colour, since colour
+	   is inherited as a value and would otherwise stay the outer room's. */
+	.room {
+		position: relative;
+		background-color: hsl(var(--background));
+		color: hsl(var(--foreground));
+	}
+
+	/* On the home page the rooms are bands, and each one fades in over the end
+	   of the one before, so scrolling walks from room to room instead of
+	   crossing a line. */
+	.band {
+		padding-block: 4rem 7rem;
+	}
+
+	.band + .band::before {
+		content: "";
+		position: absolute;
+		inset: -7rem 0 auto;
+		height: 7rem;
+		background: linear-gradient(transparent, hsl(var(--background)));
+		pointer-events: none;
+	}
+
+	/* Prose set on a sheet: posts, the policy pages, and the editor's preview. */
 	.prose-blog {
-		@apply prose dark:prose-invert max-w-none prose-lg;
+		@apply prose max-w-none font-serif;
 
-		/* Base typography */
-		@apply prose-headings:font-heading prose-headings:tracking-tight prose-headings:scroll-mt-24;
-		@apply prose-strong:text-primary prose-strong:font-semibold;
-		@apply prose-lead:text-muted-foreground/80;
-		@apply prose-p:leading-relaxed prose-p:text-muted-foreground;
+		--tw-prose-body: hsl(var(--ink));
+		--tw-prose-headings: hsl(var(--ink));
+		--tw-prose-lead: hsl(var(--ink-soft));
+		--tw-prose-links: hsl(var(--ink));
+		--tw-prose-bold: hsl(var(--ink));
+		--tw-prose-counters: hsl(var(--ink-soft));
+		--tw-prose-bullets: hsl(var(--ink-soft) / 0.55);
+		--tw-prose-hr: hsl(var(--ink) / 0.14);
+		--tw-prose-quotes: hsl(var(--ink-soft));
+		--tw-prose-quote-borders: hsl(var(--accent));
+		--tw-prose-captions: hsl(var(--ink-soft));
+		--tw-prose-code: hsl(var(--ink));
+		--tw-prose-pre-code: hsl(var(--foreground));
+		--tw-prose-pre-bg: hsl(var(--background));
+		--tw-prose-th-borders: hsl(var(--ink) / 0.25);
+		--tw-prose-td-borders: hsl(var(--ink) / 0.12);
 
-		/* Links */
-		@apply hover:prose-a:text-accent prose-a:transition-colors prose-a:duration-300;
+		font-size: 1.125rem;
+		line-height: 1.7;
+		font-variant-numeric: oldstyle-nums proportional-nums;
+		text-rendering: optimizeLegibility;
+		/* A long URL or identifier must wrap rather than widen the page. */
+		overflow-wrap: break-word;
 
-		/* Headings */
-		@apply prose-h2:text-2xl prose-h2:border-b prose-h2:border-accent/10 prose-h2:pb-2 prose-h2:mt-10 prose-h2:opacity-90 prose-h2:scroll-mt-24;
-		@apply prose-h3:text-xl prose-h3:font-semibold prose-h3:opacity-80 prose-h3:scroll-mt-24;
-
-		/* Code blocks */
-		@apply prose-code:px-1.5 prose-code:py-1 prose-code:rounded prose-code:font-mono prose-code:text-sm prose-code:border prose-code:border-accent/20;
-		@apply prose-pre:rounded-xl prose-pre:border prose-pre:border-accent/20 prose-pre:shadow-sm prose-pre:text-primary prose-pre:bg-background;
-
-		/* Blockquotes */
-		@apply prose-blockquote:border-l-4 prose-blockquote:border-accent/40 prose-blockquote:pl-4;
-
-		/* Images */
-		@apply prose-img:rounded-xl prose-img:border prose-img:border-accent/20;
-
-		/* Link underlines */
-		& a:not(.anchor-link) {
-			@apply border-b-2 border-accent/30 hover:border-accent;
+		/* The site dims every paragraph by default; on paper they are plain ink.
+		   :where() keeps this weak enough for a component's own classes to win. */
+		& :where(p, li) {
+			color: inherit;
+			line-height: inherit;
 		}
 
-		/* H1 special styling with accent underline */
-		& h1 {
-			@apply text-3xl relative pb-2 border-b-0 scroll-mt-24;
+		& :where(h1, h2, h3, h4) {
+			@apply scroll-mt-24 font-serif;
+			letter-spacing: -0.012em;
+			text-wrap: balance;
 		}
 
-		& h1::before {
-			content: "";
-			@apply absolute -bottom-0.5 left-0 w-12 h-px bg-gradient-to-r from-accent to-transparent;
+		& :where(h1) {
+			font-size: 1.75em;
+			line-height: 1.15;
 		}
 
-		/* Pre blocks */
-		& pre {
-			@apply p-6 border-2;
+		& :where(h2) {
+			margin-top: 2.2em;
+			margin-bottom: 0.7em;
+			font-size: 1.45em;
+			font-weight: 700;
+			line-height: 1.2;
 		}
 
-		& pre > code {
-			@apply bg-transparent border-none p-0;
+		& :where(h3) {
+			font-size: 1.18em;
+			font-weight: 650;
+			line-height: 1.3;
 		}
 
-		/* Typography plugin wraps inline code in literal backticks */
+		/* Links: ink text, underlined in the post's colour. */
+		& :where(a):not(.anchor-link) {
+			font-weight: inherit;
+			text-decoration-line: underline;
+			text-decoration-color: color-mix(
+				in srgb,
+				hsl(var(--accent)) 45%,
+				transparent
+			);
+			text-decoration-thickness: 0.09em;
+			text-underline-offset: 0.2em;
+			transition: text-decoration-color 150ms ease;
+		}
+
+		/* The TLDR and other asides: no borrowed quote marks, a touch smaller. */
+		& :where(blockquote) {
+			border-left-width: 2px;
+			padding-left: 1.1em;
+			font-size: 0.95em;
+			font-weight: 400;
+			quotes: none;
+		}
+
+		& :where(blockquote p)::before,
+		& :where(blockquote p)::after {
+			content: none;
+		}
+
+		/* Code is the terminal showing through the paper. */
+		& :where(code) {
+			@apply rounded font-mono;
+			padding: 0.15em 0.35em;
+			background-color: hsl(var(--ink) / 0.07);
+			font-size: 0.8em;
+			font-weight: 500;
+			font-variant-numeric: normal;
+		}
+
 		& code::before,
 		& code::after {
 			content: none;
 		}
+
+		& :where(pre) {
+			@apply rounded-lg border border-border font-mono;
+			padding: 1.1rem 1.25rem;
+			font-size: 0.8125rem;
+			line-height: 1.7;
+			font-variant-numeric: normal;
+			-webkit-overflow-scrolling: touch;
+		}
+
+		& pre > code {
+			padding: 0;
+			border-radius: 0;
+			background: none;
+			font-size: inherit;
+			font-weight: 400;
+		}
+
+		& :where(img) {
+			@apply rounded-lg border border-border;
+		}
+
+		& :where(hr) {
+			margin-block: 2.5em;
+		}
+
+		/* Whatever comes first sits right under the masthead. */
+		& > :first-child {
+			margin-top: 0;
+		}
+
+		/* The table of contents is a way around the page, not part of the
+		   argument: quieter than the prose, and without a rule under every line. */
+		& :where(#contents) {
+			color: hsl(var(--ink-soft));
+			font-family: theme("fontFamily.mono");
+			font-size: 0.6875rem;
+			font-weight: 500;
+			letter-spacing: 0.14em;
+			text-transform: uppercase;
+		}
+
+		& :where(#contents) .anchor-link {
+			display: none;
+		}
+
+		& :where(#contents + ul, #contents + ul ul) {
+			padding-left: 0;
+			list-style: none;
+		}
+
+		& :where(#contents + ul) {
+			margin-top: 0;
+			padding-bottom: 1.5em;
+			border-bottom: 1px solid hsl(var(--ink) / 0.14);
+			font-size: 0.9em;
+			line-height: 1.4;
+		}
+
+		& :where(#contents + ul ul) {
+			margin-block: 0;
+			padding-left: 1.1em;
+		}
+
+		& :where(#contents + ul li) {
+			margin-block: 0;
+			padding-left: 0;
+		}
+
+		/* By id, to outrank the underline every other link in the prose gets. */
+		& #contents + ul a {
+			display: block;
+			padding-block: 0.4em;
+			color: hsl(var(--ink-soft));
+			text-decoration-line: none;
+		}
 	}
-}
 
-/* Text element transitions */
-::view-transition-old(text),
-::view-transition-new(text) {
-	/* Make the text views match the height of their group */
-	height: 100%;
-	/* Set the other dimension to auto,
-	   which for images means they maintain their aspect ratio */
-	width: auto;
-	/* Add smooth animation properties */
-	animation-duration: var(--view-transition-duration, 600ms);
-	animation-timing-function: var(
-		--view-transition-easing,
-		cubic-bezier(0.16, 1, 0.3, 1)
-	);
-}
+	@media (hover: hover) and (pointer: fine) {
+		.prose-blog :where(a):not(.anchor-link):hover {
+			text-decoration-color: hsl(var(--accent));
+		}
 
-::view-transition-group(text) {
-	/* Clip the views as they overflow the group */
-	overflow: clip;
+		.prose-blog :where(#contents + ul a):hover {
+			color: hsl(var(--ink));
+		}
+	}
+
+	/* On a phone, code runs edge to edge: every character of width counts. */
+	@media (max-width: 639px) {
+		.sheet .prose-blog :where(pre) {
+			margin-inline: calc(var(--sheet-pad, 0px) * -1);
+			padding-inline: var(--sheet-pad, 1.25rem);
+			border-inline-width: 0;
+			border-radius: 0;
+		}
+	}
 }

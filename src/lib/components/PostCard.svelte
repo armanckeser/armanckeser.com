@@ -1,4 +1,5 @@
 <script lang="ts">
+import { tilt } from "$lib/tilt"
 import { formatDate } from "$lib/utils"
 
 const {
@@ -14,201 +15,189 @@ const {
 	description?: string
 	date: string
 	href: string
-	/** The post's opening paragraphs, set on the page that runs off the card. */
+	/** The post's opening paragraphs, which run off the bottom of the card. */
 	excerpt?: string[]
 	minutes?: number
 	featured?: boolean
 }>()
-
-// Each post gets one ink colour, picked from its slug so it never changes
-// between builds. A short, hand-picked list keeps every card in tune with the rest.
-const INKS = [28, 350, 262, 205, 158, 190, 12, 300]
-const hue = $derived(
-	INKS[
-		[...href].reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 7) %
-			INKS.length
-	]
-)
 </script>
 
-<article class="post group relative isolate flex overflow-hidden rounded-2xl border border-white/10 bg-zinc-950" class:featured style:--hue={hue}>
-  <div class="glow" aria-hidden="true"></div>
-
-  <div class="copy relative z-10 flex flex-col gap-2 p-6 md:p-7">
-    <p class="font-mono text-[0.7rem] uppercase tracking-[0.14em] text-white/60">
-      <time datetime={date}>{formatDate(date)}</time>{#if minutes}&nbsp;· {minutes} min read{/if}
+<!--
+  A post's card is the top of its page at a smaller size: the same paper, the
+  same masthead, the same opening lines. Opening it grows this sheet into the
+  page itself (data-sheet; see the root layout).
+-->
+<article class="card sheet" class:featured data-sheet={href.split("/").pop()} use:tilt>
+  <div class="masthead">
+    <p class="meta font-mono">
+      <time datetime={date}>{formatDate(date)}</time>{#if minutes}<span aria-hidden="true">·</span>{minutes} min read{/if}
     </p>
-    <h3 class="title font-mono font-bold text-white">
+    <h3 class="title font-serif">
       <!-- Stretched link: its ::after covers the card, so the whole card is one target. -->
-      <a {href} class="after:absolute after:inset-0 after:z-20 focus-visible:outline-none">{title}</a>
+      <a {href} class="after:absolute after:inset-0 after:z-10 focus-visible:outline-none">{title}</a>
     </h3>
     {#if description}
-      <p class="dek text-white/70">{description}</p>
+      <p class="dek font-serif">{description}</p>
     {/if}
   </div>
 
   {#if excerpt.length}
-    <div class="stage" aria-hidden="true">
-      <div class="page">
-        {#each excerpt as paragraph, i}
-          <p class:lede={i === 0}>{paragraph}</p>
-        {/each}
-      </div>
+    <div class="opening font-serif" aria-hidden="true">
+      {#each excerpt as paragraph}
+        <p>{paragraph}</p>
+      {/each}
     </div>
   {/if}
 </article>
 
 <style>
-  .post {
-    height: 27rem;
+  .card {
+    position: relative;
+    display: flex;
     flex-direction: column;
-    transition: border-color 200ms ease;
+    gap: 1.25rem;
+    height: 25rem;
+    padding: 1.5rem 1.5rem 0;
+    overflow: hidden;
+    border-radius: 0.375rem;
+    box-shadow:
+      0 1px 1px rgb(0 0 0 / 0.06),
+      0 12px 28px -10px rgb(0 0 0 / 0.18);
+    transition:
+      box-shadow 200ms ease,
+      scale 160ms var(--ease-out);
   }
 
-  .post.featured {
-    height: 26rem;
-    flex-direction: row;
+  :global(.dark) .card {
+    box-shadow:
+      0 0 0 1px hsl(var(--paper-edge) / 0.7),
+      0 16px 32px -12px rgb(0 0 0 / 0.7);
   }
 
-  /* The post's ink, as light falling on the desk the page lies on. */
-  .glow {
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    background:
-      radial-gradient(60% 70% at 85% 100%, hsl(var(--hue) 75% 50% / 0.35), transparent 70%),
-      radial-gradient(50% 60% at 0% 0%, hsl(var(--hue) 60% 40% / 0.18), transparent 70%);
+  /* Pressed: the card gives a little, so the tap is felt before the page changes. */
+  .card:active {
+    scale: 0.985;
   }
 
-  .copy {
+  .masthead {
     flex-shrink: 0;
   }
 
-  .featured .copy {
-    width: 44%;
-    justify-content: center;
+  .meta {
+    display: flex;
+    gap: 0.6em;
+    color: hsl(var(--ink-soft));
+    font-size: 0.6875rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
   }
 
   .title {
-    font-size: 1.3rem;
-    line-height: 1.2;
+    margin-top: 0.7rem;
+    color: hsl(var(--ink));
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1.12;
     letter-spacing: -0.02em;
-  }
-
-  .featured .title {
-    font-size: clamp(1.8rem, 3vw, 2.6rem);
-    line-height: 1.1;
+    text-wrap: balance;
   }
 
   .dek {
-    font-size: 0.9rem;
-    line-height: 1.5;
     display: -webkit-box;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
-    -webkit-box-orient: vertical;
+    margin-top: 0.6rem;
     overflow: hidden;
+    color: hsl(var(--ink-soft));
+    font-size: 1rem;
+    font-style: italic;
+    line-height: 1.4;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
   }
 
-  .featured .dek {
-    font-size: 1.05rem;
-    -webkit-line-clamp: 3;
-    line-clamp: 3;
-  }
-
-  .stage {
-    position: relative;
+  /* The page carries on below: its first lines, fading out where the card ends. */
+  .opening {
     flex: 1;
     min-height: 0;
-  }
-
-  /* A printed page: serif, paper, and it runs off the bottom edge like the project devices. */
-  .page {
-    position: absolute;
-    top: 0.75rem;
-    bottom: -3rem;
+    padding-top: 1.1rem;
+    border-top: 1px solid hsl(var(--ink) / 0.12);
     overflow: hidden;
-    left: 50%;
-    width: 84%;
-    padding: 1.4rem 1.5rem;
-    border-radius: 0.35rem;
-    background: #f4f0e8;
-    color: #2b2823;
-    font-family: "Iowan Old Style", "Palatino Linotype", Charter, Georgia, ui-serif, serif;
-    font-size: 0.8rem;
+    font-size: 0.875rem;
     line-height: 1.65;
-    transform: translateX(-50%) rotate(-1deg);
-    transition: transform 300ms cubic-bezier(0.23, 1, 0.32, 1);
-    box-shadow:
-      0 30px 60px -12px rgb(0 0 0 / 0.6),
-      0 2px 6px rgb(0 0 0 / 0.25);
+    mask-image: linear-gradient(#000 35%, transparent 96%);
   }
 
-  .featured .page {
-    top: 2.5rem;
-    width: 88%;
-    font-size: 0.88rem;
+  /* Ink on paper, whatever the site says paragraphs look like. */
+  .opening p {
+    color: hsl(var(--ink) / 0.82);
+    line-height: inherit;
   }
 
-  /* Ink on paper, whatever the site's theme says paragraphs look like. */
-  .page p {
-    color: #36322b;
+  .opening p + p {
+    margin-top: 0.6em;
   }
 
-  .page p + p {
-    margin-top: 0.7em;
-    text-indent: 1.4em;
-  }
-
-  .page p.lede {
-    text-indent: 0;
-  }
-
-  .page p.lede::first-letter {
+  .opening p:first-child::first-letter {
     float: left;
+    padding: 0.08em 0.1em 0 0;
+    color: hsl(var(--accent));
     font-size: 3.1em;
-    line-height: 0.85;
-    padding: 0.08em 0.08em 0 0;
     font-weight: 700;
-    color: hsl(var(--hue) 55% 38%);
+    line-height: 0.82;
   }
 
-  .post:has(a:focus-visible) {
+  .card:has(a:focus-visible) {
     outline: 2px solid hsl(var(--accent));
     outline-offset: 3px;
   }
 
   @media (hover: hover) and (pointer: fine) {
-    .post:hover {
-      border-color: rgb(255 255 255 / 0.2);
+    .card:hover {
+      box-shadow:
+        0 1px 1px rgb(0 0 0 / 0.06),
+        0 22px 40px -12px rgb(0 0 0 / 0.26);
     }
-    .post:hover .page {
-      transform: translate(-50%, -10px) rotate(0deg);
+
+    :global(.dark) .card:hover {
+      box-shadow:
+        0 0 0 1px hsl(var(--paper-edge)),
+        0 24px 44px -12px rgb(0 0 0 / 0.8);
     }
   }
 
-  @media (max-width: 767px) {
-    .post,
-    .post.featured {
-      height: 26rem;
-      flex-direction: column;
+  /* The newest post leads at full width: masthead on the left, the page beside it. */
+  @media (min-width: 768px) {
+    .card {
+      height: 24rem;
+      padding: 2rem 2rem 0;
     }
-    .featured .copy {
-      width: auto;
+
+    .card.featured {
+      flex-direction: row;
+      gap: 3rem;
+      height: 22rem;
+      padding: 2.5rem 2.5rem 0;
     }
-    .featured .page {
-      top: 0.75rem;
-      width: 84%;
-      font-size: 0.8rem;
+
+    .featured .masthead {
+      width: 44%;
     }
+
     .featured .title {
-      font-size: 1.3rem;
+      font-size: clamp(2rem, 3vw, 2.75rem);
+      line-height: 1.06;
     }
-  }
 
-  @media (prefers-reduced-motion: reduce) {
-    .page {
-      transition: none;
+    .featured .dek {
+      font-size: 1.125rem;
+    }
+
+    .featured .opening {
+      padding-top: 0;
+      padding-left: 3rem;
+      border-top: 0;
+      border-left: 1px solid hsl(var(--ink) / 0.12);
+      font-size: 0.9375rem;
     }
   }
 </style>

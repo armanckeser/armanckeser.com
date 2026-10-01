@@ -1,5 +1,6 @@
 <script lang="ts">
 import { type Project, projectHref } from "$lib/projects"
+import { tilt } from "$lib/tilt"
 import { Star } from "lucide-svelte"
 
 const {
@@ -43,6 +44,7 @@ function startPreview(e: PointerEvent) {
   class:featured
   onpointerenter={startPreview}
   onpointerleave={() => (pointing = false)}
+  use:tilt
 >
   {#if project.cover}
     <!-- The card's colour is its own screenshot, blurred: no palette to maintain per project. -->
@@ -103,7 +105,14 @@ function startPreview(e: PointerEvent) {
   .card {
     height: 30rem;
     flex-direction: column;
-    transition: border-color 200ms ease;
+    transition:
+      border-color 200ms ease,
+      scale 160ms var(--ease-out);
+  }
+
+  /* Pressed: the card gives a little, so the tap is felt before the page changes. */
+  .card:active:not(:has(.star:active)) {
+    scale: 0.985;
   }
 
   .card.featured {
@@ -182,7 +191,9 @@ function startPreview(e: PointerEvent) {
     left: 50%;
     margin: 0;
     transform: translateX(-50%);
-    transition: transform 300ms cubic-bezier(0.23, 1, 0.32, 1);
+    /* The device slides a little against the card as the card leans (see $lib/tilt). */
+    translate: calc(var(--tilt-x, 0) * -7px) calc(var(--tilt-y, 0) * -5px);
+    transition: transform 300ms var(--ease-out);
     box-shadow:
       0 30px 60px -12px rgb(0 0 0 / 0.65),
       0 0 0 1px rgb(255 255 255 / 0.1);
@@ -256,7 +267,7 @@ function startPreview(e: PointerEvent) {
   }
 
   .arrow {
-    transition: transform 200ms cubic-bezier(0.23, 1, 0.32, 1);
+    transition: transform 200ms var(--ease-out);
   }
 
   .star {
@@ -271,7 +282,12 @@ function startPreview(e: PointerEvent) {
     transition:
       color 150ms ease,
       border-color 150ms ease,
-      background-color 150ms ease;
+      background-color 150ms ease,
+      transform 160ms var(--ease-out);
+  }
+
+  .star:active {
+    transform: scale(0.96);
   }
 
   .star :global(.star-icon) {

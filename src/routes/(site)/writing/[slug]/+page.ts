@@ -4,7 +4,7 @@ import { error } from "@sveltejs/kit"
 import type { BlogPost } from "../../../../types"
 import type { PageLoad } from "./$types"
 
-export const load: PageLoad = async ({ params }) => {
+export const load: PageLoad = async ({ params, data }) => {
 	let post: { default: unknown; metadata: Omit<BlogPost, "slug"> }
 	try {
 		post = await import(`../../../../content/writing/${params.slug}.svx`)
@@ -27,6 +27,7 @@ export const load: PageLoad = async ({ params }) => {
 	}
 
 	return {
+		minutes: data.minutes,
 		content: post.default,
 		meta: {
 			...post.metadata,

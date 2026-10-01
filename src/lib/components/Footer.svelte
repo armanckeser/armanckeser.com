@@ -4,35 +4,42 @@ import { base } from "$app/paths"
 
 <footer class="border-t border-accent/10 py-6 font-mono text-sm">
   <div class="container mx-auto px-4 md:px-8">
-    <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
-      <!-- Left: copyright -->
+    <div class="flex flex-col items-center justify-between gap-2 sm:flex-row sm:gap-4">
       <div class="text-muted-foreground">
         <span class="text-highlight">©</span> {new Date().getFullYear()} Armanc Keser
       </div>
-      
-      <!-- Right: links -->
-      <div class="flex gap-6">
-        <a 
-          href="{base}/privacy" 
-          class="text-primary border-b border-zinc-200 dark:border-zinc-800 hover:text-accent transition-colors"
-        >
-          privacy
-        </a>
-        <a 
-          href="{base}/terms" 
-          class="text-primary border-b border-zinc-200 dark:border-zinc-800 hover:text-accent transition-colors"
-        >
-          terms
-        </a>
-        <a
-          href="https://github.com/armanckeser"
-          class="text-primary border-b border-zinc-200 dark:border-zinc-800 hover:text-accent transition-colors"
-          target="_blank"
-          rel="noopener"
-        >
-          github
-        </a>
-      </div>
+
+      <nav class="flex" aria-label="Site">
+        <a href="{base}/rss.xml">rss</a>
+        <a href="{base}/privacy">privacy</a>
+        <a href="{base}/terms">terms</a>
+        <a href="https://github.com/armanckeser" target="_blank" rel="noopener">github</a>
+      </nav>
     </div>
   </div>
-</footer> 
+</footer>
+
+<style>
+  /* Padded out to a thumb-sized target; the underline stays on the word. */
+  a {
+    padding: 0.75rem;
+    color: hsl(var(--primary));
+    text-decoration: underline;
+    text-decoration-color: hsl(var(--border));
+    text-underline-offset: 0.3em;
+    transition:
+      color 150ms ease,
+      text-decoration-color 150ms ease;
+  }
+
+  a:active {
+    color: hsl(var(--accent));
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    a:hover {
+      color: hsl(var(--accent));
+      text-decoration-color: hsl(var(--accent) / 0.5);
+    }
+  }
+</style>

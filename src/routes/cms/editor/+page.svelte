@@ -4,8 +4,8 @@ import { goto } from "$app/navigation"
 import FrontmatterForm from "$lib/components/cms/FrontmatterForm.svelte"
 import GrammarPanel from "$lib/components/cms/GrammarPanel.svelte"
 import PublishBar from "$lib/components/cms/PublishBar.svelte"
-import TerminalHeader from "$lib/components/TerminalHeader.svelte"
-import { cn, formatDate } from "$lib/utils"
+import PostSheet from "$lib/components/PostSheet.svelte"
+import { cn } from "$lib/utils"
 import { Carta, MarkdownEditor } from "carta-md"
 import "carta-md/default.css"
 import { Eye, PenLine } from "lucide-svelte"
@@ -67,15 +67,6 @@ function switchTab(tab: "write" | "preview"): void {
 		fetchPreview()
 	}
 }
-
-const tagList = $derived(
-	tags
-		? tags
-				.split(",")
-				.map((t: string) => t.trim())
-				.filter(Boolean)
-		: []
-)
 
 async function submitForm(action: string): Promise<ActionResult> {
 	const formData = new FormData()
@@ -241,46 +232,17 @@ $effect(() => {
 				<MarkdownEditor {carta} bind:value={content} mode="tabs" selectedTab="write" placeholder="Start writing..." />
 			</div>
 		{:else}
-			<!-- Preview tab: exact same layout as the blog post page -->
+			<!-- Preview tab: the same sheet the post route prints on -->
 			<div class="h-full overflow-y-auto">
-				<article class="container mx-auto px-4 py-8 md:px-8 md:py-16">
-					<div class="max-w-[85rem] mx-auto">
-						<div class="flex-1 max-w-[65ch] lg:max-w-[75ch] xl:max-w-[85ch]">
-							<TerminalHeader
-								command="cat {title ? title.toLowerCase().replace(/[^a-z0-9]+/g, '-') : 'untitled'}.md"
-								title={title || "Untitled"}
-								description={description || undefined}
-								headingLevel="h2"
-							/>
-
-							<div class="prose-blog">
-								{#if loadingPreview}
-									<p class="text-muted-foreground font-mono text-sm">Rendering...</p>
-								{:else}
-									{@html previewHtml}
-								{/if}
-							</div>
-
-							<!-- Terminal-style metadata footer -->
-							<div class="font-mono text-sm border-t border-accent/20 pt-4 mt-8">
-								<div class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2">
-									<span class="text-muted-foreground">LAST_MODIFIED:</span>
-									<span>{formatDate(date)}</span>
-									{#if tagList.length}
-										<span class="text-muted-foreground">TAGS:</span>
-										<div class="flex flex-wrap gap-2">
-											{#each tagList as tag}
-												<span class={cn("font-mono text-xs px-1.5 py-0.5 rounded", "bg-accent/10 text-accent")}>
-													#{tag}
-												</span>
-											{/each}
-										</div>
-									{/if}
-								</div>
-							</div>
-						</div>
-					</div>
-				</article>
+				<div class="mx-auto max-w-[46rem] pb-16 sm:px-6">
+					<PostSheet title={title || "Untitled"} description={description || undefined} {date} headingLevel="h2">
+						{#if loadingPreview}
+							<p class="font-mono text-sm text-muted-foreground">Rendering...</p>
+						{:else}
+							{@html previewHtml}
+						{/if}
+					</PostSheet>
+				</div>
 			</div>
 		{/if}
 	</div>

@@ -1,17 +1,16 @@
-<!-- Combined terminal header with shell prompt functionality -->
+<!-- The site's header, laid out as a shell prompt: where you are, a command
+     line, and the branch you are on (which is the theme). -->
 <script lang="ts">
 import { cn } from "$lib/utils"
-import { ChevronUp, Clock, Computer, GitBranch } from "lucide-svelte"
+import { Clock, GitBranch } from "lucide-svelte"
 import { toggleMode } from "mode-watcher"
-import NavBar from "./NavBar.svelte"
+import { tick } from "svelte"
+import Cwd from "./Cwd.svelte"
 import ShellInput from "./ShellInput.svelte"
 
-// Time management
 // Empty until mounted: the page is prerendered, and a baked-in time would be wrong for everyone.
 let currentTime = $state("")
-let timeInterval = $state<ReturnType<typeof setInterval>>()
 
-// Lifecycle management
 $effect(() => {
 	const updateTime = () => {
 		currentTime = new Date().toLocaleTimeString("en-US", {
@@ -22,67 +21,65 @@ $effect(() => {
 		})
 	}
 
-	updateTime() // Initial call
-	timeInterval = setInterval(updateTime, 1000)
-
-	return () => {
-		timeInterval && clearInterval(timeInterval)
-	}
+	updateTime()
+	const interval = setInterval(updateTime, 1000)
+	return () => clearInterval(interval)
 })
+
+/** Switches theme. Where the browser can, the new theme opens out from the switch. */
+function handleThemeSwitch(e: MouseEvent) {
+	const root = document.documentElement
+	if (
+		!document.startViewTransition ||
+		matchMedia("(prefers-reduced-motion: reduce)").matches
+	) {
+		toggleMode()
+		return
+	}
+
+	const button = (e.currentTarget as HTMLElement).getBoundingClientRect()
+	root.style.setProperty("--switch-x", `${button.left + button.width / 2}px`)
+	root.style.setProperty("--switch-y", `${button.top + button.height / 2}px`)
+	root.dataset.themeSwitch = ""
+	document
+		.startViewTransition(async () => {
+			toggleMode()
+			await tick()
+		})
+		.finished.finally(() => {
+			delete root.dataset.themeSwitch
+		})
+}
 </script>
 
 <header
   class={cn(
-    'sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur',
+    'site-header sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur',
     'supports-[backdrop-filter]:bg-background/75',
-    'transition-colors duration-300 ease-in-out',
-    'h-14 px-4 sm:px-8'
+    'h-14 px-4 text-foreground sm:px-8'
   )}
   aria-label="Application header"
-  style:view-transition-name="header"
 >
-  <!-- Switch to grid layout for better control -->
-  <div class="grid h-full grid-cols-2 sm:grid-cols-3 justify-between items-center gap-4 font-mono text-sm">
-    <!-- Left section with fixed width -->
-    <div class="flex items-center gap-2 shrink-0" style:view-transition-name="nav">
-      <a href="/" class="shrink-0" aria-label="Go to home" style:view-transition-name="logo">
-        <Computer class="h-4 w-4" aria-hidden="true" />
-      </a>
-      <span class="text-accent shrink-0" aria-hidden="true">│</span>
-      <NavBar />
-    </div>
+  <div class="grid h-full grid-cols-[minmax(0,1fr)_auto] items-center gap-4 font-mono text-sm sm:grid-cols-3">
+    <Cwd />
 
-    <!-- Center section with shell input -->
     <ShellInput />
 
-    <!-- Right section with fixed width -->
-    <div class="flex items-center gap-2 shrink-0 justify-self-end" style:view-transition-name="header-meta">
-      <div class="flex items-center gap-2 text-highlight dark:text-highlight">
+    <div class="flex shrink-0 items-center gap-2 justify-self-end">
+      <div class="flex items-center gap-2 text-accent">
         <GitBranch class="h-4 w-4" aria-hidden="true" />
         <button
-          class="transition-colors hover:text-accent outline outline-[0.5px] outline-zinc-200 dark:outline-zinc-800 rounded-md px-1 py-0.5"
-          onclick={toggleMode}
-          aria-label="Toggle theme"
+          class="switch rounded-md px-1.5 py-0.5 outline outline-[0.5px] outline-zinc-300 dark:outline-zinc-700"
+          onclick={handleThemeSwitch}
+          aria-label="Switch theme"
         >
           <span class="dark:hidden">stable</span>
           <span class="hidden dark:inline">nightly</span>
         </button>
-
-        <!-- Git status indicators -->
-        <div class="hidden whitespace-nowrap items-center gap-1 md:flex">
-          <div class="flex items-center">
-            <ChevronUp class="h-3 w-3 p-0" aria-hidden="true" />
-            <span class="dark:hidden">0</span>
-            <span class="hidden dark:inline">1</span>
-          </div>
-          <span class="text-red-400">!0</span>
-          <span class="text-blue-400 ">?0</span>
-        </div>
       </div>
 
-      <!-- Time display -->
       <div
-        class={cn("hidden items-center gap-2", currentTime && "md:flex")}
+        class={cn("hidden items-center gap-2", currentTime && "lg:flex")}
         aria-live="off"
         aria-label="Current time"
       >
@@ -95,8 +92,41 @@ $effect(() => {
 </header>
 
 <style>
-  .glass {
-    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-    will-change: background-color, color;
+  /* Its own layer in page transitions, so it holds still while pages change
+     beneath it. During a theme switch it joins the page and is revealed with it. */
+  .site-header {
+    view-transition-name: header;
+    /* The room under the header changes as the home page scrolls. */
+    transition:
+      background-color 400ms ease,
+      border-color 400ms ease;
+  }
+
+  :global(html[data-theme-switch]) .site-header {
+    view-transition-name: none;
+  }
+
+  .switch {
+    position: relative;
+    transition:
+      transform 160ms var(--ease-out),
+      color 150ms ease;
+  }
+
+  /* The label is small; the target is not. */
+  .switch::after {
+    content: "";
+    position: absolute;
+    inset: -0.75rem -0.5rem;
+  }
+
+  .switch:active {
+    transform: scale(0.96);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .switch:hover {
+      color: hsl(var(--accent));
+    }
   }
 </style>

@@ -18,3 +18,9 @@ export const profiles = [
 	"https://www.linkedin.com/in/armanckeser/",
 	"https://bsky.app/profile/armanckeser.com",
 ]
+
+/** My Letterboxd member name: the films on the home page come from its feed. */
+export const letterboxd = "armanckeser"
+
+/** My Goodreads user id: the books on the home page come from its shelves. */
+export const goodreads = "63918545"

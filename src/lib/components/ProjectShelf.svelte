@@ -23,7 +23,7 @@ const month = (iso: string) =>
   <!-- Phones: one swipeable row instead of a long scroll. -->
   <div class="shelf -mx-4 flex gap-3 overflow-x-auto px-4 pb-2 md:hidden" role="region" aria-label="Projects">
     {#each shown as project, i (project.name)}
-      <div class="w-[84%] shrink-0 snap-start">
+      <div class="shelf-slot w-[84%] shrink-0 snap-start">
         <ShowcaseCard {project} eager={i < 2} />
       </div>
     {/each}
@@ -80,7 +80,7 @@ const month = (iso: string) =>
   }
 
   .arrow {
-    transition: transform 200ms cubic-bezier(0.23, 1, 0.32, 1);
+    transition: transform 200ms var(--ease-out);
   }
 
   @media (hover: hover) and (pointer: fine) {

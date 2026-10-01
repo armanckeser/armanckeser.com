@@ -1,6 +1,6 @@
 <script lang="ts">
 import Seo from "$lib/components/Seo.svelte"
-import TerminalHeader from "$lib/components/TerminalHeader.svelte"
+import PostSheet from "$lib/components/PostSheet.svelte"
 </script>
 
 <Seo
@@ -9,15 +9,8 @@ import TerminalHeader from "$lib/components/TerminalHeader.svelte"
   path="/privacy"
 />
 
-<article class="container justify-around p-4 flex flex-col">
-  <div class="flex-1 max-w-[65ch] lg:max-w-[75ch] xl:max-w-[85ch] mx-auto">
-    <TerminalHeader command="cat privacy-policy.md" />
-
-    <!-- Content -->
-    <div class="prose-blog">
-
-      <h1>Privacy Policy</h1>
-      
+<div class="mx-auto max-w-[46rem] pb-16 sm:px-6">
+  <PostSheet title="Privacy Policy" plain>
       <p><em>Last updated: {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</em></p>
       
       <h2>1. Introduction</h2>
@@ -91,6 +84,5 @@ import TerminalHeader from "$lib/components/TerminalHeader.svelte"
       <h2>10. Contact Information</h2>
       
       <p>If you have any questions about this Privacy Policy, please contact me through the contact information provided on the Website.</p>
-    </div>
-  </div>
-</article> 
+  </PostSheet>
+</div>
