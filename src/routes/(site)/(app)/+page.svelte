@@ -63,12 +63,12 @@ const projects = $derived(
     </section>
 
     <!-- Blog Posts Section -->
-    <ContentSection title="~/writing" subtitle="Insights, learnings, thoughts" id="writing">
+    <ContentSection title="~/writing" id="writing">
       <PostShelf {posts} openings={props.data.openings} />
     </ContentSection>
 
     <!-- Projects Section -->
-    <ContentSection title="~/projects" subtitle="Apps and tools I've built" id="projects">
+    <ContentSection title="~/projects" id="projects">
       <ProjectShelf {projects} />
     </ContentSection>
   </div>

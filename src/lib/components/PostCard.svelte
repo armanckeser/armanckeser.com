@@ -1,4 +1,6 @@
 <script lang="ts">
+import { inkHue } from "$lib/ink"
+import { tilt } from "$lib/tilt"
 import { formatDate } from "$lib/utils"
 
 const {
@@ -20,18 +22,10 @@ const {
 	featured?: boolean
 }>()
 
-// Each post gets one ink colour, picked from its slug so it never changes
-// between builds. A short, hand-picked list keeps every card in tune with the rest.
-const INKS = [28, 350, 262, 205, 158, 190, 12, 300]
-const hue = $derived(
-	INKS[
-		[...href].reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 7) %
-			INKS.length
-	]
-)
+const hue = $derived(inkHue(href))
 </script>
 
-<article class="post group relative isolate flex overflow-hidden rounded-2xl border border-white/10 bg-zinc-950" class:featured style:--hue={hue}>
+<article class="post group relative isolate flex overflow-hidden rounded-2xl border border-white/10 bg-zinc-950" class:featured style:--hue={hue} use:tilt>
   <div class="glow" aria-hidden="true"></div>
 
   <div class="copy relative z-10 flex flex-col gap-2 p-6 md:p-7">
@@ -48,8 +42,9 @@ const hue = $derived(
   </div>
 
   {#if excerpt.length}
-    <div class="stage" aria-hidden="true">
-      <div class="page">
+    <!-- data-sheet: opening the post grows this page into the post's own (see the root layout). -->
+    <div class="stage" aria-hidden="true" data-sheet={href.split("/").pop()}>
+      <div class="page font-serif">
         {#each excerpt as paragraph, i}
           <p class:lede={i === 0}>{paragraph}</p>
         {/each}
@@ -62,7 +57,14 @@ const hue = $derived(
   .post {
     height: 27rem;
     flex-direction: column;
-    transition: border-color 200ms ease;
+    transition:
+      border-color 200ms ease,
+      scale 160ms var(--ease-out);
+  }
+
+  /* Pressed: the card gives a little, so the tap is felt before the page changes. */
+  .post:active {
+    scale: 0.985;
   }
 
   .post.featured {
@@ -116,10 +118,13 @@ const hue = $derived(
     line-clamp: 3;
   }
 
+  /* Clipped to what the card shows of the page, so that is all that travels
+     when the page grows into the post. */
   .stage {
     position: relative;
     flex: 1;
     min-height: 0;
+    overflow: hidden;
   }
 
   /* A printed page: serif, paper, and it runs off the bottom edge like the project devices. */
@@ -134,11 +139,12 @@ const hue = $derived(
     border-radius: 0.35rem;
     background: #f4f0e8;
     color: #2b2823;
-    font-family: "Iowan Old Style", "Palatino Linotype", Charter, Georgia, ui-serif, serif;
     font-size: 0.8rem;
     line-height: 1.65;
     transform: translateX(-50%) rotate(-1deg);
-    transition: transform 300ms cubic-bezier(0.23, 1, 0.32, 1);
+    /* The page slides a little against the card as the card leans (see $lib/tilt). */
+    translate: calc(var(--tilt-x, 0) * -7px) calc(var(--tilt-y, 0) * -5px);
+    transition: transform 300ms var(--ease-out);
     box-shadow:
       0 30px 60px -12px rgb(0 0 0 / 0.6),
       0 2px 6px rgb(0 0 0 / 0.25);

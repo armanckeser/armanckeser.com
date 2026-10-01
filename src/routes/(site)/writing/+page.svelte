@@ -1,6 +1,6 @@
 <script lang="ts">
-import { preloadCode, preloadData } from "$app/navigation"
-import CompactCard from "$lib/components/CompactCard.svelte"
+import { goto, preloadData } from "$app/navigation"
+import PostListing from "$lib/components/PostListing.svelte"
 import Seo from "$lib/components/Seo.svelte"
 import { blogJsonLd, breadcrumbJsonLd } from "$lib/seo"
 import type { BlogPost } from "../../../types"
@@ -9,71 +9,55 @@ import type { PageData } from "./$types"
 const { data } = $props<{ data: PageData }>()
 const posts: BlogPost[] = data.posts
 
-let selectedPost = $state<string | null>(posts[0].slug)
-let hoveredPost = $state<string | null>(null)
+/** The row the keyboard is on. Nothing is selected until a key asks for it. */
+let selected = $state<string | null>(null)
 
-function handlePostClick(slug: string) {
-	window.location.href = slug
+function move(step: number) {
+	const current = posts.findIndex(p => p.slug === selected)
+	const next =
+		current === -1
+			? step > 0
+				? 0
+				: posts.length - 1
+			: (current + step + posts.length) % posts.length
+	selected = posts[next].slug
 }
 
-function handlePostHover(slug: string | null) {
-	hoveredPost = slug
+function handleKeydown(e: KeyboardEvent) {
+	// Letters typed into the command line (or any field) are text, not navigation.
+	const target = e.target as HTMLElement
+	if (
+		target.isContentEditable ||
+		/^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName) ||
+		e.metaKey ||
+		e.ctrlKey ||
+		e.altKey
+	)
+		return
+	if (e.key === "j" || e.key === "ArrowDown") {
+		e.preventDefault()
+		move(1)
+	} else if (e.key === "k" || e.key === "ArrowUp") {
+		e.preventDefault()
+		move(-1)
+	} else if (e.key === "Enter" && selected && target.tagName !== "A") {
+		e.preventDefault()
+		goto(selected)
+	}
 }
 
-// Preload data and code when a post is selected
+// Have the selected post ready, and keep its row on screen. No smooth scroll:
+// a held key should move as fast as the key repeats.
 $effect(() => {
-	if (selectedPost) {
-		preloadData(selectedPost)
-		preloadCode(selectedPost)
-	}
-})
-
-$effect(() => {
-	const handleKeydown = (e: KeyboardEvent) => {
-		// Letters typed into the command line (or any field) are text, not navigation.
-		const target = e.target as HTMLElement
-		if (
-			target.isContentEditable ||
-			/^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName)
-		)
-			return
-		if (e.key === "j" || e.key === "ArrowDown") {
-			e.preventDefault()
-			const currentIndex = selectedPost
-				? posts.findIndex(p => p.slug === selectedPost)
-				: -1
-			const nextIndex =
-				currentIndex < posts.length - 1 ? currentIndex + 1 : 0
-			selectedPost = posts[nextIndex].slug
-		} else if (e.key === "k" || e.key === "ArrowUp") {
-			e.preventDefault()
-			const currentIndex = selectedPost
-				? posts.findIndex(p => p.slug === selectedPost)
-				: 0
-			const prevIndex =
-				currentIndex > 0 ? currentIndex - 1 : posts.length - 1
-			selectedPost = posts[prevIndex].slug
-		} else if (e.key === "Enter" && selectedPost) {
-			e.preventDefault()
-			window.location.href = selectedPost
-		}
-	}
-
-	window.addEventListener("keydown", handleKeydown)
-	return () => window.removeEventListener("keydown", handleKeydown)
-})
-
-// Scroll selected post into view when it changes
-$effect(() => {
-	if (selectedPost) {
-		const article = document.querySelector(`div[aria-expanded="true"]`)
-		article?.scrollIntoView({
-			behavior: "smooth",
-			block: "center",
-		})
-	}
+	if (!selected) return
+	preloadData(selected)
+	document
+		.querySelector('[aria-current="true"]')
+		?.scrollIntoView({ block: "nearest" })
 })
 </script>
+
+<svelte:window onkeydown={handleKeydown} />
 
 <Seo
   title="~/writing"
@@ -88,40 +72,34 @@ $effect(() => {
   ]}
 />
 
-<div class="relative mx-auto max-w-3xl px-2 sm:px-4 py-12 sm:py-16">
-  <header class="mb-8 space-y-4">
-    <h1
-      class="flex items-center gap-2 font-mono text-lg font-normal text-muted-foreground"
-    >
-      <span>$</span>
-      <span class="text-primary">~/writing</span>
-      <span class="animate-pulse text-accent" aria-hidden="true">▋</span>
-    </h1>
-    <p class="font-mono text-base text-muted-foreground">
-      Product insights, book notes, and learnings. <br />Use
-      <kbd class="px-1.5 py-0.5 text-xs bg-accent/10 rounded">j</kbd>/<kbd
-        class="px-1.5 py-0.5 text-xs bg-accent/10 rounded">k</kbd
-      >
-      or <kbd class="px-1.5 py-0.5 text-xs bg-accent/10 rounded">↑</kbd>/<kbd
-        class="px-1.5 py-0.5 text-xs bg-accent/10 rounded">↓</kbd
-      >
-      to navigate,
-      <kbd class="px-1.5 py-0.5 text-xs bg-accent/10 rounded">Enter</kbd> to read.
-    </p>
-  </header>
+<!-- The header says where you are; the page is what `ls -l` printed there. -->
+<div class="mx-auto max-w-3xl px-2.5 pb-16 sm:px-6">
+  <h1 class="sr-only">Writing</h1>
 
-  <div class="space-y-px">
-    {#each posts as post (post.slug)}
-      <CompactCard
-        title={post.title}
-        date={post.date}
-        description={post.description ?? ''}
-        isSelected={selectedPost === post.slug || hoveredPost === post.slug}
-        href={post.slug}
-        onclick={() => handlePostClick(post.slug)}
-        onmouseenter={() => handlePostHover(post.slug)}
-        onmouseleave={() => handlePostHover(null)}
-      />
-    {/each}
-  </div>
+  <PostListing {posts} minutes={data.minutes} {selected} feed />
+
+  <p class="mt-5 flex items-center justify-between gap-4 px-1 font-mono text-xs text-muted-foreground">
+    <span>total {posts.length}</span>
+    <span class="keys hidden items-center gap-1.5">
+      <kbd>j</kbd><kbd>k</kbd> move <kbd class="ml-2">↵</kbd> open
+    </span>
+  </p>
 </div>
+
+<style>
+  kbd {
+    min-width: 1.4rem;
+    padding: 0.1rem 0.3rem;
+    border: 1px solid hsl(var(--border));
+    border-radius: 0.25rem;
+    font-family: inherit;
+    text-align: center;
+  }
+
+  /* Keys are only worth mentioning to someone who has them. */
+  @media (hover: hover) and (pointer: fine) {
+    .keys {
+      display: flex;
+    }
+  }
+</style>

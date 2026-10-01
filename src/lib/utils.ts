@@ -20,32 +20,12 @@ export function formatDate(
 		day: "numeric",
 	}
 ): string {
-	return new Date(date).toLocaleDateString("en-US", options)
-}
-
-/**
- * Format a date for sidebar display (shorter format).
- * @param date - ISO date string or Date object
- */
-export function formatDateShort(date: string | Date): string {
-	return formatDate(date, { month: "short", day: "numeric" })
-}
-
-/**
- * Generate a view transition ID from an href or title.
- * Used for coordinating view transitions between cards and detail pages.
- * @param href - Optional href to extract slug from
- * @param title - Fallback title for non-link cards
- */
-export function getViewTransitionId(href?: string, title?: string): string {
-	if (href) {
-		const slug = href.split("/").pop()
-		return `-writing-${slug}`
-	}
-	if (title) {
-		return title.toLowerCase().replace(/[^a-z0-9]+/g, "-")
-	}
-	return ""
+	// Post dates are plain days ("2026-09-27"), which parse as midnight UTC.
+	// Formatting in UTC keeps the day as written, wherever the reader is.
+	return new Date(date).toLocaleDateString("en-US", {
+		timeZone: "UTC",
+		...options,
+	})
 }
 
 type FlyAndScaleParams = {

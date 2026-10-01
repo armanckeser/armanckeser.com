@@ -94,6 +94,15 @@ const config: Config = {
 					"monospace",
 				],
 				heading: ["Cal Sans", "Inter", "system-ui", "sans-serif"],
+				serif: [
+					'"Source Serif 4"',
+					"Iowan Old Style",
+					"Palatino Linotype",
+					"Charter",
+					"Georgia",
+					"ui-serif",
+					"serif",
+				],
 			},
 			keyframes: {
 				"accordion-down": {

@@ -1,4 +1,5 @@
 <script lang="ts">
+import { formatDate } from "$lib/utils"
 import type { BlogPost } from "../../types"
 import PostCard from "./PostCard.svelte"
 
@@ -19,16 +20,13 @@ const opening = (slug: string): Opening | undefined =>
 	openings[slug.split("/").pop() ?? slug]
 const wide = (i: number, n: number) => i === 0 || (i === n - 1 && n % 2 === 0)
 const month = (iso: string) =>
-	new Date(iso).toLocaleDateString("en-US", {
-		month: "short",
-		year: "numeric",
-	})
+	formatDate(iso, { month: "short", year: "numeric" })
 </script>
 
 <!-- Phones: one swipeable row instead of a long scroll. -->
 <div class="shelf -mx-4 flex gap-3 overflow-x-auto px-4 pb-2 md:hidden" role="region" aria-label="Latest writing">
   {#each shown as post (post.slug)}
-    <div class="w-[84%] shrink-0 snap-start">
+    <div class="shelf-slot w-[84%] shrink-0 snap-start">
       <PostCard title={post.title} description={post.description} date={post.date} href={post.slug} excerpt={opening(post.slug)?.excerpt} minutes={opening(post.slug)?.minutes} />
     </div>
   {/each}
@@ -86,7 +84,7 @@ const month = (iso: string) =>
   }
 
   .arrow {
-    transition: transform 200ms cubic-bezier(0.23, 1, 0.32, 1);
+    transition: transform 200ms var(--ease-out);
   }
 
   @media (hover: hover) and (pointer: fine) {
