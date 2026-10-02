@@ -58,7 +58,8 @@ function startPreview(e: PointerEvent) {
   {/if}
   <div class="scrim" aria-hidden="true"></div>
 
-  <div class="head relative z-10 flex flex-col gap-2">
+  <!-- Not positioned, so the title link's ::after stretches over the whole card rather than just this block. -->
+  <div class="head flex flex-col gap-2">
     <p class="font-mono text-[0.7rem] uppercase tracking-[0.14em] text-white/60">{project.kind}</p>
     <h3 class="title font-mono font-bold text-white">
       {#if href}
@@ -75,7 +76,11 @@ function startPreview(e: PointerEvent) {
   <div class="body relative z-10 flex flex-col gap-2">
     <p class="tagline text-white/75">{project.description}</p>
     <p class="mt-1 flex items-center gap-4 font-mono text-xs">
-      <span class="text-white"><span class="whitespace-nowrap">{project.action}<span class="arrow inline-block" aria-hidden="true">&nbsp;↗</span></span></span>
+      {#if href}
+        <a {href} target="_blank" rel="noopener" class="action relative z-30 whitespace-nowrap text-white">{project.action}<span class="arrow inline-block" aria-hidden="true">&nbsp;↗</span></a>
+      {:else}
+        <span class="text-white"><span class="whitespace-nowrap">{project.action}<span class="arrow inline-block" aria-hidden="true">&nbsp;↗</span></span></span>
+      {/if}
       {#if project.url}
         <!-- Above the stretched link, so the repository (and its star button) stays reachable on its own. -->
         <a href={project.url} target="_blank" rel="noopener" class="star relative z-30" aria-label="Star {project.title} on GitHub">
@@ -312,6 +317,10 @@ function startPreview(e: PointerEvent) {
     }
     .card:hover .arrow {
       transform: translate(2px, -2px);
+    }
+    .action:hover {
+      text-decoration: underline;
+      text-underline-offset: 4px;
     }
     .star:hover {
       color: white;
