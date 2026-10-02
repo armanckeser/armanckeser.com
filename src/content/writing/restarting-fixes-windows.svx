@@ -38,7 +38,8 @@ it, so the laptop went on top of the TV unit, plugged into the TV, and has been 
 
 After a few days of being on it would get really slow. This was back when I was using Cursor, and
 with its help I figured out that Nahimic (the audio "enhancer" Lenovo preinstalls) was leaking
-memory through `audiodg.exe`. For a long time my fix was to kill `audiodg.exe` every time I booted,
+memory through `audiodg.exe`, and that an `nssm.exe` was leaking too (I never found out which
+service had registered it). For a long time my fix was to kill `audiodg.exe` every time I booted,
 until much later when I learned I could just turn the thing off:
 
 ```powershell
@@ -252,7 +253,8 @@ other people find.
 
 ## A look behind the curtain
 
-So over the years it was Nahimic, NVIDIA's overlay and Razer's services. Restarting is still a
+So over the years it was Nahimic, some service running under nssm, NVIDIA's overlay and Razer's
+services. Restarting is still a
 good idea, because it keeps problems like these from building up in the first place (and
 `gaming-mode.ps1` now turns the Razer services off and prints the zombie count when it finishes).
 
