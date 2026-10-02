@@ -11,7 +11,7 @@ import Seo from "$lib/components/Seo.svelte"
 
 <div class="mx-auto max-w-[46rem] pb-16 sm:px-6">
   <PostSheet title="Terms of Service" plain>
-      <p><em>Last updated: {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</em></p>
+      <p><em>Last updated: October 2, 2026</em></p>
       
       <h2>1. Introduction</h2>
       
@@ -43,7 +43,7 @@ import Seo from "$lib/components/Seo.svelte"
       
       <h2>8. Analytics and Cookies</h2>
       
-      <p>This Website uses Umami Analytics to collect anonymous usage data. For more information about how I collect and use data, please see the <a href="/privacy">Privacy Policy</a>.</p>
+      <p>This Website sets no cookies. It uses GoatCounter to count visits anonymously. For more information about how I collect and use data, please see the <a href="/privacy">Privacy Policy</a>.</p>
       
       <h2>9. Limitation of Liability</h2>
       
