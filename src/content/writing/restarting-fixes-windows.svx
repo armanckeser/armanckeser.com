@@ -1,6 +1,6 @@
 ---
 title: "Restarting fixes Windows because your apps are broken"
-description: "Nahimic, nssm, NVIDIA's overlay and Razer's services were all leaking on my laptop, and restarting hid every one of them. Finding them took a game from 2 FPS back to 60 without a restart."
+description: 'Getting a game from 2 FPS back to 60 showed me that Windows apps are broken. Lenovo''s audio "enhancer", NVIDIA''s overlay and Razer''s mouse software were slowly breaking my laptop, and yours may have them too.'
 tags: [windows, debugging, gaming]
 date: "2026-09-27"
 published: true
@@ -21,10 +21,10 @@ at 60, without a restart, a driver update or a single graphics setting changed. 
 it: we turned off the subtitles on my wife's iPad, killed an NVIDIA process that was sitting on
 12.7 GB of memory, and stopped two Razer services that had left 32,709 zombie processes behind.
 
-Normally I would have restarted, which would have fixed two of those three and taught me nothing,
-and that is pretty much how I have dealt with slow computers my whole life. This time I couldn't,
-so I ended up learning how to actually look, and what I found is that the apps are broken: Nahimic,
-nssm, NVIDIA's overlay and Razer's services were all leaking, and restarting had been hiding it.
+Normally I would have just restarted. This time I couldn't, so I ended up learning how to actually
+look, and what I found is that Windows apps are broken: Lenovo's audio "enhancer", NVIDIA's overlay
+and Razer's mouse software were each slowly breaking my laptop, and finding them and turning them
+off is what fixed it.
 
 <Story>
 
@@ -38,7 +38,7 @@ it, so the laptop went on top of the TV unit, plugged into the TV, and has been 
 
 After a few days of being on it would get really slow. This was back when I was using Cursor, and
 with its help I figured out that Nahimic (the audio "enhancer" Lenovo preinstalls) was leaking
-memory through `audiodg.exe`, and that nssm was leaking too. For a long time my fix was to kill `audiodg.exe` every time I booted,
+memory through `audiodg.exe`. For a long time my fix was to kill `audiodg.exe` every time I booted,
 until much later when I learned I could just turn the thing off:
 
 ```powershell
@@ -252,8 +252,7 @@ other people find.
 
 ## A look behind the curtain
 
-So over the years it was Nahimic, nssm, NVIDIA's overlay and Razer's services, and a restart would
-have hidden every one of them from me. Restarting is still a
+So over the years it was Nahimic, NVIDIA's overlay and Razer's services. Restarting is still a
 good idea, because it keeps problems like these from building up in the first place (and
 `gaming-mode.ps1` now turns the Razer services off and prints the zombie count when it finishes).
 
