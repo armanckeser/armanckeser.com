@@ -73,7 +73,7 @@ function startPreview(e: PointerEvent) {
     </h3>
   </div>
 
-  <div class="body relative z-10 flex flex-col gap-2">
+  <div class="body flex flex-col gap-2">
     <p class="tagline text-white/75">{project.description}</p>
     <p class="mt-1 flex items-center gap-4 font-mono text-xs">
       {#if href}
