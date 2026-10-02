@@ -1,4 +1,5 @@
 <script lang="ts">
+import Discussions from "$lib/components/Discussions.svelte"
 import PostListing from "$lib/components/PostListing.svelte"
 import PostSheet from "$lib/components/PostSheet.svelte"
 import ScrollTracker from "$lib/components/ScrollTracker.svelte"
@@ -55,6 +56,8 @@ const structuredData = $derived([
 	>
 		<data.content />
 	</PostSheet>
+
+	<Discussions threads={data.discussions} />
 
 	<div class="mt-10 px-5 sm:px-0">
 		<Giscus

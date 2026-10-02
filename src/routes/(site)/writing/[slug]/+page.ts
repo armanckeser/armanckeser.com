@@ -28,6 +28,7 @@ export const load: PageLoad = async ({ params, data }) => {
 
 	return {
 		minutes: data.minutes,
+		discussions: data.discussions,
 		content: post.default,
 		meta: {
 			...post.metadata,
