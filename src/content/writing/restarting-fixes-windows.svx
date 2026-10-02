@@ -16,15 +16,12 @@ published: true
 
 <BeforeAfter />
 
-A few days ago Subnautica 2 was running at 2 FPS on my laptop, and about an hour later it was back
-at 60, without a restart, a driver update or a single graphics setting changed. Three things did
-it: we turned off the subtitles on my wife's iPad, killed an NVIDIA process that was sitting on
-12.7 GB of memory, and stopped two Razer services that had left 32,709 zombie processes behind.
-
-Normally I would have just restarted. This time I couldn't, so I ended up learning how to actually
-look, and what I found is that Windows apps are broken: Lenovo's audio "enhancer", NVIDIA's overlay
-and Razer's mouse software were each slowly breaking my laptop, and finding them and turning them
-off is what fixed it.
+For years my computers had tons of problems I didn't understand. Games would stutter, things would
+lag, I just didn't have any idea what was going on, and if I restarted, magically sometimes things
+would be fixed. This time I couldn't restart, so Opus 5.5 and I had to find the actual problems: my
+wife's movie was being transcoded on the GPU, an NVIDIA Overlay process was sitting on 12.7 GB of
+memory, and two Razer services had left 32,709 zombie processes behind. Fixing those took Subnautica
+2 from 2 FPS back to 60.
 
 <Story>
 
@@ -32,22 +29,22 @@ off is what fixed it.
 
 ## A server that sometimes plays games
 
-It started with wanting to self-host Immich, and these days the same machine is also my media
-server (Jellyfin). I don't have a server with a good GPU, but I do have a Legion 5 with a 3070 in
-it, so the laptop went on top of the TV unit, plugged into the TV, and has been on ever since.
+I started self hosting because of Immich, and I don't have a server with a good GPU, so my laptop
+(a Legion 5 with a 3070) became the server. These days the same laptop also runs Jellyfin, sits on
+top of the TV unit with a gajillion wires going into the back, and never gets turned off.
 
-After a few days of being on it would get really slow. This was back when I was using Cursor, and
-with its help I figured out that Nahimic (the audio "enhancer" Lenovo preinstalls) was leaking
-memory through `audiodg.exe`, and that an `nssm.exe` was leaking too (I never found out which
-service had registered it). For a long time my fix was to kill `audiodg.exe` every time I booted,
-until much later when I learned I could just turn the thing off:
+After a couple days of being on, I realized I was getting really bad performance. This was back when
+I was using Cursor, and with Cursor I figured out that Nahimic (the audio "enhancer" Lenovo
+preinstalls) was leaking memory through `audiodg.exe`, and an `nssm.exe` was leaking too (I never
+found out which service registered that one). I removed both from the auto start lists, and later on
+disabled Nahimic completely:
 
 ```powershell
 Set-Service NahimicService -StartupType Disabled
 ```
 
-If you want to look for something like this on your machine, sort your processes by memory and see
-if anything is much bigger than it has any reason to be, especially if it has been running for
+If you want to check your own computer for leaks like these, sort your processes by memory and see
+if anything has gotten way bigger than makes sense, especially a process that has been running for
 days:
 
 ```powershell
@@ -59,26 +56,26 @@ Get-Process | Sort-Object PM -Descending |
 
 ## Air
 
-Most things were good after that, until I wanted to play with friends and realized the laptop was
-still struggling. I restarted (of course), 3D-printed a riser to lift the back, because this laptop
-pulls air in from underneath, and cleaned the fins with an air gun. That did improve things,
-although I couldn't tell you by how much, since it never occurred to me to measure any of it.
+Most things were good after that. Then I wanted to use the laptop for gaming with friends and
+realized things were still not the best, so I restarted (of course), 3D printed a riser for airflow,
+since the Legion pulls air in from underneath, and cleaned the fins with an air gun. That did
+improve things, I just couldn't tell you by how much, since I never thought of measuring any of this.
 
 <Step is="measure" />
 
-## The GPU will tell you why it is slow
+## nvidia-smi will tell you why your GPU is slow
 
-I only learned this recently and I wish I had known it ten years ago: you can use `nvidia-smi` to
-see whether the GPU is being throttled and why:
+I wish I had known this ten years ago: `nvidia-smi` can tell you whether your GPU is being throttled
+and why.
 
 ```powershell
 nvidia-smi --query-gpu=clocks_event_reasons.active,clocks.gr,temperature.gpu,power.draw --format=csv -l 2
 ```
 
-The first column is a bitmask, where `0x4` means the card has hit its power limit (pretty normal on
-a laptop) and `0x20` means it is too hot and is slowing itself down. I found out about it because I
-asked Claude Code why even a simple game like Peak ran badly, and it wrote a small logger around
-that command and had me play for nine minutes:
+`clocks_event_reasons.active` is a bitmask. `0x4` means the GPU hit its power limit (pretty normal
+on a laptop), and `0x20` means the GPU is too hot and is slowing itself down. I had no idea any of
+this existed, I just asked Claude Code why even a simple game like Peak was running badly, and
+Claude wrote a logger around that command and had me play for nine minutes:
 
 ```
 300 sec  SW POWER CAP           pinned against the 115 W ceiling
@@ -89,11 +86,11 @@ that command and had me play for nine minutes:
 15:25:53  thermal throttle   87 °C
 ```
 
-So it took six minutes to go from cold to the thermal limit, the clock dropped from 1,965 MHz to as
-low as 1,290, and there wasn't a single moment where the GPU ran unthrottled. The first guess was
-dust or old thermal paste, but it turned out Peak was rendering at native 4K, because the laptop is
-plugged into a 4K TV and I had never told the game to do anything else. That is four times the
-pixels of 1080p on a 115 W laptop GPU. I set it to 1440p.
+Six minutes from cold to thermal throttling, the GPU clock dropping from 1,965 MHz to as low as
+1,290, and not a single second where the GPU was running unthrottled. Claude's first guess was dust
+or old thermal paste, but Peak was rendering at native 4K, because the laptop is plugged into a 4K
+TV and I never changed the resolution. A 115 W laptop GPU can't do 4K, so I dropped the resolution
+to 1440p.
 
 <ThrottleTrace />
 
@@ -101,87 +98,86 @@ pixels of 1080p on a 115 W laptop GPU. I set it to 1440p.
 
 ## Two modes
 
-That chart is from later the same evening, with Subnautica 2 at 1440p, and what surprised me is
-that the game ran at about 60 FPS with a few drops through all of it, thermal slowdown included.
-What did look bad in the log was the CPU, which averaged 98.8 °C. The CPU and GPU share heatpipes
-in this laptop, so a hot CPU eats into the GPU's cooling, and since the game is mostly waiting on
-the GPU anyway I capped the CPU at 35 W.
+The chart is from later that night, running Subnautica 2 at 1440p. I had never played Subnautica
+like that, 60 FPS with maybe a few drops, even though the GPU was thermal throttling more than half
+the time. The CPU was the bad part, averaging 98.8 °C. The CPU and GPU share heatpipes in the
+Legion, so a hot CPU takes cooling away from the GPU, and since games on this laptop are limited by
+the GPU anyway, I capped the CPU at 35 W.
 
-I had Claude turn all of this into two scripts. `server-mode.ps1` keeps the laptop quiet and cool
-and makes sure the media stack is running, and `gaming-mode.ps1` switches to the performance power
-plan, turns on the 15 W GPU boost, applies the fan curve and the CPU cap, and stops whatever else is
-competing for the disk.
+I had Claude create server mode and gaming mode scripts out of everything we learned. Server mode
+keeps the laptop quiet and cool and makes sure Jellyfin and friends are running. Gaming mode
+switches to the performance power plan, turns on the 15 W GPU boost, sets the fan curve and the CPU
+cap, and stops whatever is competing for the disk.
 
-I learned two things while we wrote them. `powercfg` by itself doesn't raise the GPU's power limit,
-because that is set by the laptop's embedded controller, so the scripts set the mode there and then
-check that it actually changed. And the power button had been glowing red for "performance" the whole time the GPU
-was capped at 115 W out of its 130 (`nvidia-smi -q -d POWER` shows the limit that is really being
-enforced).
+Two things I didn't know before these scripts: `powercfg` doesn't change the GPU power limit, the
+laptop's embedded controller does, so the scripts set the mode there and check that the mode
+actually changed. And the power button was glowing red for "performance" while the GPU was still
+capped at 115 W out of 130 (`nvidia-smi -q -d POWER` shows the real limit).
 
 <Step is="collapse" />
 
 ## Twenty days later, 2 FPS
 
-I thought that was the end of it. Then on September 27 we found time to play again, I switched to
-gaming mode, booted up the game, and... 2 FPS?
+My friends and I found time to play again, so I pressed the gaming mode shortcut,
+opened Subnautica, and... 2 FPS?
 
-Normally I would have just gone for a restart, but the laptop is the server now, and my wife was in
-the middle of a movie it was streaming to her. So I opened a terminal, told Opus 5.5 that the game
-was running at 2 FPS and that I couldn't restart, and asked it to figure out why. After that I
-mostly watched (my main contribution to this investigation was approving permission prompts).
+Normally I would have just restarted, but my wife was watching a movie on Jellyfin and I couldn't
+break her stream. So I told Opus 5.5 that the game was running at 2 FPS and that I couldn't restart,
+and sent Opus on a quest to figure out why.
 
 <Step is="transcode" />
 
 ## The movie
 
-The first thing it found was the movie. The GPU was drawing 100 W at 83 °C before the game was even
-open, with its video decoder 76% busy, its encoder 43% busy, and 2.8 of its 8 GB of memory already
-in use.
+Before I even opened the game the GPU was already at 100 W and 83 °C, the video decoder was 76%
+busy, the encoder 43%, and 2.8 GB of the 8 GB of VRAM was taken.
 
-My wife had subtitles on. They were PGS, which the iPad app can't render (unlike text subtitles
-such as SubRip), so Jellyfin was burning them into the video: decoding a 4K
-HDR movie, tone-mapping it, drawing the subtitles on top and re-encoding the result at 1080p, all
-on the same GPU I was trying to play on. Subnautica 2 is an Unreal Engine 5 game that wants most of
-those 8 GB, and my best guess for the 2 FPS is that it ran out and spilled into system memory.
+My wife had subtitles on, and the subtitles were PGS. The Jellyfin app on the iPad can't render PGS
+(unlike text subtitles like SubRip), so Jellyfin was burning the subtitles into the video, which
+means decoding a 4K HDR movie, tone mapping, drawing the subtitles and re-encoding at 1080p.
+Subnautica 2 is an Unreal Engine 5 game that wants most of the 8 GB of VRAM, and my best guess for
+the 2 FPS is that Subnautica ran out of VRAM and spilled into system memory.
 
-She was mostly listening anyway, so we turned the subtitles off, and Jellyfin went back to sending
-the file as it is. You can watch for this with:
+My wife was mostly listening and not really watching, so we turned the subtitles off and Jellyfin
+went back to direct playing the file. If you want to check whether something is transcoding on your
+GPU:
 
 ```powershell
 nvidia-smi --query-gpu=utilization.encoder,utilization.decoder,memory.used --format=csv -l 2
 ```
 
-According to the game's own log I was at 21 to 33 FPS after that. Along the way we also noticed
-that gaming mode had only half applied, because Windows had gone back to the Balanced power plan.
-With both fixed the frame rate was fine, but the game kept stuttering and freezing.
+The game log says I was getting 21 to 33 FPS after that. We also noticed gaming mode had only half
+applied, because Windows had gone back to the Balanced power plan. With both fixed the FPS was okay,
+but the game was constantly stuttering and freezing, and last time I played, Subnautica was so
+smooth. None of this was making sense.
 
 <Step is="overlay" />
 
 ## The overlay
 
-Next was memory. Windows had committed 48.6 GB out of a 49.9 GB limit, and 12.7 GB of that belonged
-to a single NVIDIA Overlay process that had been running since my last restart twenty days earlier.
-(It also claimed to be using 58 TB of GPU memory on an 8 GB card, so something in there was clearly
-confused.)
+Windows had committed 48.6 GB of a 49.9 GB limit, and 12.7 GB of that was a single NVIDIA Overlay
+process that had been running for twenty days, since my last restart. (The same process was also
+reporting 58 TB of GPU memory on an 8 GB card, so NVIDIA's accounting was clearly broken too.)
 
 ```powershell
-Stop-Process -Id 14080   # NVIDIA Overlay; it restarts itself at 150 MB
+Stop-Process -Id 14080   # NVIDIA Overlay
 ```
 
-Commit went down to 35.6 GB. This is exactly the kind of thing a restart would have wiped away
-without me ever knowing about it. It didn't help with the stutter, though.
+NVIDIA starts a new overlay process right away, and the new one uses about 150 MB. Commit went down
+to 35.6 GB. I love that we found this one, a restart would have wiped the leak away and I would have
+never known the overlay was leaking. The game was still stuttering though.
 
 <Step is="kernel" />
 
 ## Into the kernel
 
-What moved things forward was something I noticed while watching Opus work: its terminal was
-stuttering too. So the problem couldn't be the game, it had to be something underneath everything,
-and when Opus looked, the System process was using between 1.1 and 1.4 cores the whole time.
+Then I noticed the stuttering wasn't just the game. Opus's own terminal output was jumping and
+stuttering too, so the problem had to be something underneath everything. The System process was
+using between 1.1 and 1.4 cores nonstop.
 
-Honestly, this is the point where I would have given up and restarted. I am not even sure I knew
-you could get a stack trace of the Windows kernel. You can, with xperf from the Windows Performance
-Toolkit, running as admin:
+Honestly, this is where I would have given up and restarted. I didn't even know you could get a
+stack trace of the Windows kernel, but xperf from the Windows Performance Toolkit does exactly that
+(as admin):
 
 ```powershell
 xperf -on PROC_THREAD+LOADER+PROFILE -stackwalk Profile
@@ -194,16 +190,17 @@ xperf -i trace.etl -symbols -a stack -pid 4 -butterfly 50   # pid 4 is System
 
 <AnnotatedStack />
 
-Every window, your game and your terminal included, gets drawn into GPU memory, and the Desktop Window Manager
-puts those together into the frame you see. One kernel thread manages that memory for everyone, and
-it was spending three quarters of its time walking a list. While it does that, everything waiting
-on GPU memory waits too, which is why the whole screen hitched and not just the game.
+Every window, the game and the terminal included, gets drawn into GPU memory, and the Desktop Window
+Manager combines those windows into the frame on your screen. A single kernel thread manages GPU
+memory for all programs, and that thread was spending three quarters of its time walking a list.
+While that thread is walking the list, everything that needs GPU memory has to wait, so the whole
+screen was hitching and not just the game.
 
-## 32,709 processes that don't exist
+## 32,709 zombie processes
 
-So why was the list so long? When a program exits but something else still holds a handle to it,
-Windows can't clean it up, and it sticks around as a zombie. Opus compared how many process objects
-the kernel had against how many processes were running:
+A zombie is a process that has exited but can't be cleaned up by Windows, because some other program
+still holds a handle to the process. Opus compared the number of process objects in the kernel
+against the number of processes that were running:
 
 ```
 Live processes: 306   Process objects in kernel: 33,015   => zombies ~ 32,709
@@ -214,13 +211,13 @@ svchost                       29855
 Razer Synapse Service         28193
 ```
 
-Razer Game Manager watches every process you launch so it can tell when you start a game, and it
-looks like it opens a handle to each one and never closes it. It had been 20 days since my last
-restart, so that is about 1,600 new zombies a day (the software that makes my mouse glow was
-slowing down every frame on my screen, great).
+Razer Game Manager watches every process you launch to detect games, and seems to open a handle for
+every process without ever closing them. Twenty days without a restart comes out to about 1,600 new
+zombies a day. The software that makes my mouse glow was slowing down every frame on my screen,
+great.
 
-On the laptop, the bar under `kernel` is that list drawn to scale, and it gets walked every time
-the picture freezes.
+The bar under `kernel` on the laptop's screen is that list drawn to scale, and the game freezes
+whenever the list gets walked.
 
 <Step is="fixed" />
 
@@ -229,7 +226,7 @@ Stop-Service 'Razer Game Manager Service', 'Razer Synapse Service' -Force
 ```
 
 Within a minute the zombies went from 32,709 to 260, the System process went from about 1.25 cores
-to 0.2, and the stutter was gone. No restart, and my wife didn't even notice anything had happened.
+to 0.2, and the stuttering was gone. No restart, and my wife didn't even notice.
 
 </Story>
 
@@ -241,25 +238,23 @@ If you are on Windows, open PowerShell and run:
 (Get-Counter '\Objects\Processes').CounterSamples[0].CookedValue - (Get-Process).Count
 ```
 
-A few hundred is normal. If you see thousands, something is leaking, and this will probably tell
-you what:
+A few hundred is normal. Thousands means some program is leaking handles, and this will most likely
+show you which one:
 
 ```powershell
 Get-Process | Sort-Object HandleCount -Descending | Select-Object -First 5 Name, HandleCount
 ```
 
-If you run these, please let me know your number and your top offender. I am really curious what
+If you run these please tell me your number and your top offender, I am really curious to see what
 other people find.
 
-## A look behind the curtain
+## Everything is broken
 
-So over the years it was Nahimic, some service running under nssm, NVIDIA's overlay and Razer's
-services. Restarting is still a
-good idea, because it keeps problems like these from building up in the first place (and
-`gaming-mode.ps1` now turns the Razer services off and prints the zombie count when it finishes).
+So over the years the problems were Nahimic, some service running under nssm, NVIDIA's overlay and
+Razer, programs that either come preinstalled or that pretty much everyone with a gaming laptop has.
+Gaming mode now disables the Razer services and prints the zombie count at the end.
 
-But for the first time ever I feel like I got a look behind the curtain. "Game has low FPS" has
-always been such an abstract problem, one that made me feel uneasy, and now I can get to an actual
-answer and fix it at the source. So next time something is going wrong with your computer, I
-recommend letting an agent loose to figure it out. What it finds might surprise you, and maybe even
-teach you a few tricks.
+Everything is broken on Windows, but at least now I can diagnose the problem and fix it at the
+source. "Game has low FPS" used to be a problem I had no idea how to even start on, so I would
+restart and hope. If your computer has problems you don't understand, I recommend letting an agent
+loose on them, you might be surprised by what the agent finds.

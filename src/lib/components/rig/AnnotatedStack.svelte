@@ -4,27 +4,27 @@ const frames = [
 	{
 		fn: "dxgmms2.sys!VidMmWorkerThreadProc",
 		share: "75.81%",
-		means: "The kernel thread that manages GPU memory on behalf of every program.",
+		means: "The kernel thread that manages GPU memory for every program.",
 	},
 	{
 		fn: "dxgmms2.sys!VIDMM_GLOBAL::HandleTrimWnf",
 		share: "75.28%",
-		means: "Memory is tight (a game holding 7 of 8 GB will do it), so it asks processes to shrink.",
+		means: "GPU memory is tight (a game using 7 of 8 GB will do that), so processes get asked to shrink.",
 	},
 	{
 		fn: "ntkrnlmp.exe!NtUpdateWnfStateData",
 		share: "74.68%",
-		means: "It asks through WNF, the kernel's own publish and subscribe.",
+		means: "The request goes out through WNF, the kernel's publish/subscribe system.",
 	},
 	{
 		fn: "ntkrnlmp.exe!ExpWnfFindScopeInstance",
 		share: "74.30%",
-		means: "To publish, it has to find the right scope, and it finds it by walking a list",
+		means: "Publishing needs the right WNF scope, and the scope is found by walking a list,",
 	},
 	{
 		fn: "ntkrnlmp.exe!memcmp",
 		share: "15.97%",
-		means: "comparing one entry at a time.",
+		means: "comparing entries one by one.",
 	},
 ]
 </script>

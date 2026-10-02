@@ -78,7 +78,7 @@ export const steps: Step[] = [
 		raised: true,
 		heat: 1,
 		readings: [],
-		log: "it felt better",
+		log: "riser printed, fins cleaned",
 	},
 	{
 		id: "measure",
@@ -113,7 +113,7 @@ export const steps: Step[] = [
 		readings: [
 			{ key: "gpu", value: "83 °C  100 W, no game open", bad: true },
 		],
-		log: "can't restart: a film is playing off this machine",
+		log: "can't restart, my wife is watching a movie",
 	},
 	{
 		id: "transcode",
@@ -127,7 +127,7 @@ export const steps: Step[] = [
 			{ key: "gpu", value: "77 °C" },
 			{ key: "video", value: "decode 0%  encode 0%" },
 		],
-		log: "iPad: subtitles off, stream passes through",
+		log: "iPad: subtitles off, direct play",
 	},
 	{
 		id: "overlay",
