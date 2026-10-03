@@ -24,3 +24,10 @@ export const letterboxd = "armanckeser"
 
 /** My Goodreads user id: the books on the home page come from its shelves. */
 export const goodreads = "63918545"
+
+/**
+ * My Buttondown username. Empty until the list exists: the signup form on
+ * /subscribe and under posts, and the newsletter section of /privacy, all
+ * appear once this is set, so the policy never describes a list that isn't there.
+ */
+export const buttondown = ""
