@@ -10,6 +10,7 @@ import { base } from "$app/paths"
       </div>
 
       <nav class="flex" aria-label="Site">
+        <a href="{base}/subscribe">subscribe</a>
         <a href="{base}/rss.xml">rss</a>
         <a href="{base}/privacy">privacy</a>
         <a href="{base}/terms">terms</a>

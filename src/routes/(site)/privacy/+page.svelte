@@ -1,6 +1,7 @@
 <script lang="ts">
 import PostSheet from "$lib/components/PostSheet.svelte"
 import Seo from "$lib/components/Seo.svelte"
+import { buttondown } from "$lib/config"
 </script>
 
 <Seo
@@ -11,9 +12,9 @@ import Seo from "$lib/components/Seo.svelte"
 
 <div class="mx-auto max-w-[46rem] pb-16 sm:px-6">
   <PostSheet title="Privacy" plain>
-      <p><em>Last updated: October 2, 2026</em></p>
+      <p><em>Last updated: October 3, 2026</em></p>
 
-      <p>This page covers armanckeser.com and the demos I host on GitHub Pages: Four Quarters, the Kumbara demo and USCIS Tracker.</p>
+      <p>This page covers armanckeser.com and the demos I host on GitHub Pages: Four Quarters, the Kumbara demo, USCIS Tracker and the Stars Organizer demo.</p>
 
       <h2>The short version</h2>
 
@@ -23,7 +24,7 @@ import Seo from "$lib/components/Seo.svelte"
 
       <p>armanckeser.com and Four Quarters use <a href="https://www.goatcounter.com" rel="noopener">GoatCounter</a> to count visits. GoatCounter records the page, the site that linked to it, the browser and operating system, the screen size and the country, and keeps them as totals. GoatCounter sets no cookies and does not store IP addresses. I use the numbers to see which posts and projects get read.</p>
 
-      <p>The Kumbara demo and USCIS Tracker load no analytics at all.</p>
+      <p>The Kumbara demo, USCIS Tracker and the Stars Organizer demo load no analytics at all.</p>
 
       <h2>Hosting</h2>
 
@@ -36,6 +37,7 @@ import Seo from "$lib/components/Seo.svelte"
       <ul>
         <li><strong>Four Quarters.</strong> Your photos and decks are stored in your browser and in the deck file you send yourself. Nothing is uploaded. The note in an invite link sits after the <code>#</code> in the address, which a browser never sends to a server, so neither GitHub nor GoatCounter sees it. One exception to "nothing leaves your browser": when a title uses characters the built-in fonts lack, such as emoji or non-Latin scripts, the page fetches a fallback font from jsDelivr, a public CDN. jsDelivr then sees your IP address and which character ranges were needed, not your text.</li>
         <li><strong>Kumbara demo.</strong> The household is invented and the demo runs entirely in your browser. Nothing you type is sent anywhere.</li>
+        <li><strong>Stars Organizer demo.</strong> It opens on my own public GitHub stars, saved into the page when it was built. If you type a GitHub username, your browser asks GitHub's public API for that person's public stars, so GitHub sees your IP address and the username. Nothing else leaves your browser, and the lists, tags, ratings and notes you make are gone when you reload.</li>
         <li><strong>USCIS Tracker.</strong> Your cases are stored in your browser. The refresh bookmark hands the case data to the page in the part of the address after the <code>#</code>, so it never reaches a server. The page downloads the public visa bulletin data from GitHub and is built to refuse connections to anywhere else.</li>
       </ul>
 
@@ -43,9 +45,17 @@ import Seo from "$lib/components/Seo.svelte"
 
       <p>If you email me, I have your address and what you wrote, and I use them to reply.</p>
 
+      {#if buttondown}
+        <h2 id="newsletter">Newsletter</h2>
+
+        <p>If you sign up for new posts by email, your address is stored by <a href="https://buttondown.com" rel="noopener">Buttondown</a>, which sends the emails for me. I use it for one thing: an email when a new post goes up. It is not sold, shared or used for anything else. Buttondown's <a href="https://buttondown.com/legal/privacy" rel="noopener">privacy policy</a> covers how it handles the address.</p>
+
+        <p>Every email has an unsubscribe link, and unsubscribing deletes you from the list. Reach me through <a href="https://github.com/armanckeser" rel="noopener">GitHub</a> if you want your address gone from Buttondown's records entirely.</p>
+      {/if}
+
       <h2>Your choices</h2>
 
-      <p>A script blocker stops GoatCounter without breaking anything. To ask what I hold about you, which should be nothing beyond an email you sent, reach me through <a href="https://github.com/armanckeser" rel="noopener">GitHub</a>.</p>
+      <p>A script blocker stops GoatCounter without breaking anything. To ask what I hold about you, which should be nothing beyond an email you sent{buttondown ? " or the address you subscribed with" : ""}, reach me through <a href="https://github.com/armanckeser" rel="noopener">GitHub</a>.</p>
 
       <h2>Changes</h2>
 

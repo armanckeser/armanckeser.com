@@ -1,5 +1,6 @@
 <script lang="ts">
 import Discussions from "$lib/components/Discussions.svelte"
+import FollowAlong from "$lib/components/FollowAlong.svelte"
 import PostListing from "$lib/components/PostListing.svelte"
 import PostSheet from "$lib/components/PostSheet.svelte"
 import ScrollTracker from "$lib/components/ScrollTracker.svelte"
@@ -56,6 +57,8 @@ const structuredData = $derived([
 	>
 		<data.content />
 	</PostSheet>
+
+	<FollowAlong />
 
 	<Discussions threads={data.discussions} />
 

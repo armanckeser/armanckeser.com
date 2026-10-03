@@ -4,7 +4,7 @@ import { absoluteUrl, escapeXml } from "$lib/seo"
 export const prerender = true
 
 /** Pages that are not posts. `lastmod` is omitted rather than faked. */
-const STATIC_PATHS = ["/", "/writing", "/privacy", "/terms"]
+const STATIC_PATHS = ["/", "/writing", "/subscribe", "/privacy", "/terms"]
 
 type SitemapEntry = { path: string; lastmod?: string }
 
