@@ -4,6 +4,8 @@ export interface BlogPost {
 	description?: string
 	tags?: string[]
 	published?: boolean
+	/** Site path of a hand-made 1200x630 social card; a generated one is used otherwise. */
+	image?: string
 	slug: string
 }
 
@@ -17,4 +19,5 @@ export interface PostFrontmatter {
 	description?: string
 	tags?: string[]
 	published?: boolean
+	image?: string
 }

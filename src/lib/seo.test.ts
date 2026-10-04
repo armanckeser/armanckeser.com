@@ -117,7 +117,7 @@ describe("blogPostingJsonLd", () => {
 			"@type": "WebPage",
 			"@id": `${SITE}/writing/redirecting-x-com`,
 		})
-		expect(node.image).toBe(`${SITE}/og.png`)
+		expect(node.image).toBe(`${SITE}/og/writing/redirecting-x-com.png`)
 		expect(node.isPartOf).toEqual({
 			"@type": "Blog",
 			"@id": `${SITE}/writing`,

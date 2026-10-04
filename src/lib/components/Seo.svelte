@@ -17,6 +17,8 @@ const {
 	publishedTime,
 	modifiedTime,
 	tags,
+	image = config.ogImage,
+	imageAlt = `A terminal window reading: ${config.title}, const state = 'learning'`,
 	jsonLd = [],
 	noindex = false,
 } = $props<{
@@ -29,6 +31,9 @@ const {
 	publishedTime?: string
 	modifiedTime?: string
 	tags?: string[]
+	/** Site path of a 1200x630 PNG. Defaults to the site-wide card. */
+	image?: string
+	imageAlt?: string
 	jsonLd?: Array<Record<string, unknown>>
 	noindex?: boolean
 }>()
@@ -40,7 +45,7 @@ const documentTitle = $derived(
 )
 const metaDescription = $derived(clampDescription(description))
 const canonical = $derived(absoluteUrl(path))
-const socialImage = absoluteUrl(config.ogImage)
+const socialImage = $derived(absoluteUrl(image))
 </script>
 
 <svelte:head>
@@ -61,15 +66,13 @@ const socialImage = absoluteUrl(config.ogImage)
 	<meta property="og:image" content={socialImage} />
 	<meta property="og:image:width" content="1200" />
 	<meta property="og:image:height" content="630" />
-	<meta
-		property="og:image:alt"
-		content="A terminal window reading: {config.title}, const state = 'learning'"
-	/>
+	<meta property="og:image:alt" content={imageAlt} />
 
 	<meta name="twitter:card" content="summary_large_image" />
 	<meta name="twitter:title" content={title ?? config.title} />
 	<meta name="twitter:description" content={metaDescription} />
 	<meta name="twitter:image" content={socialImage} />
+	<meta name="twitter:image:alt" content={imageAlt} />
 
 	{#if type === "article"}
 		{#if publishedTime}
