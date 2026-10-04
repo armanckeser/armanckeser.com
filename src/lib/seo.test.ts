@@ -147,6 +147,9 @@ describe("blogPostingJsonLd", () => {
 				"https://github.com/armanckeser",
 				"https://www.linkedin.com/in/armanckeser/",
 				"https://bsky.app/profile/armanckeser.com",
+				"https://x.com/armanckeser",
+				"https://www.threads.com/@armanckeser",
+				"https://dev.to/armanckeser",
 			],
 		})
 	})
