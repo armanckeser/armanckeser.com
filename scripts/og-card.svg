@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" font-family="JetBrainsMono Nerd Font, JetBrains Mono, monospace">
-  <!-- Source for static/og.png. Regenerate with scripts/build-og.sh -->
+  <!-- Source for static/og.png. Regenerate with `node scripts/build-og.mjs` -->
   <rect width="1200" height="630" fill="#0a0a0b"/>
 
   <!-- accent rule, emerald-500 from the dark theme -->
@@ -16,8 +16,8 @@
       <tspan fill="#1fdc8c">const</tspan><tspan dx="14" fill="#fafafa">state</tspan><tspan dx="14">=</tspan><tspan dx="14" fill="#f5b912">'learning'</tspan>
     </text>
 
-    <text y="300" font-size="28" fill="#bfbfc7">Writing on LLM-assisted engineering, single-user software,</text>
-    <text y="344" font-size="28" fill="#bfbfc7">self-hosting, and the systems underneath.</text>
+    <text y="300" font-size="28" fill="#bfbfc7">Personal software, open source, self-hosting,</text>
+    <text y="344" font-size="28" fill="#bfbfc7">and how good products get made.</text>
   </g>
 
   <text x="96" y="562" font-size="26" fill="#8b8b95">armanckeser.com<tspan dx="14" fill="#1fdc8c">▋</tspan></text>

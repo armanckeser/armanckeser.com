@@ -81,6 +81,14 @@ export function websiteJsonLd(): JsonLdNode {
  * `dateModified` defaults to the publication date: the site has no per-file
  * modification tracking, and a fabricated newer date erodes crawler trust.
  */
+/**
+ * Social card for a post: its own `image` if the frontmatter names one, else the
+ * card generated for it at build time by routes/og/writing/[slug].png.
+ */
+export function postImage(post: Pick<BlogPost, "slug" | "image">): string {
+	return post.image ?? `/og/writing/${post.slug.split("/").pop()}.png`
+}
+
 export function blogPostingJsonLd(post: BlogPost): JsonLdNode {
 	const canonical = absoluteUrl(post.slug)
 	return {
@@ -92,7 +100,7 @@ export function blogPostingJsonLd(post: BlogPost): JsonLdNode {
 		mainEntityOfPage: { "@type": "WebPage", "@id": canonical },
 		datePublished: post.date,
 		dateModified: post.date,
-		image: absoluteUrl(config.ogImage),
+		image: absoluteUrl(postImage(post)),
 		author: personNode(),
 		publisher: personNode(),
 		inLanguage: "en",

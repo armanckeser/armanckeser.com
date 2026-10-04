@@ -26,6 +26,7 @@ export async function listPosts(): Promise<PostWithContent[]> {
 				description: data.description,
 				tags: data.tags,
 				published: data.published,
+				image: data.image,
 				slug,
 				content,
 			} satisfies PostWithContent
@@ -49,6 +50,7 @@ export async function getPost(slug: string): Promise<PostWithContent> {
 		description: data.description,
 		tags: data.tags,
 		published: data.published,
+		image: data.image,
 		slug,
 		content,
 	}

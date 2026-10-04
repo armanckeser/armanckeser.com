@@ -6,7 +6,7 @@ import PostSheet from "$lib/components/PostSheet.svelte"
 import ScrollTracker from "$lib/components/ScrollTracker.svelte"
 import Seo from "$lib/components/Seo.svelte"
 import { getPosts } from "$lib/posts"
-import { blogPostingJsonLd, breadcrumbJsonLd } from "$lib/seo"
+import { blogPostingJsonLd, breadcrumbJsonLd, postImage } from "$lib/seo"
 import Giscus from "@giscus/svelte"
 import { mode } from "mode-watcher"
 import type { PageData } from "./$types"
@@ -39,6 +39,8 @@ const structuredData = $derived([
 	type="article"
 	publishedTime={data.meta.date}
 	tags={data.meta.tags}
+	image={postImage(data.meta)}
+	imageAlt={data.meta.title}
 	jsonLd={structuredData}
 />
 
