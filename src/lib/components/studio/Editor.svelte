@@ -216,6 +216,9 @@ onMount(() => {
 				]),
 				markdown({ base: markdownLanguage }),
 				syntaxHighlighting(ink),
+				// Line breaks stay exactly as the shared text has them, so
+				// positions here and in the Yjs text always agree.
+				EditorState.lineSeparator.of("\n"),
 				EditorView.lineWrapping,
 				placeholder(
 					"Start with the absurd, specific thing that happened."

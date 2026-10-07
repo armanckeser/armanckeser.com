@@ -21,11 +21,13 @@ export function parseSvx(raw: string): {
 	meta: Meta
 	body: string
 	yaml: string
+	eol: string
 } {
 	const match = FRONTMATTER.exec(raw)
-	const yaml = match ? match[1] : ""
+	const eol = raw.includes("\r\n") ? "\r\n" : "\n"
+	const yaml = match ? match[1].replace(/\r\n/g, "\n") : ""
 	const body = match ? raw.slice(match[0].length) : raw
-	return { meta: readYaml(yaml), body, yaml }
+	return { meta: readYaml(yaml), body, yaml, eol }
 }
 
 export function readYaml(yaml: string): Meta {
@@ -89,8 +91,14 @@ export function patchYaml(yaml: string, meta: Meta): string {
 	return lines.join("\n")
 }
 
-export function serializeSvx(yaml: string, meta: Meta, body: string): string {
-	return `---\n${patchYaml(yaml, meta)}\n---\n${body}`
+export function serializeSvx(
+	yaml: string,
+	meta: Meta,
+	body: string,
+	eol = "\n"
+): string {
+	const front = patchYaml(yaml, meta).split("\n").join(eol)
+	return `---${eol}${front}${eol}---${eol}${body}`
 }
 
 /** A new post's file. */
