@@ -174,7 +174,7 @@ export class Collab {
 		for (const l of this.#listeners) l(event, data)
 	}
 
-	#schedule(delay = 40) {
+	#schedule(delay = 120) {
 		this.pending = this.#queue.length > 0
 		clearTimeout(this.#timer)
 		this.#timer = setTimeout(() => void this.#flush(), delay)

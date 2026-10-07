@@ -274,14 +274,22 @@ $effect(() => {
 		})
 })
 
+let lastReload = 0
+
 $effect(() => {
 	if (!savedAt || !loaded) return
 	mutated = false
-	// Hot reload normally changes the page within a moment of the save. If it
-	// didn't, reload, keeping the reader where they were.
+	// Without hot reload the page is reloaded after a save. A reload in the
+	// dev server fetches a few dozen modules, and the proxy allows so many
+	// requests a minute, so it waits for a pause in typing, comes at most every
+	// 8 seconds, and is never more than 15 seconds behind.
+	const since = Date.now() - lastReload
+	const wait = since > 15_000 ? 600 : Math.max(2_500, 8_000 - since)
 	const timer = setTimeout(() => {
-		if (!mutated) reload()
-	}, 900)
+		if (mutated) return
+		lastReload = Date.now()
+		reload()
+	}, wait)
 	return () => clearTimeout(timer)
 })
 
