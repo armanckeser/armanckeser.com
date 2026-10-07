@@ -1,16 +1,3 @@
-import { env } from "$env/dynamic/private"
-import { error } from "@sveltejs/kit"
-import type { LayoutServerLoad } from "./$types"
-
+// The studio is a live app on the home server, never part of the static site.
+// Access is checked in hooks.server.ts.
 export const prerender = false
-
-export const load: LayoutServerLoad = ({ cookies, url }) => {
-	const requiredToken = env.CMS_TOKEN
-	if (!requiredToken) return {}
-
-	const providedToken =
-		cookies.get("cms_token") || url.searchParams.get("token")
-	if (providedToken !== requiredToken) {
-		throw error(401)
-	}
-}

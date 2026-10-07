@@ -1,34 +1,31 @@
-# Stage 1: Build CMS
-FROM --platform=$BUILDPLATFORM node:24-slim AS build
+# The studio: the site's own dev server, running against a clone of this repo
+# that lives in a volume. The image only carries the dependencies; the code,
+# the posts and the components come from the clone, so a `git pull` (or a
+# publish) is all it takes for the studio to pick up a change.
+#
+# Built natively on arm64 for the home server (see build-cms-image.yml): the
+# dev server needs the platform's own esbuild and rollup binaries.
+FROM node:24-slim
+
+RUN apt-get update \
+	&& apt-get install -y --no-install-recommends ca-certificates git \
+	&& rm -rf /var/lib/apt/lists/* \
+	&& npm install -g bun
+
 WORKDIR /app
-
-RUN npm install -g bun
-
 COPY package.json bun.lock ./
+ENV HUSKY=0
 RUN --mount=type=cache,target=/root/.bun/install/cache \
-    bun install --frozen-lockfile
+	bun install --frozen-lockfile
 
-COPY . .
-ENV BUILD_MODE=cms
-ARG GH_PAT
-ENV GH_PAT=$GH_PAT
-RUN bun run build
-
-# Stage 2: Runtime
-FROM --platform=$TARGETPLATFORM node:24-slim
-WORKDIR /app
-
-RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates git && rm -rf /var/lib/apt/lists/*
-
-COPY --from=build /app/build ./build
-COPY --from=build /app/package.json .
-COPY --from=build /app/node_modules ./node_modules
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 RUN chmod +x /docker-entrypoint.sh
 
+ENV PORT=3000 \
+	STUDIO=1 \
+	REPO_PATH=/app/repo \
+	NODE_OPTIONS=--max-old-space-size=1536
 EXPOSE 3000
-ENV PORT=3000
-ENV ORIGIN=http://localhost:3000
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
-CMD ["node", "build"]
+CMD ["node", "/app/node_modules/vite/bin/vite.js", "dev", "--host", "0.0.0.0", "--port", "3000", "--strictPort"]

@@ -1,29 +1,42 @@
 #!/bin/bash
+# Gets the clone the studio runs from up to date, then starts it there.
 set -e
 
 REPO_DIR="${REPO_PATH:-/app/repo}"
-
-if [ -z "$GH_PAT" ]; then
-  echo "Warning: GH_PAT not set, git push will not work"
-fi
+TOKEN="${GH_PAT:-$GITHUB_TOKEN}"
+REMOTE="https://github.com/armanckeser/armanckeser.com.git"
+[ -n "$TOKEN" ] && REMOTE="https://x-access-token:${TOKEN}@github.com/armanckeser/armanckeser.com.git"
+[ -z "$TOKEN" ] && echo "studio: no GH_PAT, so publishing (git push) will fail"
 
 if [ ! -d "$REPO_DIR/.git" ]; then
-  echo "Cloning repository..."
-  git clone "https://x-access-token:${GH_PAT}@github.com/armanckeser/armanckeser.com.git" "$REPO_DIR"
-else
-  echo "Pulling latest changes..."
-  cd "$REPO_DIR" && git pull --rebase || true
+	echo "studio: cloning the site"
+	git clone "$REMOTE" "$REPO_DIR"
 fi
 
 cd "$REPO_DIR"
-git config user.name "${GIT_USER_NAME:-CMS Bot}"
+git config user.name "${GIT_USER_NAME:-Armanc Keser}"
 git config user.email "${GIT_USER_EMAIL:-cms@armanckeser.com}"
+git remote set-url origin "$REMOTE"
+git config pull.rebase true
 
-if [ -n "$GH_PAT" ]; then
-  git remote set-url origin "https://x-access-token:${GH_PAT}@github.com/armanckeser/armanckeser.com.git"
+# Drafts are untracked files and survive this. Tracked edits that were never
+# published are stashed (not lost) if they get in the way of main.
+git fetch origin main
+git checkout -q main 2>/dev/null || git checkout -q -b main origin/main
+if ! git pull -q --rebase --autostash origin main; then
+	git rebase --abort 2>/dev/null || true
+	git stash push -q -m "studio start $(date -Iseconds)" || true
+	git reset -q --hard origin/main
+	echo "studio: local changes were in the way of main; they are in 'git stash list'"
+fi
+echo "studio: running $(git log -1 --format='%h %s')"
+
+# The image's dependencies serve the clone.
+if [ ! -e node_modules ] || [ -L node_modules ]; then
+	ln -sfn /app/node_modules node_modules
+fi
+if ! cmp -s bun.lock /app/bun.lock; then
+	echo "studio: bun.lock differs from the image's; rebuild the image if something fails to resolve"
 fi
 
-export REPO_PATH="$REPO_DIR"
-
-cd /app
 exec "$@"

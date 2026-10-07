@@ -1,35 +1,39 @@
-name: Build and Push CMS Image
+name: Build and Push Studio Image
 
+# The image only carries dependencies (the studio runs the code from its own
+# clone), so it needs rebuilding only when they change.
 on:
+  push:
+    branches: [main]
+    paths:
+      - package.json
+      - bun.lock
+      - Dockerfile
+      - docker-entrypoint.sh
+      - .github/workflows/build-cms-image.yml
   release:
     types: [published]
   workflow_dispatch:
-    inputs:
-      tag:
-        description: "Image tag (defaults to latest)"
-        required: false
-        default: "latest"
 
 env:
-  REGISTRY: ghcr.io
   IMAGE: ghcr.io/armanckeser/armanckeser-cms
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    # Native arm64, like the home server: no emulation, and the platform's
+    # own esbuild and rollup binaries end up in node_modules.
+    runs-on: ubuntu-24.04-arm
     permissions:
       contents: read
       packages: write
     steps:
       - uses: actions/checkout@v4
 
-      - uses: docker/setup-qemu-action@v3
-
       - uses: docker/setup-buildx-action@v3
 
       - uses: docker/login-action@v3
         with:
-          registry: ${{ env.REGISTRY }}
+          registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
@@ -38,9 +42,9 @@ jobs:
         with:
           images: ${{ env.IMAGE }}
           tags: |
+            type=raw,value=latest
+            type=sha,format=short
             type=ref,event=tag
-            type=raw,value=latest,enable={{is_default_branch}}
-            type=raw,value=${{ github.event.inputs.tag }},enable=${{ github.event_name == 'workflow_dispatch' }}
 
       - uses: docker/build-push-action@v6
         with:
@@ -49,8 +53,7 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          build-args: GH_PAT=${{ secrets.GH_PAT }}
-          cache-from: type=gha,scope=cms
-          cache-to: type=gha,mode=max,scope=cms
+          cache-from: type=gha,scope=studio
+          cache-to: type=gha,mode=max,scope=studio
           provenance: false
           sbom: false
