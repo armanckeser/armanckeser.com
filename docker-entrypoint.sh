@@ -40,10 +40,13 @@ if ! cmp -s bun.lock /app/bun.lock; then
 fi
 
 # The first page render compiles most of the site, which on the Pi takes longer
-# than the proxy waits. Render the studio and a post once in the background so
-# the first real visit is quick.
+# than the proxy waits. Render the studio and every post once in the background
+# so the first real visit is quick.
 (sleep 10 && node --input-type=module -e '
-for (const path of ["/cms", "/writing/sixth-year"]) await fetch("http://localhost:" + (process.env.PORT || 3000) + path).catch(() => {})
+import { readdirSync } from "node:fs"
+const base = "http://localhost:" + (process.env.PORT || 3000)
+const posts = readdirSync("src/content/writing").filter(f => f.endsWith(".svx")).map(f => "/writing/" + f.slice(0, -4))
+for (const path of ["/cms", ...posts]) await fetch(base + path).catch(() => {})
 ' >/dev/null 2>&1) &
 
 exec "$@"

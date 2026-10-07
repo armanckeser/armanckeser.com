@@ -41,6 +41,7 @@ const frames: HTMLIFrameElement[] = []
 let current = $state(0)
 let srcs = $state<string[]>([])
 let loaded = $state(false)
+let retries = $state(0)
 let failed = $state(false)
 let mutated = false
 let scrollY = 0
@@ -67,6 +68,15 @@ function onload(index: number) {
 		| (Window & typeof globalThis)
 		| null
 	if (!w || !srcs[index] || w.location.href === "about:blank") return
+	// The first render of a post on the home server can outlast the proxy's
+	// timeout; the dev server keeps compiling, so asking again soon works.
+	// The page on screen stays until a good one is ready.
+	if (!w.document.querySelector("article, main") && retries < 8) {
+		retries++
+		setTimeout(reload, 2500)
+		return
+	}
+	retries = 0
 	if (index !== current) {
 		const old = current
 		current = index
@@ -283,13 +293,13 @@ onMount(() => () => observer?.disconnect())
 			class="absolute inset-0 h-full w-full border-0 bg-background"
 			class:invisible={index !== current}
 			aria-hidden={index !== current}
-			tabindex={index === current ? 0 : -1}
+			inert={index !== current}
 			onload={() => onload(index)}
 		></iframe>
 	{/each}
 	{#if !loaded}
 		<div class="absolute inset-0 grid place-items-center bg-background text-sm text-muted-foreground">
-			<span class="studio-shimmer">Rendering the page…</span>
+			<span class="studio-shimmer">{retries ? "Rendering the page for the first time…" : "Rendering the page…"}</span>
 		</div>
 	{:else if failed}
 		<div class="absolute inset-x-0 top-0 border-b border-border bg-background/95 px-4 py-2 text-xs text-muted-foreground">
