@@ -176,9 +176,10 @@ async function openRoom(slug: string): Promise<Room> {
 	if (file !== null) {
 		const mtime = (await stat(svxPath(slug))).mtimeMs
 		if (!bin) {
-			const { meta, body } = parseSvx(file)
+			const { meta, body, yaml } = parseSvx(file)
 			doc.transact(() => {
 				doc.getText("body").insert(0, body)
+				doc.getMap("raw").set("yaml", yaml)
 				setMeta(doc, meta)
 			}, "load")
 		} else if (serialize(doc) !== file) {
@@ -235,15 +236,18 @@ async function refreshFromDisk(room: Room) {
 }
 
 function replaceFromFile(doc: Y.Doc, file: string) {
-	const { meta, body } = parseSvx(file)
+	const { meta, body, yaml } = parseSvx(file)
 	doc.transact(() => {
 		applyDiff(doc.getText("body"), body)
+		doc.getMap("raw").set("yaml", yaml)
 		setMeta(doc, meta)
 	}, "disk")
 }
 
 export function serialize(doc: Y.Doc): string {
-	return serializeSvx(readMeta(doc), doc.getText("body").toString())
+	// The frontmatter as last read from disk, patched only where the meta differs.
+	const yaml = String(doc.getMap("raw").get("yaml") ?? "")
+	return serializeSvx(yaml, readMeta(doc), doc.getText("body").toString())
 }
 
 export function readMeta(doc: Y.Doc): Meta {

@@ -117,7 +117,7 @@ export async function createPost(
 
 	const { writeFile, mkdir } = await import("node:fs/promises")
 	const { dirname } = await import("node:path")
-	const { serializeSvx } = await import("./svx")
+	const { newSvx } = await import("./svx")
 	const meta: Meta = {
 		title,
 		description: input.description || undefined,
@@ -125,7 +125,7 @@ export async function createPost(
 		published: false,
 	}
 	await mkdir(dirname(svxPath(slug)), { recursive: true })
-	await writeFile(svxPath(slug), serializeSvx(meta, input.body ?? ""), {
+	await writeFile(svxPath(slug), newSvx(meta, input.body ?? ""), {
 		flag: "wx",
 	})
 	const r = await room(slug)

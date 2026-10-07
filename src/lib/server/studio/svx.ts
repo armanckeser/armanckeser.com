@@ -11,20 +11,35 @@ export type Meta = {
 	[key: string]: unknown
 }
 
-const ORDER = ["title", "description", "tags", "date", "published", "image"]
+const FRONTMATTER = /^---[ \t]*\r?\n([\s\S]*?)\r?\n---[ \t]*(?:\r?\n|$)/
 
-/** Splits a post file into its frontmatter and everything after it. */
-export function parseSvx(raw: string): { meta: Meta; body: string } {
-	const { data, content } = matter(raw)
-	return {
-		meta: {
-			...data,
-			title: String(data.title ?? ""),
-			date: data.date ? String(data.date) : today(),
-			published: data.published !== false,
-		},
-		body: content.replace(/^\n/, ""),
+/**
+ * Splits a post file into its frontmatter (parsed, and as written) and
+ * everything after it, byte for byte, so writing it back changes nothing.
+ */
+export function parseSvx(raw: string): {
+	meta: Meta
+	body: string
+	yaml: string
+} {
+	const match = FRONTMATTER.exec(raw)
+	const yaml = match ? match[1] : ""
+	const body = match ? raw.slice(match[0].length) : raw
+	return { meta: readYaml(yaml), body, yaml }
+}
+
+export function readYaml(yaml: string): Meta {
+	const data = yaml.trim() ? matter(`---\n${yaml}\n---\n`, {}).data : {}
+	const out: Meta = {
+		...data,
+		title: String(data.title ?? ""),
+		date: "",
+		published: data.published !== false,
 	}
+	if (data.date instanceof Date)
+		out.date = data.date.toISOString().slice(0, 10)
+	else if (data.date) out.date = String(data.date)
+	return out
 }
 
 function yamlValue(value: unknown): string {
@@ -35,21 +50,52 @@ function yamlValue(value: unknown): string {
 	return JSON.stringify(String(value))
 }
 
-/** Writes frontmatter in the order the existing posts use, then the body. */
-export function serializeSvx(meta: Meta, body: string): string {
-	const keys = [
-		...ORDER.filter(k => k in meta),
-		...Object.keys(meta).filter(k => !ORDER.includes(k)),
-	]
-	const lines = keys
-		.filter(
-			k =>
-				meta[k] !== undefined &&
-				meta[k] !== "" &&
-				!(Array.isArray(meta[k]) && (meta[k] as unknown[]).length === 0)
-		)
-		.map(k => `${k}: ${yamlValue(meta[k])}`)
-	return `---\n${lines.join("\n")}\n---\n\n${body.replace(/^\n+/, "")}`
+const empty = (v: unknown) =>
+	v === undefined ||
+	v === null ||
+	v === "" ||
+	(Array.isArray(v) && v.length === 0)
+
+/**
+ * Writes `meta` into the frontmatter as it was written, touching only the keys
+ * that changed. Untouched lines (their quoting, order, comments) stay as they were.
+ */
+export function patchYaml(yaml: string, meta: Meta): string {
+	const before = readYaml(yaml)
+	const lines = yaml ? yaml.split("\n") : []
+	const keyLine = (key: string) =>
+		lines.findIndex(l => l.startsWith(`${key}:`))
+	// A value may continue on indented lines below its key.
+	const span = (at: number) => {
+		let end = at + 1
+		while (end < lines.length && /^\s+\S/.test(lines[end])) end++
+		return end - at
+	}
+	const keys = new Set([...Object.keys(before), ...Object.keys(meta)])
+	for (const key of keys) {
+		const a = (before as Record<string, unknown>)[key]
+		const b = (meta as Record<string, unknown>)[key]
+		if (JSON.stringify(a ?? null) === JSON.stringify(b ?? null)) continue
+		if (key === "published" && a === true && b === true) continue
+		const at = keyLine(key)
+		if (empty(b)) {
+			if (at !== -1) lines.splice(at, span(at))
+		} else if (at !== -1) {
+			lines.splice(at, span(at), `${key}: ${yamlValue(b)}`)
+		} else {
+			lines.push(`${key}: ${yamlValue(b)}`)
+		}
+	}
+	return lines.join("\n")
+}
+
+export function serializeSvx(yaml: string, meta: Meta, body: string): string {
+	return `---\n${patchYaml(yaml, meta)}\n---\n${body}`
+}
+
+/** A new post's file. */
+export function newSvx(meta: Meta, body: string): string {
+	return serializeSvx("", meta, body.startsWith("\n") ? body : `\n${body}`)
 }
 
 export function today(): string {
