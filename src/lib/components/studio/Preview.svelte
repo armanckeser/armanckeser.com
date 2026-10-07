@@ -43,7 +43,6 @@ let srcs = $state<string[]>([])
 let loaded = $state(false)
 let retries = $state(0)
 let failed = $state(false)
-let mutated = false
 let scrollY = 0
 let observer: MutationObserver | undefined
 const src = $derived(`/writing/${slug}?studio=1`)
@@ -112,7 +111,6 @@ function setup(w: Window & typeof globalThis) {
 
 	observer?.disconnect()
 	observer = new w.MutationObserver(() => {
-		mutated = true
 		queueMicrotask(paint)
 	})
 	const main = doc.querySelector("main") ?? doc.body
@@ -274,23 +272,59 @@ $effect(() => {
 		})
 })
 
-let lastReload = 0
+/**
+ * A save updates the page in place: the post is rendered once by the server
+ * and its article swapped into the page on screen. One request, no flash, the
+ * reader stays put. Swapped-in components are rendered but not live, so once
+ * typing rests the whole page is reloaded (out of sight) to bring them back,
+ * no more than every 30 seconds: a dev-server reload fetches ~90 modules and
+ * the proxy allows 500 requests a minute.
+ */
+let lastFull = Date.now()
+let stale = false
+
+async function swapArticle(): Promise<boolean> {
+	const doc = win()?.document
+	const live = doc?.querySelector("article.post")
+	if (!doc || !live) return false
+	try {
+		const response = await fetch(`${src}&fresh=${Date.now()}`)
+		if (!response.ok) return false
+		const next = new DOMParser().parseFromString(
+			await response.text(),
+			"text/html"
+		)
+		const fresh = next.querySelector("article.post")
+		if (!fresh) return false
+		live.innerHTML = fresh.innerHTML
+		paint()
+		return true
+	} catch {
+		return false
+	}
+}
 
 $effect(() => {
 	if (!savedAt || !loaded) return
-	mutated = false
-	// Without hot reload the page is reloaded after a save. A reload in the
-	// dev server fetches a few dozen modules, and the proxy allows so many
-	// requests a minute, so it waits for a pause in typing, comes at most every
-	// 8 seconds, and is never more than 15 seconds behind.
-	const since = Date.now() - lastReload
-	const wait = since > 15_000 ? 600 : Math.max(2_500, 8_000 - since)
-	const timer = setTimeout(() => {
-		if (mutated) return
-		lastReload = Date.now()
-		reload()
-	}, wait)
-	return () => clearTimeout(timer)
+	const swap = setTimeout(async () => {
+		// If the swap can't be done (the page didn't render), the full
+		// reload below still comes.
+		await swapArticle()
+		stale = true
+	}, 700)
+	const rest = setTimeout(
+		() => {
+			if (!stale) return
+			stale = false
+			lastFull = Date.now()
+			reload()
+		},
+		Math.max(8_000, lastFull + 30_000 - Date.now())
+	)
+	return () => {
+		clearTimeout(swap)
+		clearTimeout(rest)
+	}
 })
 
 onMount(() => () => observer?.disconnect())
