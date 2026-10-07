@@ -69,9 +69,10 @@ export default defineConfig({
 			// studio twice a minute.
 			// The preview reloads itself out of sight after each save instead.
 			// STUDIO_HMR=1 turns it back on (if the proxy's timeout is lifted).
-			...(process.env.STUDIO_HMR === "1"
-				? { hmr: { overlay: false } }
-				: { hmr: false, ws: false as const }),
+			// Hot-reload bookkeeping stays on (it's what makes a new post's
+			// file routable without a restart); only the websocket goes.
+			hmr: { overlay: false },
+			...(process.env.STUDIO_HMR === "1" ? {} : { ws: false as const }),
 			warmup: {
 				clientFiles: [
 					"./src/routes/cms/**/*.svelte",
