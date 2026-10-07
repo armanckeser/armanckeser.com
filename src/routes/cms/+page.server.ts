@@ -1,9 +1,10 @@
-import { listPosts } from "$lib/server/posts"
-import { gitStatus } from "$lib/server/git"
+import { listPosts } from "$lib/server/studio/service"
+import { agentWatching } from "$lib/server/studio/store"
 import type { PageServerLoad } from "./$types"
 
-export const load: PageServerLoad = async () => {
-	const [posts, status] = await Promise.all([listPosts(), gitStatus()])
+export const prerender = false
 
-	return { posts, gitStatus: status }
-}
+export const load: PageServerLoad = async () => ({
+	posts: await listPosts(),
+	agentWatching: agentWatching(),
+})

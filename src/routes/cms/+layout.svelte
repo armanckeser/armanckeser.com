@@ -1,42 +1,25 @@
 <script lang="ts">
-import { page } from "$app/state"
-import { FileText, Home, PenLine } from "lucide-svelte"
 import { Toaster } from "svelte-sonner"
+import { mode } from "mode-watcher"
+import "./studio.css"
 
 const { children } = $props()
 
-const isEditing = $derived(page.url.pathname.includes("/cms/editor"))
+$effect(() => {
+	document.documentElement.dataset.room = "writing"
+})
 </script>
 
-<Toaster theme="dark" toastOptions={{ style: "font-family: monospace; font-size: 0.8125rem;" }} />
+<svelte:head>
+	<meta name="robots" content="noindex" />
+</svelte:head>
 
-<div class="h-dvh flex flex-col bg-background text-foreground">
-	<nav class="shrink-0 border-b border-border bg-background/95 backdrop-blur">
-		<div class="flex items-center justify-between px-4 h-14">
-			<div class="flex items-center gap-3">
-				<a href="/cms" class="font-mono text-sm text-accent flex items-center gap-2">
-					<Home class="h-4 w-4" />
-					<span class="hidden sm:inline">CMS</span>
-				</a>
-				{#if isEditing}
-					<span class="text-muted-foreground">/</span>
-					<span class="font-mono text-sm flex items-center gap-1.5">
-						<PenLine class="h-3.5 w-3.5" />
-						Editor
-					</span>
-				{/if}
-			</div>
-			<a
-				href="/cms/editor"
-				class="flex items-center gap-2 rounded-md bg-accent px-3 py-1.5 font-mono text-sm text-accent-foreground"
-			>
-				<FileText class="h-3.5 w-3.5" />
-				New Post
-			</a>
-		</div>
-	</nav>
+<Toaster
+	theme={mode.current === "dark" ? "dark" : "light"}
+	position="bottom-center"
+	toastOptions={{ style: "font-family: var(--studio-sans); font-size: 13px; border-radius: 12px;" }}
+/>
 
-	<main class="flex-1 min-h-0 overflow-hidden">
-		{@render children()}
-	</main>
+<div class="studio h-dvh bg-background text-foreground" data-room="writing">
+	{@render children()}
 </div>
