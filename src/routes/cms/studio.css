@@ -6,9 +6,11 @@
 .studio {
 	--armanc: 200 51% 37%;
 	--claude: 21 88% 40%;
-	--studio-serif: "Charter", "Iowan Old Style", "Source Serif 4", "Georgia", serif;
+	--studio-serif: "Charter", "Iowan Old Style", "Source Serif 4", "Georgia",
+		serif;
 	--studio-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
-	--studio-mono: "JetBrains Mono", ui-monospace, "Cascadia Code", Consolas, monospace;
+	--studio-mono: "JetBrains Mono", ui-monospace, "Cascadia Code", Consolas,
+		monospace;
 	--rail: 320px;
 	font-family: var(--studio-sans);
 	-webkit-font-smoothing: antialiased;
@@ -34,11 +36,8 @@
 	font-size: 0.8125rem;
 	font-weight: 500;
 	white-space: nowrap;
-	transition:
-		transform 140ms var(--ease-out),
-		background-color 140ms ease,
-		border-color 140ms ease,
-		opacity 140ms ease;
+	transition: transform 140ms var(--ease-out), background-color 140ms ease,
+		border-color 140ms ease, opacity 140ms ease;
 }
 
 .studio-btn:active:not(:disabled),
@@ -65,9 +64,7 @@
 	height: 1.875rem;
 	border-radius: 0.5rem;
 	color: hsl(var(--muted-foreground));
-	transition:
-		transform 140ms var(--ease-out),
-		background-color 140ms ease,
+	transition: transform 140ms var(--ease-out), background-color 140ms ease,
 		color 140ms ease;
 }
 
@@ -131,18 +128,15 @@
 	font-size: 0.8125rem;
 	font-weight: 500;
 	color: hsl(var(--muted-foreground));
-	transition:
-		background-color 160ms ease,
-		color 160ms ease,
-		box-shadow 160ms ease;
+	transition: background-color 160ms ease, color 160ms ease, box-shadow 160ms
+		ease;
 }
 
 .studio-segment button[aria-pressed="true"] {
 	background: hsl(var(--background));
 	color: hsl(var(--foreground));
-	box-shadow:
-		0 1px 2px hsl(var(--foreground) / 0.08),
-		0 0 0 1px hsl(var(--foreground) / 0.04);
+	box-shadow: 0 1px 2px hsl(var(--foreground) / 0.08), 0 0 0 1px
+		hsl(var(--foreground) / 0.04);
 }
 
 .studio-tabs {
@@ -169,9 +163,7 @@
 	background: hsl(var(--background));
 	padding: 0.75rem 0.85rem;
 	cursor: pointer;
-	transition:
-		border-color 160ms ease,
-		box-shadow 160ms ease;
+	transition: border-color 160ms ease, box-shadow 160ms ease;
 }
 
 .studio-card-active {
@@ -190,9 +182,7 @@
 }
 
 .studio-enter {
-	transition:
-		opacity 200ms var(--ease-out),
-		transform 200ms var(--ease-out);
+	transition: opacity 200ms var(--ease-out), transform 200ms var(--ease-out);
 	@starting-style {
 		opacity: 0;
 		transform: translateY(-4px);
@@ -208,14 +198,11 @@
 	border-radius: 0.875rem;
 	border: 1px solid hsl(var(--border));
 	background: hsl(var(--background));
-	box-shadow:
-		0 12px 32px -8px hsl(var(--foreground) / 0.18),
-		0 2px 6px -2px hsl(var(--foreground) / 0.08);
+	box-shadow: 0 12px 32px -8px hsl(var(--foreground) / 0.18), 0 2px 6px -2px
+		hsl(var(--foreground) / 0.08);
 	padding: 1rem;
 	transform-origin: var(--bits-floating-transform-origin);
-	transition:
-		opacity 180ms var(--ease-out),
-		transform 180ms var(--ease-out);
+	transition: opacity 180ms var(--ease-out), transform 180ms var(--ease-out);
 	@starting-style {
 		opacity: 0;
 		transform: scale(0.96);
@@ -234,9 +221,7 @@
 .studio-float {
 	position: absolute;
 	z-index: 30;
-	transition:
-		opacity 140ms var(--ease-out),
-		transform 140ms var(--ease-out);
+	transition: opacity 140ms var(--ease-out), transform 140ms var(--ease-out);
 	@starting-style {
 		opacity: 0;
 		transform: translateY(3px) scale(0.97);
@@ -254,7 +239,13 @@ kbd {
 
 /* Waiting for something: a soft sweep instead of a spinner. */
 .studio-shimmer {
-	background: linear-gradient(90deg, currentColor 40%, hsl(var(--foreground) / 0.25) 50%, currentColor 60%) 0 0 / 300% 100%;
+	background: linear-gradient(
+			90deg,
+			currentColor 40%,
+			hsl(var(--foreground) / 0.25) 50%,
+			currentColor 60%
+		)
+		0 0 / 300% 100%;
 	-webkit-background-clip: text;
 	background-clip: text;
 	-webkit-text-fill-color: transparent;

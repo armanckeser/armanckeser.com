@@ -1,4 +1,6 @@
 <script lang="ts">
+import { plainText } from "$lib/studio/threads"
+import type { ThreadView } from "$lib/studio/types"
 /**
  * The post as it will be published: the site's own page, from the site's own
  * dev server, interactive components and all. Edits arrive through Vite's hot
@@ -9,8 +11,6 @@
  * the commented passages are highlighted where they render.
  */
 import { onMount } from "svelte"
-import { plainText } from "$lib/studio/threads"
-import type { ThreadView } from "$lib/studio/types"
 
 type Props = {
 	slug: string

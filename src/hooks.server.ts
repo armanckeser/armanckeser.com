@@ -1,5 +1,6 @@
-import { problem } from "$lib/server/studio/problem"
+import { building } from "$app/environment"
 import { env } from "$env/dynamic/private"
+import { problem } from "$lib/server/studio/problem"
 import type { Handle } from "@sveltejs/kit"
 
 /**
@@ -8,8 +9,12 @@ import type { Handle } from "@sveltejs/kit"
  * ?token=…) or `Authorization: Bearer …` from the agent.
  */
 export const handle: Handle = async ({ event, resolve }) => {
-	const required = env.CMS_TOKEN
-	if (required && event.url.pathname.startsWith("/cms")) {
+	// Never while prerendering the public site: the studio isn't part of it.
+	const required =
+		!building && event.url.pathname.startsWith("/cms")
+			? env.CMS_TOKEN
+			: undefined
+	if (required) {
 		const fromQuery = event.url.searchParams.get("token")
 		const bearer = event.request.headers
 			.get("authorization")

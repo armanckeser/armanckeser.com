@@ -17,6 +17,13 @@ import {
 	writeFile,
 } from "node:fs/promises"
 import { join } from "node:path"
+import {
+	ACTORS,
+	type Actor,
+	type StudioEvent,
+	type Thread,
+	type ThreadView,
+} from "$lib/studio/types"
 import diff from "fast-diff"
 import {
 	Awareness,
@@ -25,13 +32,6 @@ import {
 	removeAwarenessStates,
 } from "y-protocols/awareness"
 import * as Y from "yjs"
-import {
-	ACTORS,
-	type Actor,
-	type StudioEvent,
-	type Thread,
-	type ThreadView,
-} from "$lib/studio/types"
 import { type Meta, parseSvx, serializeSvx } from "./svx"
 
 export const REPO_PATH = process.env.REPO_PATH || process.cwd()

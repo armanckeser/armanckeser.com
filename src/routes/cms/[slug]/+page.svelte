@@ -1,4 +1,14 @@
 <script lang="ts">
+import { goto } from "$app/navigation"
+import Avatar from "$lib/components/studio/Avatar.svelte"
+import Editor from "$lib/components/studio/Editor.svelte"
+import Preview from "$lib/components/studio/Preview.svelte"
+import Threads from "$lib/components/studio/Threads.svelte"
+import { api } from "$lib/studio/api"
+import { Collab } from "$lib/studio/collab.svelte"
+import { threadViews } from "$lib/studio/threads"
+import type { Actor, PostStatus, ThreadView } from "$lib/studio/types"
+import { Popover } from "bits-ui"
 /**
  * One post, worked on together. The draft on the left, the page as it will be
  * published on the right, the conversation about it in the rail. Everything
@@ -12,18 +22,8 @@ import {
 	PanelRight,
 	SlidersHorizontal,
 } from "lucide-svelte"
-import { goto } from "$app/navigation"
-import { Popover } from "bits-ui"
 import { onMount, untrack } from "svelte"
 import { toast } from "svelte-sonner"
-import Avatar from "$lib/components/studio/Avatar.svelte"
-import Editor from "$lib/components/studio/Editor.svelte"
-import Preview from "$lib/components/studio/Preview.svelte"
-import Threads from "$lib/components/studio/Threads.svelte"
-import { api } from "$lib/studio/api"
-import { Collab } from "$lib/studio/collab.svelte"
-import { threadViews } from "$lib/studio/threads"
-import type { Actor, PostStatus, ThreadView } from "$lib/studio/types"
 
 const { data } = $props()
 

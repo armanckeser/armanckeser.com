@@ -1,4 +1,7 @@
 <script lang="ts">
+import { api } from "$lib/studio/api"
+import { ago, plainText } from "$lib/studio/threads"
+import { ACTORS, type ThreadView } from "$lib/studio/types"
 /**
  * The conversation about the post: one card per commented passage, in the
  * order the passages appear. New comments start from a selection, in the
@@ -7,9 +10,6 @@
 import { Check, CornerDownLeft, RotateCcw, Trash2 } from "lucide-svelte"
 import { tick } from "svelte"
 import { toast } from "svelte-sonner"
-import { api } from "$lib/studio/api"
-import { ago, plainText } from "$lib/studio/threads"
-import { ACTORS, type ThreadView } from "$lib/studio/types"
 import Avatar from "./Avatar.svelte"
 
 type Draft = { quote: string; from?: number; to?: number } | null

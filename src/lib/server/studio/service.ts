@@ -7,6 +7,7 @@ import type { Actor, PostSummary, Thread, ThreadView } from "$lib/studio/types"
 import { commitAndPush, statusOf } from "./git"
 import {
 	NotFound,
+	type Room,
 	SLUG,
 	agentPresence,
 	anchorAt,
@@ -21,7 +22,6 @@ import {
 	persist,
 	putThread,
 	readMeta,
-	type Room,
 	setMeta,
 	svxPath,
 	threads,

@@ -1,4 +1,7 @@
 <script lang="ts">
+import type { Collab } from "$lib/studio/collab.svelte"
+import { headingId } from "$lib/studio/threads"
+import type { ThreadView } from "$lib/studio/types"
 /**
  * The shared source of a post. CodeMirror over the Yjs text, so every keystroke
  * (yours or Claude's) lands for both of you, with each other's cursors and the
@@ -24,9 +27,6 @@ import { tags as t } from "@lezer/highlight"
 import { onMount } from "svelte"
 import { yCollab, yUndoManagerKeymap } from "y-codemirror.next"
 import * as Y from "yjs"
-import type { Collab } from "$lib/studio/collab.svelte"
-import { headingId } from "$lib/studio/threads"
-import type { ThreadView } from "$lib/studio/types"
 
 type Props = {
 	collab: Collab

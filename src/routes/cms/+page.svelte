@@ -4,12 +4,12 @@
  * is a new draft; there's nothing else to fill in to start.
  */
 import { goto, invalidateAll } from "$app/navigation"
-import { ArrowUpRight, MessageSquare } from "lucide-svelte"
-import { toast } from "svelte-sonner"
 import Avatar from "$lib/components/studio/Avatar.svelte"
 import { api } from "$lib/studio/api"
 import { ago } from "$lib/studio/threads"
 import type { PostSummary } from "$lib/studio/types"
+import { ArrowUpRight, MessageSquare } from "lucide-svelte"
+import { toast } from "svelte-sonner"
 
 const { data } = $props()
 

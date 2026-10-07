@@ -1,6 +1,6 @@
 <script lang="ts">
-import { Toaster } from "svelte-sonner"
 import { mode } from "mode-watcher"
+import { Toaster } from "svelte-sonner"
 import "./studio.css"
 
 const { children } = $props()
