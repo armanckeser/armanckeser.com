@@ -11,7 +11,13 @@ const room = $derived(scrolled.room ?? roomOf(page.url.pathname))
 // In development, a change that can't hot-swap reloads the site's pages (and the
 // preview inside the studio) but not the studio itself; see vite.config.ts.
 if (import.meta.hot) {
-	import.meta.hot.on("studio:reload", () => location.reload())
+	import.meta.hot.on("studio:reload", () => {
+		// Inside the studio, it reloads us out of sight and swaps us in.
+		const studio = (window as Window & { __studioReload?: () => void })
+			.__studioReload
+		if (studio) studio()
+		else location.reload()
+	})
 }
 
 // The document itself takes the room too, so the page behind everything (and

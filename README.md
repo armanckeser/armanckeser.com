@@ -8,19 +8,43 @@ bun install
 bun run dev
 ```
 
-## Two build modes
+## The studio
 
-The same codebase builds two different things, switched by `BUILD_MODE`
-(`svelte.config.js`):
+`/cms` is where posts get written: a shared editor that Claude and I both work in,
+next to the post rendered by the site itself, with comments on any passage.
 
-| Command | Adapter | What it is |
-|---|---|---|
-| `bun run build` | `adapter-static` | The public site, prerendered, what ships to Pages |
-| `bun run build:cms` | `adapter-node` | A server build that also serves the `/cms` editor routes |
+- **Write**: the post's source on the left (a CodeMirror editor over a Yjs document,
+  so both of us type into the same text at once, with each other's cursors), and
+  the real page on the right, interactive components and all. Edits reach the
+  page through the dev server's hot reload.
+- **Read**: just the rendered page. Select any passage on it to comment.
+- **Comments** stay attached to their passage as the text around them changes.
+  A thread where I spoke last is in Claude's inbox.
+- **Publish** commits the post to `main` and pushes, which deploys the site.
 
-The CMS is a small authoring UI over the same content directory. It runs as a container
-on my home server rather than being exposed publicly, which is why it needs a Node
-server while the public site does not.
+It is agent-first: the page and Claude use the same HTTP API and nothing else, so
+anything I can do in the page Claude can do with curl, and the other way round.
+`GET /cms/api` describes every route; [AGENTS.md](AGENTS.md) is the guide.
+
+### How it runs
+
+The studio is this repo's own `vite dev`, run by the image in `Dockerfile` against a
+clone of the repo in a volume on my home server (behind Cosmos, on the tailnet only).
+The image carries only the dependencies; the code comes from the clone, which
+`docker-entrypoint.sh` pulls on start. So:
+
+- a new component pushed to `main` is in the studio after `POST /cms/api/pull`;
+- a post is a draft while its file is untracked in the clone (`published: false`),
+  and never reaches GitHub, which is public, until it's published;
+- the shared documents (text, comments, history) live in `.studio/` in the clone.
+
+`STUDIO=1` turns on the dev-server settings it needs (`vite.config.ts`). If the
+proxy ever drops the hot-reload websocket, `STUDIO_HMR=0` turns it off and the
+preview reloads itself after each save instead. `CMS_TOKEN`, when set, is required
+as a cookie (`?token=` once) or a bearer token.
+
+To run it locally: `bun run dev` and open `localhost:5173/cms`. It edits the posts
+in this working tree.
 
 ## Writing a post
 
@@ -36,15 +60,13 @@ published: true
 ---
 ```
 
+`published: false` keeps a post out of every production surface (listings, RSS,
+sitemap, prerendered routes) while `vite dev` still shows it, which is how the studio
+previews drafts. The studio writes this field for you.
+
 Add `## Contents` as the first heading to get a table of contents, which `remark-toc`
 fills in from the headings below it. Headings get slug ids and hover anchors
 automatically.
-
-**`published` is not enforced.** `getPosts()` in `src/lib/posts.ts` globs every `.svx`
-under `src/content` and does not filter on the flag, so committing a file publishes it
-regardless of what the frontmatter says. Drafts stay unpublished by being excluded from
-git in `.git/info/exclude`, which is local to a clone and does not survive a fresh one.
-If you clone this somewhere new, recreate those excludes before running `git add .`.
 
 Svelte components can be imported into a post for custom interactives, see
 `sixth-year.svx` using `CommitmentGrid`.
@@ -93,12 +115,12 @@ Because the install is frozen, **a dependency bump that does not update `bun.loc
 breaks the deploy.** Dependabot only updates `package.json` and npm lockfiles, so after
 merging one of its PRs, run `bun install` and commit the lockfile.
 
-## Releases
+## The studio image
 
-Tags and releases here are only for the CMS container image.
-`.github/workflows/build-cms-image.yml` runs on a published release and pushes
-`ghcr.io/armanckeser/armanckeser-cms`. Publishing a blog post needs no release, since
-the CMS reads content from `REPO_PATH` at runtime rather than baking it into the image.
+`.github/workflows/build-cms-image.yml` builds `ghcr.io/armanckeser/armanckeser-cms`
+natively on arm64 whenever the dependencies, the Dockerfile or the entrypoint change
+on `main` (or by hand). Cosmos updates the container from `:latest`. Publishing a
+post needs no image: the studio pushes the post and the site deploys.
 
 ## Checks
 

@@ -35,7 +35,11 @@ const {
 	onthread,
 }: Props = $props()
 
-let frame: HTMLIFrameElement
+// Two frames: a reload happens in the hidden one and is swapped in when it's
+// ready, so the page never flashes blank while you write.
+const frames: HTMLIFrameElement[] = []
+let current = $state(0)
+let srcs = $state<string[]>([])
 let loaded = $state(false)
 let failed = $state(false)
 let mutated = false
@@ -43,14 +47,38 @@ let scrollY = 0
 let observer: MutationObserver | undefined
 const src = $derived(`/writing/${slug}?studio=1`)
 
+$effect(() => {
+	srcs = [src, ""]
+	current = 0
+})
+
 function win() {
-	return frame?.contentWindow as (Window & typeof globalThis) | null
+	return frames[current]?.contentWindow as (Window & typeof globalThis) | null
 }
 
-function onload() {
-	const w = win()
-	const doc = w?.document
-	if (!w || !doc) return
+/** Reloads the page out of sight and swaps it in once it has rendered. */
+function reload() {
+	const next = 1 - current
+	srcs[next] = `${src}&v=${Date.now()}`
+}
+
+function onload(index: number) {
+	const w = frames[index]?.contentWindow as
+		| (Window & typeof globalThis)
+		| null
+	if (!w || !srcs[index] || w.location.href === "about:blank") return
+	if (index !== current) {
+		const old = current
+		current = index
+		setTimeout(() => (srcs[old] = ""), 50)
+	}
+	// The site's pages ask the studio to reload them (see the (site) layout).
+	;(w as unknown as { __studioReload?: () => void }).__studioReload = reload
+	setup(w)
+}
+
+function setup(w: Window & typeof globalThis) {
+	const doc = w.document
 	loaded = true
 	failed = !doc.querySelector("article, main")
 	const style = doc.createElement("style")
@@ -238,14 +266,8 @@ $effect(() => {
 	// Hot reload normally changes the page within a moment of the save. If it
 	// didn't, reload, keeping the reader where they were.
 	const timer = setTimeout(() => {
-		const w = win()
-		if (mutated || !w) return
-		const y = w.scrollY
-		frame.addEventListener("load", () => win()?.scrollTo(0, y), {
-			once: true,
-		})
-		w.location.reload()
-	}, 2500)
+		if (!mutated) reload()
+	}, 1500)
 	return () => clearTimeout(timer)
 })
 
@@ -253,13 +275,18 @@ onMount(() => () => observer?.disconnect())
 </script>
 
 <div class="relative h-full w-full">
-	<iframe
-		bind:this={frame}
-		{src}
-		title="Rendered post"
-		class="h-full w-full border-0 bg-background"
-		{onload}
-	></iframe>
+	{#each [0, 1] as index (index)}
+		<iframe
+			bind:this={frames[index]}
+			src={srcs[index] || "about:blank"}
+			title="Rendered post"
+			class="absolute inset-0 h-full w-full border-0 bg-background"
+			class:invisible={index !== current}
+			aria-hidden={index !== current}
+			tabindex={index === current ? 0 : -1}
+			onload={() => onload(index)}
+		></iframe>
+	{/each}
 	{#if !loaded}
 		<div class="absolute inset-0 grid place-items-center bg-background text-sm text-muted-foreground">
 			<span class="studio-shimmer">Rendering the page…</span>

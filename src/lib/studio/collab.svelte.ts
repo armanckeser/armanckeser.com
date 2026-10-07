@@ -40,6 +40,8 @@ export class Collab {
 	agentWatching = $state(false)
 
 	#source?: EventSource
+	#live = false
+	#dropTimer?: ReturnType<typeof setTimeout>
 	#queue: Uint8Array[] = []
 	#awarenessDirty = false
 	#flushing = false
@@ -116,6 +118,8 @@ export class Collab {
 			if (missing.length > 2) this.#queue.push(missing)
 			this.#awarenessDirty = true
 			this.#schedule(0)
+			this.#live = true
+			clearTimeout(this.#dropTimer)
 			this.connection = "live"
 			this.ready = true
 		})
@@ -141,15 +145,22 @@ export class Collab {
 			this.agentWatching = JSON.parse((e as MessageEvent).data).watching
 		})
 		source.onerror = () => {
-			this.connection =
-				source.readyState === EventSource.CLOSED
-					? "offline"
-					: "connecting"
-			// Others' cursors are stale until we're back.
-			const others = [...this.awareness.getStates().keys()].filter(
-				id => id !== this.doc.clientID
-			)
-			removeAwarenessStates(this.awareness, others, "remote")
+			// The proxy in front of the studio closes long requests now and then;
+			// the stream comes straight back, so only a lasting drop is shown.
+			this.#live = false
+			clearTimeout(this.#dropTimer)
+			this.#dropTimer = setTimeout(() => {
+				if (this.#live) return
+				this.connection =
+					source.readyState === EventSource.CLOSED
+						? "offline"
+						: "connecting"
+				// Others' cursors are stale until we're back.
+				const others = [...this.awareness.getStates().keys()].filter(
+					id => id !== this.doc.clientID
+				)
+				removeAwarenessStates(this.awareness, others, "remote")
+			}, 4000)
 			if (source.readyState === EventSource.CLOSED)
 				setTimeout(() => this.#open(), 2000)
 		}
@@ -166,7 +177,7 @@ export class Collab {
 	}
 
 	async #flush() {
-		if (this.#flushing || this.connection !== "live") return
+		if (this.#flushing || !this.#live) return
 		if (!this.#queue.length && !this.#awarenessDirty) return
 		this.#flushing = true
 		const updates = this.#queue.splice(0)

@@ -64,7 +64,9 @@ export default defineConfig({
 			host: "0.0.0.0",
 			allowedHosts: true,
 			// Writing a draft triggers a reload; the studio shows its own errors.
-			hmr: { overlay: false },
+			// STUDIO_HMR=0 turns hot reload off if the proxy drops its websocket;
+			// the preview then reloads itself after each save.
+			hmr: process.env.STUDIO_HMR === "0" ? false : { overlay: false },
 			warmup: {
 				clientFiles: [
 					"./src/routes/cms/**/*.svelte",

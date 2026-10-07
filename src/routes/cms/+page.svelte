@@ -116,7 +116,7 @@ const statusLabel = {
 									class="group flex items-start justify-between gap-4 rounded-xl px-3 py-3 transition-colors duration-150 hover:bg-foreground/[0.04]"
 								>
 									<div class="min-w-0">
-										<p class="truncate font-[family-name:var(--studio-serif)] text-[17px] leading-snug">{post.title}</p>
+										<p class="truncate font-[family-name:var(--studio-serif)] text-[17px] leading-snug text-foreground">{post.title}</p>
 										<p class="mt-1 flex flex-wrap items-center gap-x-2 text-xs text-muted-foreground">
 											{#if post.status === "changed"}
 												<span class="text-[hsl(var(--accent))]">{statusLabel.changed}</span>
