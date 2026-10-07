@@ -37,7 +37,7 @@ const {
 
 // Two frames: a reload happens in the hidden one and is swapped in when it's
 // ready, so the page never flashes blank while you write.
-const frames: HTMLIFrameElement[] = []
+const frames = $state<HTMLIFrameElement[]>([])
 let current = $state(0)
 let srcs = $state<string[]>([])
 let loaded = $state(false)
@@ -80,7 +80,11 @@ function onload(index: number) {
 	if (index !== current) {
 		const old = current
 		current = index
-		setTimeout(() => (srcs[old] = ""), 50)
+		// Blank the frame we left, unless a newer save is already loading into it.
+		const left = srcs[old]
+		setTimeout(() => {
+			if (srcs[old] === left) srcs[old] = ""
+		}, 50)
 	}
 	// The site's pages ask the studio to reload them (see the (site) layout).
 	;(w as unknown as { __studioReload?: () => void }).__studioReload = reload
