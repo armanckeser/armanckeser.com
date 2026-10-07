@@ -6,8 +6,13 @@ import Preview from "$lib/components/studio/Preview.svelte"
 import Threads from "$lib/components/studio/Threads.svelte"
 import { api } from "$lib/studio/api"
 import { Collab } from "$lib/studio/collab.svelte"
-import { threadViews } from "$lib/studio/threads"
-import type { Actor, PostStatus, ThreadView } from "$lib/studio/types"
+import { ago, threadViews } from "$lib/studio/threads"
+import type {
+	Actor,
+	NotesSync,
+	PostStatus,
+	ThreadView,
+} from "$lib/studio/types"
 import { Popover } from "bits-ui"
 /**
  * One post, worked on together. The draft on the left, the page as it will be
@@ -83,7 +88,7 @@ onMount(() => {
 })
 
 const claude = $derived(peers.find(p => p.actor === "claude"))
-const title = $derived(String(meta.title ?? data.title ?? ""))
+const title = $derived(String(meta.title || data.title || ""))
 
 // ------------------------------------------------------------ layout
 
@@ -272,6 +277,62 @@ const statusText = {
 	draft: "Draft",
 	published: "Published",
 	changed: "Unpublished changes",
+	note:
+		data.folder === "drafts"
+			? "Post idea"
+			: data.folder === "research"
+				? "Research"
+				: "Note",
+}
+
+// ------------------------------------------------------------ notes
+
+const isNote = untrack(() => data.kind === "note")
+const notePath = untrack(() =>
+	data.slug.replace(/^notes~/, "").replaceAll("~", "/")
+)
+let sync = $state<NotesSync | null>(null)
+let syncing = $state(false)
+
+onMount(() => {
+	if (!isNote) return
+	const read = () =>
+		api.notesSync().then(
+			s => (sync = s),
+			() => {}
+		)
+	read()
+	const timer = setInterval(read, 20_000)
+	const off = collab.on(event => {
+		if (event === "saved") setTimeout(read, 400)
+	})
+	return () => {
+		clearInterval(timer)
+		off()
+	}
+})
+
+async function syncNow() {
+	syncing = true
+	try {
+		sync = await api.notesSync(true)
+		if (sync.error) toast.error(sync.error)
+	} finally {
+		syncing = false
+	}
+}
+
+let promoting = $state(false)
+async function promote() {
+	promoting = true
+	try {
+		const post = await api.promote(collab.slug)
+		toast.success("It's a draft post now. The idea left the notes.")
+		await goto(`/cms/${post.slug}`)
+	} catch (e) {
+		toast.error((e as Error).message)
+		promoting = false
+	}
 }
 </script>
 
@@ -359,14 +420,14 @@ const statusText = {
 								</label>
 								<div class="studio-field">
 									Address
-									<span class="truncate pt-2 font-mono text-[11px] text-foreground">/writing/{collab.slug}</span>
+									<span class="truncate pt-2 font-mono text-[11px] text-foreground">{isNote ? `notes/${notePath}` : `/writing/${collab.slug}`}</span>
 								</div>
 							</div>
 						</div>
-					{#if status === "draft"}
+					{#if status === "draft" || status === "note"}
 						<div class="mt-4 border-t border-border pt-3">
 							<button class="text-xs text-muted-foreground underline-offset-2 hover:text-[hsl(var(--destructive))] hover:underline" onclick={deleteDraft}>
-								Delete this draft
+								{isNote ? "Delete this note" : "Delete this draft"}
 							</button>
 						</div>
 					{/if}
@@ -381,6 +442,29 @@ const statusText = {
 				{/if}
 			</button>
 
+			{#if isNote}
+				<button
+					class="hidden text-xs text-muted-foreground underline-offset-2 hover:underline sm:inline"
+					title={sync?.error ?? "Notes commit to armanckeser.com-notes on their own once you pause. Click to sync now."}
+					disabled={syncing}
+					onclick={syncNow}
+				>
+					{#if syncing}
+						<span class="studio-shimmer">Syncing</span>
+					{:else if sync?.error}
+						<span class="text-[hsl(var(--destructive))]">Sync failed</span>
+					{:else if sync?.pending}
+						Not synced yet
+					{:else if sync?.lastSync}
+						Synced {ago(sync.lastSync)}
+					{/if}
+				</button>
+				{#if data.folder === "drafts"}
+					<button class="studio-btn studio-btn-primary ml-1" disabled={promoting} onclick={promote} title="Move this idea out of the notes and into the site as a draft post">
+						{#if promoting}<span class="studio-shimmer">Moving</span>{:else}Make it a post{/if}
+					</button>
+				{/if}
+			{:else}
 			<Popover.Root bind:open={publishOpen}>
 				<Popover.Trigger class="studio-btn studio-btn-primary ml-1" disabled={status === "published"}>
 					{status === "published" ? "Published" : status === "changed" ? "Publish changes" : "Publish"}
@@ -419,7 +503,8 @@ const statusText = {
 					</Popover.Content>
 				</Popover.Portal>
 			</Popover.Root>
-			{#if status !== "draft"}
+			{/if}
+			{#if status !== "draft" && !isNote}
 				<a class="studio-icon-btn" href={data.url} target="_blank" rel="noreferrer" title="Open the live page"><ArrowUpRight class="h-4 w-4" /></a>
 			{/if}
 		</div>
@@ -454,13 +539,14 @@ const statusText = {
 					<!-- svelte-ignore a11y_no_static_element_interactions -->
 					<div class="studio-handle" data-dragging={dragging} onpointerdown={startDrag}></div>
 					<div class="relative min-h-0 min-w-0 flex-1" class:pointer-events-none={dragging}>
-						<Preview slug={collab.slug} {threads} {active} {heading} savedAt={collab.savedAt} commenting={false} onselect={() => {}} onthread={activate} />
+						<Preview slug={collab.slug} page={isNote ? `/cms/view/${collab.slug}` : undefined} {threads} {active} {heading} savedAt={collab.savedAt} commenting={false} onselect={() => {}} onthread={activate} />
 					</div>
 				{/if}
 			{:else}
 				<div class="relative min-h-0 min-w-0 flex-1">
 					<Preview
 						slug={collab.slug}
+						page={isNote ? `/cms/view/${collab.slug}` : undefined}
 						{threads}
 						{active}
 						heading={null}

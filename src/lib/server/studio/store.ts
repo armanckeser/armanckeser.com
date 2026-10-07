@@ -16,7 +16,7 @@ import {
 	stat,
 	writeFile,
 } from "node:fs/promises"
-import { join } from "node:path"
+import { dirname, join } from "node:path"
 import {
 	ACTORS,
 	type Actor,
@@ -32,11 +32,13 @@ import {
 	removeAwarenessStates,
 } from "y-protocols/awareness"
 import * as Y from "yjs"
-import { type Meta, parseSvx, serializeSvx } from "./svx"
+import { type Meta, parseSvx, patchYaml, serializeSvx } from "./svx"
 
 export const REPO_PATH = process.env.REPO_PATH || process.cwd()
 export const CONTENT_DIR = join(REPO_PATH, "src", "content", "writing")
 export const DATA_DIR = process.env.STUDIO_DATA || join(REPO_PATH, ".studio")
+/** A clone of the private notes repo: strategy, plans, post ideas. */
+export const NOTES_DIR = process.env.NOTES_PATH || join(DATA_DIR, "notes")
 
 export type Subscriber = {
 	id: string
@@ -76,12 +78,31 @@ const registry: Registry = (g.__studio ??= {
 
 export const SLUG = /^[a-z0-9][a-z0-9-]{0,79}$/
 
+/**
+ * A note's id is its path in the notes repo with "~" for "/", after "notes~":
+ * notes~GROWTH_STRATEGY.md, notes~drafts~hearth.svx. Only these folders are
+ * open to the studio; the rest of the repo (finance/) is not.
+ */
+export const NOTE =
+	/^notes~(?:(?:drafts|research)~)?[A-Za-z0-9][A-Za-z0-9_.-]{0,99}\.(?:md|svx)$/
+
+export const isNote = (id: string) => id.startsWith("notes~")
+
+export function noteId(path: string) {
+	return `notes~${path.split("/").join("~")}`
+}
+
 export function svxPath(slug: string) {
 	return join(CONTENT_DIR, `${slug}.svx`)
 }
 
-function binPath(slug: string) {
-	return join(DATA_DIR, "docs", `${slug}.ydoc`)
+/** The file a document is kept in: a post in the site, or a note in the notes repo. */
+export function docPath(id: string) {
+	return isNote(id) ? join(NOTES_DIR, ...id.slice(6).split("~")) : svxPath(id)
+}
+
+function binPath(id: string) {
+	return join(DATA_DIR, "docs", `${id}.ydoc`)
 }
 
 export const b64 = {
@@ -112,6 +133,16 @@ export function agentWatching(delta = 0): boolean {
 
 // ---------------------------------------------------------------- rooms
 
+let noteHook: (() => void) | undefined
+/** Called whenever a note's file is written (the notes module commits them). */
+export function onNoteWritten(hook: () => void) {
+	noteHook = hook
+}
+
+export function loaded(): Room[] {
+	return loadedRooms()
+}
+
 function loadedRooms(): Room[] {
 	return [...registry.rooms.values()].flatMap(promise => {
 		const room = (promise as Promise<Room> & { resolved?: Room }).resolved
@@ -120,7 +151,8 @@ function loadedRooms(): Room[] {
 }
 
 export function getRoom(slug: string): Promise<Room> {
-	if (!SLUG.test(slug)) return Promise.reject(new NotFound(slug))
+	if (!SLUG.test(slug) && !NOTE.test(slug))
+		return Promise.reject(new NotFound(slug))
 	let promise = registry.rooms.get(slug) as
 		| (Promise<Room> & { resolved?: Room })
 		| undefined
@@ -151,7 +183,7 @@ async function openRoom(slug: string): Promise<Room> {
 	const doc = new Y.Doc()
 	const [bin, file] = await Promise.all([
 		readFile(binPath(slug)).catch(() => null),
-		readFile(svxPath(slug), "utf-8").catch(() => null),
+		readFile(docPath(slug), "utf-8").catch(() => null),
 	])
 	if (!bin && file === null) throw new NotFound(slug)
 
@@ -174,13 +206,14 @@ async function openRoom(slug: string): Promise<Room> {
 	}
 
 	if (file !== null) {
-		const mtime = (await stat(svxPath(slug))).mtimeMs
+		const mtime = (await stat(docPath(slug))).mtimeMs
 		if (!bin) {
-			const { meta, body, yaml, eol } = parseSvx(file)
+			const { meta, body, yaml, eol, front } = parseSvx(file)
 			doc.transact(() => {
 				doc.getText("body").insert(0, body)
 				doc.getMap("raw").set("yaml", yaml)
 				doc.getMap("raw").set("eol", eol)
+				doc.getMap("raw").set("front", front)
 				setMeta(doc, meta)
 			}, "load")
 		} else if (serialize(doc) !== file) {
@@ -227,9 +260,9 @@ async function openRoom(slug: string): Promise<Room> {
 
 /** Picks up edits made to the file by something else: a git pull, an agent editing on disk. */
 async function refreshFromDisk(room: Room) {
-	const info = await stat(svxPath(room.slug)).catch(() => null)
+	const info = await stat(docPath(room.slug)).catch(() => null)
 	if (!info || info.mtimeMs === room.lastMtime) return
-	const file = await readFile(svxPath(room.slug), "utf-8")
+	const file = await readFile(docPath(room.slug), "utf-8")
 	room.lastMtime = info.mtimeMs
 	if (file === room.lastFile) return
 	room.lastFile = file
@@ -237,11 +270,12 @@ async function refreshFromDisk(room: Room) {
 }
 
 function replaceFromFile(doc: Y.Doc, file: string) {
-	const { meta, body, yaml, eol } = parseSvx(file)
+	const { meta, body, yaml, eol, front } = parseSvx(file)
 	doc.transact(() => {
 		applyDiff(doc.getText("body"), body)
 		doc.getMap("raw").set("yaml", yaml)
 		doc.getMap("raw").set("eol", eol)
+		doc.getMap("raw").set("front", front)
 		setMeta(doc, meta)
 	}, "disk")
 }
@@ -250,6 +284,11 @@ export function serialize(doc: Y.Doc): string {
 	// The frontmatter as last read from disk, patched only where the meta differs.
 	const yaml = String(doc.getMap("raw").get("yaml") ?? "")
 	const eol = String(doc.getMap("raw").get("eol") ?? "\n")
+	// A note written without frontmatter stays without it until it has some.
+	if (doc.getMap("raw").get("front") === false) {
+		const front = patchYaml("", readMeta(doc))
+		if (!front.trim()) return doc.getText("body").toString()
+	}
 	return serializeSvx(
 		yaml,
 		readMeta(doc),
@@ -315,10 +354,11 @@ export async function persist(room: Room) {
 
 	const file = serialize(room.doc)
 	if (file !== room.lastFile) {
-		await mkdir(CONTENT_DIR, { recursive: true })
-		await writeFile(svxPath(room.slug), file, "utf-8")
+		await mkdir(dirname(docPath(room.slug)), { recursive: true })
+		await writeFile(docPath(room.slug), file, "utf-8")
 		room.lastFile = file
-		room.lastMtime = (await stat(svxPath(room.slug))).mtimeMs
+		room.lastMtime = (await stat(docPath(room.slug))).mtimeMs
+		if (isNote(room.slug)) noteHook?.()
 		broadcast(room, "saved", { at: new Date().toISOString() })
 	}
 }
@@ -547,4 +587,19 @@ export async function listSlugs(): Promise<string[]> {
 		.filter(f => f.endsWith(".svx"))
 		.map(f => f.slice(0, -4))
 		.filter(s => SLUG.test(s))
+}
+
+/** Every note the studio shows: the top of the notes repo, drafts/ and research/. */
+export async function listNoteIds(): Promise<string[]> {
+	const ids: string[] = []
+	for (const folder of ["", "drafts", "research"]) {
+		const files = await readdir(join(NOTES_DIR, folder)).catch(
+			() => [] as string[]
+		)
+		for (const file of files) {
+			const id = noteId(folder ? `${folder}/${file}` : file)
+			if (NOTE.test(id)) ids.push(id)
+		}
+	}
+	return ids
 }

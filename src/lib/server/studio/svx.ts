@@ -22,12 +22,13 @@ export function parseSvx(raw: string): {
 	body: string
 	yaml: string
 	eol: string
+	front: boolean
 } {
 	const match = FRONTMATTER.exec(raw)
 	const eol = raw.includes("\r\n") ? "\r\n" : "\n"
 	const yaml = match ? match[1].replace(/\r\n/g, "\n") : ""
 	const body = match ? raw.slice(match[0].length) : raw
-	return { meta: readYaml(yaml), body, yaml, eol }
+	return { meta: readYaml(yaml), body, yaml, eol, front: !!match }
 }
 
 export function readYaml(yaml: string): Meta {

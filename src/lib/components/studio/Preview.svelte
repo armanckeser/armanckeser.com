@@ -14,6 +14,8 @@ import { onMount } from "svelte"
 
 type Props = {
 	slug: string
+	/** The page to show. Defaults to the post as the site renders it. */
+	page?: string
 	threads: ThreadView[]
 	active: string | null
 	/** When set, the preview follows the writer to this heading. */
@@ -26,6 +28,7 @@ type Props = {
 
 const {
 	slug,
+	page,
 	threads,
 	active,
 	heading,
@@ -45,7 +48,9 @@ let retries = $state(0)
 let failed = $state(false)
 let scrollY = 0
 let observer: MutationObserver | undefined
-const src = $derived(`/writing/${slug}?studio=1`)
+const src = $derived(page ?? `/writing/${slug}?studio=1`)
+const join = (url: string, param: string) =>
+	`${url}${url.includes("?") ? "&" : "?"}${param}`
 
 $effect(() => {
 	srcs = [src, ""]
@@ -59,7 +64,7 @@ function win() {
 /** Reloads the page out of sight and swaps it in once it has rendered. */
 function reload() {
 	const next = 1 - current
-	srcs[next] = `${src}&v=${Date.now()}`
+	srcs[next] = join(src, `v=${Date.now()}`)
 }
 
 function onload(index: number) {
@@ -288,7 +293,7 @@ async function swapArticle(): Promise<boolean> {
 	const live = doc?.querySelector("article.post")
 	if (!doc || !live) return false
 	try {
-		const response = await fetch(`${src}&fresh=${Date.now()}`)
+		const response = await fetch(join(src, `fresh=${Date.now()}`))
 		if (!response.ok) return false
 		const next = new DOMParser().parseFromString(
 			await response.text(),

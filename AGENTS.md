@@ -5,6 +5,17 @@ posts together. The page and you call the same HTTP API, so you can do anything
 the page can: read a draft, edit it, comment on a passage, answer a comment,
 publish. `GET /cms/api` lists every route. You don't need anything else.
 
+## Notes
+
+The studio also holds the private notes behind the posts: `GROWTH_STRATEGY.md`,
+`CONTENT_STRATEGY.md`, `LAUNCH_PLAN.md`, post ideas in `drafts/` and `research/`,
+from the armanckeser.com-notes repo. `st $S/notes` lists them. A note's id is its
+path with `~` for `/`, after `notes~` (`notes~drafts~hearth.svx`), and every
+`/posts/:id` route works on it: read, edit, comment, reply. Edits commit and push
+to the notes repo on their own after a quiet minute, so prefer editing a note
+here over committing to the notes repo from a clone while someone is in it.
+`POST $S/posts/notes~drafts~<name>.svx/promote` turns a post idea into a draft post.
+
 ## Reaching it
 
 It is on the tailnet only. `cms.armanckeser.com` resolves to the Pi's tailnet

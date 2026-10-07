@@ -9,6 +9,8 @@ export const load: PageServerLoad = async ({ params }) => {
 		slug: post.slug,
 		title: post.title,
 		status: post.status,
+		kind: post.kind,
+		folder: post.folder,
 		url: post.url,
 	}
 }
