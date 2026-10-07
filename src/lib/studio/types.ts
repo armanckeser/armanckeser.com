@@ -46,10 +46,14 @@ export type ThreadView = Thread & {
 	awaitingClaude: boolean
 }
 
-export type PostStatus = "draft" | "published" | "changed"
+export type PostStatus = "draft" | "published" | "changed" | "note"
 
 export type PostSummary = {
+	/** A post's slug, or a note's id (notes~path~with~tildes). */
 	slug: string
+	kind: "post" | "note"
+	/** For notes: "" (strategy and plans), "drafts" (post ideas) or "research". */
+	folder?: string
 	title: string
 	description?: string
 	date: string
@@ -59,6 +63,14 @@ export type PostSummary = {
 	words: number
 	updatedAt: string
 	url: string
+}
+
+export type NotesSync = {
+	available: boolean
+	auto: boolean
+	lastSync: string | null
+	pending: boolean
+	error: string | null
 }
 
 export type Presence = {

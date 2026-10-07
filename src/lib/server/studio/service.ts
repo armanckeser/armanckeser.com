@@ -6,6 +6,12 @@ import { problem } from "$lib/server/studio/problem"
 import type { Actor, PostSummary, Thread, ThreadView } from "$lib/studio/types"
 import { commitAndPush, statusOf } from "./git"
 import {
+	ensureNotes,
+	removeNoteFile,
+	status as notesStatus,
+	syncNotes,
+} from "./notes"
+import {
 	NotFound,
 	type Room,
 	SLUG,
@@ -17,8 +23,13 @@ import {
 	getRoom,
 	getThread,
 	id,
+	NOTE,
+	docPath,
+	isNote,
+	listNoteIds,
 	listSlugs,
 	locate,
+	noteId,
 	persist,
 	putThread,
 	readMeta,
@@ -54,21 +65,38 @@ function words(body: string): number {
 		.filter(w => /\w/.test(w)).length
 }
 
+/** A note's name: its title, else its first heading, else its file name. */
+function noteTitle(r: Room): string {
+	const meta = readMeta(r.doc)
+	if (meta.title) return meta.title
+	const heading = /^#\s+(.+)$/m.exec(r.doc.getText("body").toString())
+	if (heading) return heading[1].trim()
+	const file = r.slug.split("~").at(-1) ?? r.slug
+	return file.replace(/\.(md|svx)$/, "").replace(/[-_]+/g, " ")
+}
+
 async function summary(r: Room): Promise<PostSummary> {
 	const meta = readMeta(r.doc)
 	const all = threads(r)
 	const open = all.filter(t => !t.resolved)
+	const note = isNote(r.slug)
 	return {
 		slug: r.slug,
-		title: meta.title || r.slug,
+		kind: note ? "note" : "post",
+		folder: note
+			? r.slug.split("~").length > 2
+				? r.slug.split("~")[1]
+				: ""
+			: undefined,
+		title: note ? noteTitle(r) : meta.title || r.slug,
 		description: meta.description,
 		date: meta.date,
-		status: await statusOf(svxPath(r.slug), meta.published),
+		status: note ? "note" : await statusOf(svxPath(r.slug), meta.published),
 		openThreads: open.length,
 		awaitingClaude: open.filter(t => t.awaitingClaude).length,
 		words: words(r.doc.getText("body").toString()),
 		updatedAt: new Date(r.updatedAt).toISOString(),
-		url: `${SITE}/writing/${r.slug}`,
+		url: note ? "" : `${SITE}/writing/${r.slug}`,
 	}
 }
 
@@ -79,7 +107,7 @@ export async function listPosts(): Promise<PostSummary[]> {
 	)
 	const posts = await Promise.all(rooms.flatMap(r => (r ? [summary(r)] : [])))
 	// Drafts first (that's where the work is), then newest first.
-	const rank = { draft: 0, changed: 1, published: 2 }
+	const rank = { draft: 0, changed: 1, published: 2, note: 3 }
 	return posts.sort(
 		(a, b) =>
 			rank[a.status] - rank[b.status] || b.date.localeCompare(a.date)
@@ -334,7 +362,8 @@ export async function changeThread(
 
 /** Threads across every post whose last word is the writer's: the agent's to-do list. */
 export async function inbox() {
-	const slugs = await listSlugs()
+	await ensureNotes()
+	const slugs = [...(await listSlugs()), ...(await listNoteIds())]
 	const out: { slug: string; title: string; threads: ThreadView[] }[] = []
 	for (const slug of slugs) {
 		const r = await getRoom(slug).catch(() => null)
@@ -358,6 +387,11 @@ export async function setPresence(
 // ---------------------------------------------------------------- publishing
 
 export async function publish(slug: string, actor: Actor, message?: string) {
+	if (isNote(slug))
+		problem(
+			409,
+			"Notes aren't published. A post idea in drafts/ can be moved to posts first."
+		)
 	const r = await room(slug)
 	const meta = readMeta(r.doc)
 	if (!meta.title.trim())
@@ -392,6 +426,7 @@ export async function publish(slug: string, actor: Actor, message?: string) {
 
 /** Takes a post back to draft: it stays in the repo but leaves the site on the next deploy. */
 export async function unpublish(slug: string, actor: Actor) {
+	if (isNote(slug)) problem(409, "Notes aren't published.")
 	const r = await room(slug)
 	const meta = readMeta(r.doc)
 	const live = (await statusOf(svxPath(slug), meta.published)) !== "draft"
@@ -408,6 +443,13 @@ export async function unpublish(slug: string, actor: Actor) {
 
 /** Deletes a draft. Published posts are taken down with unpublish first, so nothing live vanishes by accident. */
 export async function deleteDraft(slug: string) {
+	if (isNote(slug)) {
+		await room(slug)
+		await forget(slug)
+		await removeNoteFile(docPath(slug))
+		emit({ type: "deleted", slug })
+		return
+	}
 	const r = await room(slug)
 	const meta = readMeta(r.doc)
 	if ((await statusOf(svxPath(slug), meta.published)) !== "draft") {
@@ -418,3 +460,108 @@ export async function deleteDraft(slug: string) {
 	await rm(svxPath(slug), { force: true })
 	emit({ type: "deleted", slug })
 }
+
+// ---------------------------------------------------------------- notes
+
+export async function listNotes(): Promise<PostSummary[]> {
+	await ensureNotes()
+	const ids = await listNoteIds()
+	const rooms = await Promise.all(ids.map(i => getRoom(i).catch(() => null)))
+	const notes = await Promise.all(rooms.flatMap(r => (r ? [summary(r)] : [])))
+	const order = { "": 0, drafts: 1, research: 2 } as Record<string, number>
+	return notes.sort(
+		(a, b) =>
+			(order[a.folder ?? ""] ?? 9) - (order[b.folder ?? ""] ?? 9) ||
+			a.title.localeCompare(b.title)
+	)
+}
+
+/**
+ * A new note. In drafts/ it's a post idea, kept like a post (.svx with
+ * frontmatter) so it can become one; anywhere else it's plain markdown.
+ */
+export async function createNote(
+	input: { title: string; folder?: string; body?: string },
+	actor: Actor
+) {
+	if (!(await ensureNotes()))
+		problem(502, "The notes repo isn't available here")
+	const title = input.title?.trim()
+	if (!title) problem(400, "A note needs a title")
+	const folder =
+		input.folder === "drafts" || input.folder === "research"
+			? input.folder
+			: ""
+	const name = slugify(title)
+	if (!name)
+		problem(400, "That title has no letters or digits to name a file with")
+	const ext = folder === "drafts" ? "svx" : "md"
+	const path = folder ? `${folder}/${name}.${ext}` : `${name}.${ext}`
+	const nid = noteId(path)
+	if (!NOTE.test(nid)) problem(400, `Can't make a note at ${path}`)
+	const { writeFile, mkdir } = await import("node:fs/promises")
+	const { dirname } = await import("node:path")
+	const { newSvx } = await import("./svx")
+	const body = input.body ?? ""
+	const file =
+		ext === "svx"
+			? newSvx({ title, date: today(), published: false }, body)
+			: `# ${title}\n\n${body}`
+	await mkdir(dirname(docPath(nid)), { recursive: true })
+	await writeFile(docPath(nid), file, { flag: "wx" }).catch(() => {
+		problem(409, `There is already a note at ${path}`)
+	})
+	await forget(nid)
+	const r = await room(nid)
+	if (actor === "claude") agentPresence(r, "Started this note")
+	emit({ type: "created", slug: nid })
+	return summary(r)
+}
+
+/** Turns a post idea in drafts/ into a draft post of the site, and takes it out of the notes. */
+export async function promoteNote(nid: string, actor: Actor) {
+	if (!nid.startsWith("notes~drafts~"))
+		problem(409, "Only post ideas in drafts/ can become posts")
+	const r = await room(nid)
+	const slug = slugify(
+		nid
+			.split("~")
+			.at(-1)
+			?.replace(/\.(md|svx)$/, "") ?? ""
+	)
+	if (!SLUG.test(slug)) problem(400, `"${slug}" can't be a post slug`)
+	if ((await listSlugs()).includes(slug))
+		problem(409, `There is already a post called "${slug}"`)
+	const { serialize } = await import("./store")
+	const { writeFile } = await import("node:fs/promises")
+	const { parseSvx, serializeSvx } = await import("./svx")
+	// Same text, frontmatter kept, marked as a draft.
+	const parsed = parseSvx(serialize(r.doc))
+	const file = serializeSvx(
+		parsed.yaml,
+		{ ...parsed.meta, published: false, date: parsed.meta.date || today() },
+		parsed.body
+	)
+	await forget(slug)
+	await writeFile(svxPath(slug), file, { flag: "wx" })
+	await forget(nid)
+	await removeNoteFile(docPath(nid))
+	emit({ type: "deleted", slug: nid })
+	emit({ type: "created", slug })
+	const post = await room(slug)
+	if (actor === "claude") agentPresence(post, "Moved this in from the notes")
+	return summary(post)
+}
+
+export async function renderNote(
+	nid: string
+): Promise<{ title: string; html: string }> {
+	const r = await room(nid)
+	const { renderMarkdown } = await import("../markdown")
+	const body = r.doc.getText("body").toString()
+	// Svelte script blocks and component tags in post ideas aren't prose.
+	const prose = body.replace(/<script[\s\S]*?<\/script>/g, "")
+	return { title: noteTitle(r), html: await renderMarkdown(prose) }
+}
+
+export { notesStatus, syncNotes }

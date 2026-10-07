@@ -20,6 +20,13 @@ DELETE /cms/api/posts/:slug/threads/:id
 POST   /cms/api/posts/:slug/presence        {status, ttl?} say what you are doing; shows in the header
 POST   /cms/api/posts/:slug/publish         {message?} commit and push to main, which deploys
 DELETE /cms/api/posts/:slug/publish         back to draft
+GET    /cms/api/notes                       the notes: strategy and plans, post ideas (drafts/), research/
+POST   /cms/api/notes                       {title, folder?: ""|"drafts"|"research", body?} new note
+GET    /cms/api/notes/sync                  where the notes repo stands; POST to commit, pull and push now
+POST   /cms/api/posts/:id/promote           a post idea (notes~drafts~…) becomes a draft post
+       A note's :id is its path in armanckeser.com-notes with ~ for /, after notes~
+       (notes~GROWTH_STRATEGY.md, notes~drafts~hearth.svx). Every /posts/:id route
+       above works on notes too, except publishing. Notes commit on their own.
 GET    /cms/api/inbox                       threads where the writer spoke last, across all posts
 GET    /cms/api/events?as=claude            server-sent events: thread, edit, created, published;
                                             while it is open the writer sees Claude as listening

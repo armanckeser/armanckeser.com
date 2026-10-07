@@ -1,5 +1,5 @@
 /** The page's calls into the studio API, made as the writer. Same routes the agent uses. */
-import type { PostSummary, ThreadView } from "./types"
+import type { NotesSync, PostSummary, ThreadView } from "./types"
 
 async function call<T>(
 	path: string,
@@ -56,6 +56,17 @@ export const api = {
 		),
 	unpublish: (slug: string) =>
 		call<{ commit: string | null }>(`${post(slug)}/publish`, "DELETE"),
+	notes: () => call<PostSummary[]>("/notes"),
+	createNote: (title: string, folder: string) =>
+		call<PostSummary>("/notes", "POST", { title, folder }),
+	promote: (id: string) =>
+		call<PostSummary>(`${post(id)}/promote`, "POST", {}),
+	notesSync: (now = false) =>
+		call<NotesSync>(
+			"/notes/sync",
+			now ? "POST" : "GET",
+			now ? {} : undefined
+		),
 	deleteDraft: (slug: string) => call<void>(post(slug), "DELETE"),
 	status: (slug: string) => call<PostSummary & { body: string }>(post(slug)),
 }
