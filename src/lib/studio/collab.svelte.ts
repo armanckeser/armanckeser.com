@@ -141,6 +141,10 @@ export class Collab {
 			this.savedAt = Date.now()
 			this.#emit("saved", JSON.parse((e as MessageEvent).data))
 		})
+		source.addEventListener("deleted", () => {
+			source.close()
+			this.#emit("deleted", null)
+		})
 		source.addEventListener("agent", e => {
 			this.agentWatching = JSON.parse((e as MessageEvent).data).watching
 		})

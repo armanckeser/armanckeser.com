@@ -12,6 +12,7 @@ import {
 	anchorAt,
 	applyDiff,
 	emit,
+	forget,
 	getRoom,
 	getThread,
 	id,
@@ -114,6 +115,8 @@ export async function createPost(
 		)
 	if ((await listSlugs()).includes(slug))
 		problem(409, `There is already a post called "${slug}"`)
+	// Anything left from an earlier post of the same name (its comments) goes.
+	await forget(slug)
 
 	const { writeFile, mkdir } = await import("node:fs/promises")
 	const { dirname } = await import("node:path")
@@ -401,4 +404,17 @@ export async function unpublish(slug: string, actor: Actor) {
 		`Unpublish: ${meta.title}`
 	)
 	return { commit }
+}
+
+/** Deletes a draft. Published posts are taken down with unpublish first, so nothing live vanishes by accident. */
+export async function deleteDraft(slug: string) {
+	const r = await room(slug)
+	const meta = readMeta(r.doc)
+	if ((await statusOf(svxPath(slug), meta.published)) !== "draft") {
+		problem(409, "Only drafts can be deleted here. Unpublish it first.")
+	}
+	const { rm } = await import("node:fs/promises")
+	await forget(slug)
+	await rm(svxPath(slug), { force: true })
+	emit({ type: "deleted", slug })
 }

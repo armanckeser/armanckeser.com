@@ -77,3 +77,4 @@ export type StudioEvent =
 	| { type: "edit"; slug: string; actor: Actor }
 	| { type: "published"; slug: string; url: string; commit: string }
 	| { type: "created"; slug: string }
+	| { type: "deleted"; slug: string }

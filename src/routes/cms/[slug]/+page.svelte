@@ -12,6 +12,7 @@ import {
 	PanelRight,
 	SlidersHorizontal,
 } from "lucide-svelte"
+import { goto } from "$app/navigation"
 import { Popover } from "bits-ui"
 import { onMount, untrack } from "svelte"
 import { toast } from "svelte-sonner"
@@ -60,6 +61,11 @@ onMount(() => {
 
 	let statusTimer: ReturnType<typeof setTimeout>
 	const offSaved = collab.on(event => {
+		if (event === "deleted") {
+			toast("This draft was deleted")
+			goto("/cms")
+			return
+		}
 		if (event !== "saved") return
 		clearTimeout(statusTimer)
 		statusTimer = setTimeout(async () => {
@@ -237,6 +243,20 @@ async function publish() {
 	}
 }
 
+async function deleteDraft() {
+	if (
+		!confirm(
+			`Delete "${title || "Untitled"}"? The draft and its comments go for good.`
+		)
+	)
+		return
+	try {
+		await api.deleteDraft(collab.slug)
+	} catch (e) {
+		toast.error((e as Error).message)
+	}
+}
+
 async function unpublish() {
 	try {
 		await api.unpublish(collab.slug)
@@ -343,7 +363,14 @@ const statusText = {
 								</div>
 							</div>
 						</div>
-					</Popover.Content>
+					{#if status === "draft"}
+						<div class="mt-4 border-t border-border pt-3">
+							<button class="text-xs text-muted-foreground underline-offset-2 hover:text-[hsl(var(--destructive))] hover:underline" onclick={deleteDraft}>
+								Delete this draft
+							</button>
+						</div>
+					{/if}
+				</Popover.Content>
 				</Popover.Portal>
 			</Popover.Root>
 

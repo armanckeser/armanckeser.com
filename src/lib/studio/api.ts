@@ -56,5 +56,6 @@ export const api = {
 		),
 	unpublish: (slug: string) =>
 		call<{ commit: string | null }>(`${post(slug)}/publish`, "DELETE"),
+	deleteDraft: (slug: string) => call<void>(post(slug), "DELETE"),
 	status: (slug: string) => call<PostSummary & { body: string }>(post(slug)),
 }

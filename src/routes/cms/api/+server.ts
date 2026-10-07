@@ -10,6 +10,7 @@ GET    /cms/api/posts                       every post: slug, title, status, ope
 POST   /cms/api/posts                       {title, slug?, body?, description?} new draft
 GET    /cms/api/posts/:slug                 meta, body, threads (?format=svx for the raw file)
 PATCH  /cms/api/posts/:slug                 {title?, description?, tags?, date?, image?}
+DELETE /cms/api/posts/:slug                 delete a draft (published posts: unpublish first)
 PUT    /cms/api/posts/:slug                 {body} replace the body; unchanged text keeps its comments
 POST   /cms/api/posts/:slug/edits           {edits: [{find, replace, all?}]} exact find-and-replace
 GET    /cms/api/posts/:slug/threads         open threads (?all=1 includes resolved)

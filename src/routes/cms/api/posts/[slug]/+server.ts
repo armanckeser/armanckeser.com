@@ -1,6 +1,7 @@
 import { problem } from "$lib/server/studio/problem"
 import {
 	actorOf,
+	deleteDraft,
 	getPost,
 	replaceBody,
 	updateMeta,
@@ -35,4 +36,9 @@ export const PATCH: RequestHandler = async ({ params, request, url }) =>
 export const PUT: RequestHandler = async ({ params, request, url }) => {
 	const { body } = await request.json()
 	return json(await replaceBody(params.slug, body, actorOf(request, url)))
+}
+
+export const DELETE: RequestHandler = async ({ params }) => {
+	await deleteDraft(params.slug)
+	return new Response(null, { status: 204 })
 }

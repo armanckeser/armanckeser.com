@@ -522,6 +522,25 @@ export function getThread(room: Room, threadId: string): Thread | undefined {
 	return room.doc.getMap("threads").get(threadId) as Thread | undefined
 }
 
+/**
+ * Drops everything the studio holds about a post: its open connections, its
+ * shared document and history. Used when a post is deleted, so a new post
+ * under the same name starts clean.
+ */
+export async function forget(slug: string) {
+	const promise = registry.rooms.get(slug)
+	registry.rooms.delete(slug)
+	const room = await promise?.catch(() => null)
+	if (room) {
+		clearTimeout(room.persistTimer)
+		clearTimeout(room.agentTimer)
+		broadcast(room, "deleted", { slug })
+		room.doc.destroy()
+	}
+	const { rm } = await import("node:fs/promises")
+	await rm(binPath(slug), { force: true })
+}
+
 export async function listSlugs(): Promise<string[]> {
 	const files = await readdir(CONTENT_DIR).catch(() => [] as string[])
 	return files
