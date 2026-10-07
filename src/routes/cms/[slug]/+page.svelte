@@ -88,7 +88,7 @@ onMount(() => {
 })
 
 const claude = $derived(peers.find(p => p.actor === "claude"))
-const title = $derived(String(meta.title ?? data.title ?? ""))
+const title = $derived(String(meta.title || data.title || ""))
 
 // ------------------------------------------------------------ layout
 
