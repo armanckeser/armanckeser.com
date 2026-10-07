@@ -32,10 +32,15 @@ function keepStudioOpen(): Plugin {
 			const send = hot.send.bind(hot) as (...args: unknown[]) => void
 			hot.send = ((...args: unknown[]) => {
 				const [payload] = args
+				const reload = payload as {
+					type?: string
+					triggeredBy?: string
+				}
+				// Only edits to posts: anything else (new dependencies, config)
+				// really does need every page reloaded.
 				if (
-					payload &&
-					typeof payload === "object" &&
-					(payload as { type?: string }).type === "full-reload"
+					reload?.type === "full-reload" &&
+					/[\\/]src[\\/]content[\\/]/.test(reload.triggeredBy ?? "")
 				) {
 					return send({
 						type: "custom",
@@ -67,6 +72,28 @@ export default defineConfig({
 				],
 			},
 		}),
+	},
+	// Bundled up front, so opening the studio the first time doesn't stop to
+	// re-optimize and reload.
+	optimizeDeps: {
+		include: [
+			"yjs",
+			"y-protocols/awareness",
+			"y-codemirror.next",
+			"@codemirror/state",
+			"@codemirror/view",
+			"@codemirror/commands",
+			"@codemirror/language",
+			"@codemirror/lang-markdown",
+			"@lezer/highlight",
+			"bits-ui",
+			"lucide-svelte",
+			"svelte-sonner",
+			"mode-watcher",
+			"clsx",
+			"devalue",
+			"style-to-object",
+		],
 	},
 	test: {
 		include: ["src/**/*.{test,spec}.{js,ts}"],
