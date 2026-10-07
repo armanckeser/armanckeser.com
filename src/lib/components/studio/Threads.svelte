@@ -8,7 +8,7 @@ import { Check, CornerDownLeft, RotateCcw, Trash2 } from "lucide-svelte"
 import { tick } from "svelte"
 import { toast } from "svelte-sonner"
 import { api } from "$lib/studio/api"
-import { ago } from "$lib/studio/threads"
+import { ago, plainText } from "$lib/studio/threads"
 import { ACTORS, type ThreadView } from "$lib/studio/types"
 import Avatar from "./Avatar.svelte"
 
@@ -140,7 +140,7 @@ $effect(() => {
 	<div class="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-3">
 		{#if draft}
 			<div class="studio-card studio-enter mb-3 border-[hsl(var(--armanc)/0.5)]">
-				<blockquote class="studio-quote line-clamp-3">{draft.quote}</blockquote>
+				<blockquote class="studio-quote line-clamp-3">{plainText(draft.quote)}</blockquote>
 				<textarea
 					bind:this={composer}
 					bind:value={body}
@@ -168,7 +168,7 @@ $effect(() => {
 			>
 				{#if th.quote}
 					<blockquote class="studio-quote line-clamp-2" class:opacity-50={th.from === null && th.anchor !== null}>
-						{th.quote}
+						{plainText(th.quote)}
 					</blockquote>
 				{/if}
 				{#each [{ author: th.author, body: th.body, createdAt: th.createdAt, id: th.id }, ...th.replies] as message (message.id)}

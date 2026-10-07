@@ -39,6 +39,7 @@ let frame: HTMLIFrameElement
 let loaded = $state(false)
 let failed = $state(false)
 let mutated = false
+let scrollY = 0
 let observer: MutationObserver | undefined
 const src = $derived(`/writing/${slug}?studio=1`)
 
@@ -58,8 +59,14 @@ function onload() {
 		::highlight(studio-claude) { background-color: rgb(194 65 12 / 0.16); text-decoration: underline 2px rgb(194 65 12 / 0.6); text-underline-offset: 3px; }
 		::highlight(studio-active) { background-color: rgb(194 120 12 / 0.32); }
 		html { scroll-behavior: auto !important; }
+		/* Comment threads from the live site don't belong in a draft's preview. */
+		.giscus, giscus-widget { display: none !important; }
 	`
 	doc.head.append(style)
+
+	// A reload (a change that couldn't hot-swap) keeps the reader where they were.
+	if (scrollY > 0) w.scrollTo(0, scrollY)
+	w.addEventListener("scroll", () => (scrollY = w.scrollY), { passive: true })
 
 	observer?.disconnect()
 	observer = new w.MutationObserver(() => {

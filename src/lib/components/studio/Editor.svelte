@@ -104,10 +104,13 @@ function decorations(
 }
 
 $effect(() => {
+	// Read the props first so the effect re-runs when they change.
+	const list = threads
+	const current = active
 	const v = view
 	if (!v) return
 	v.dispatch({
-		effects: setMarks.of(decorations(threads, active, v.state.doc.length)),
+		effects: setMarks.of(decorations(list, current, v.state.doc.length)),
 	})
 })
 

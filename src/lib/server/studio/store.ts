@@ -302,7 +302,8 @@ export function applyDiff(
 
 function schedulePersist(room: Room) {
 	clearTimeout(room.persistTimer)
-	room.persistTimer = setTimeout(() => void persist(room), 250)
+	// Written once typing pauses: each write re-renders the preview.
+	room.persistTimer = setTimeout(() => void persist(room), 500)
 }
 
 export async function persist(room: Room) {
