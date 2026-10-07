@@ -24,8 +24,10 @@ that header; the writer sees who did what.
 
 1. **Listen.** Keep the event stream open while you work; while it's open the
    writer sees "Claude is listening" and comments come to you as they're left:
-   `curl -sN "$S/events?as=claude"` (run it under a monitor; each `event: thread`
-   with `"change":"created"` or `"replied"` is something to look at).
+   `while true; do curl -sN "$S/events?as=claude"; sleep 1; done` (run it under a
+   monitor; each `event: thread` with `"change":"created"` or `"replied"` is
+   something to look at). The proxy closes the stream every 30 seconds, hence
+   the loop; the writer keeps seeing you as listening across those gaps.
 2. **Catch up.** `st $S/inbox` lists every thread, across posts, where the writer
    spoke last.
 3. **Read the post** before answering: `st $S/posts/<slug>` (meta, body, threads),

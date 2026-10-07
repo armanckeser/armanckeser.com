@@ -267,7 +267,7 @@ $effect(() => {
 	// didn't, reload, keeping the reader where they were.
 	const timer = setTimeout(() => {
 		if (!mutated) reload()
-	}, 1500)
+	}, 900)
 	return () => clearTimeout(timer)
 })
 

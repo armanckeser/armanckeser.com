@@ -16,7 +16,9 @@ export const GET: RequestHandler = ({ request, url }) => {
 		const stop = listen(event => send(event.type, event))
 		return () => {
 			stop()
-			if (agent) agentWatching(-1)
+			// The proxy closes the stream every 30 seconds and the agent comes
+			// straight back; only an absence longer than that counts as leaving.
+			if (agent) setTimeout(() => agentWatching(-1), 8000)
 		}
 	})
 }
