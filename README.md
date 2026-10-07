@@ -38,9 +38,11 @@ The image carries only the dependencies; the code comes from the clone, which
   and never reaches GitHub, which is public, until it's published;
 - the shared documents (text, comments, history) live in `.studio/` in the clone.
 
-`STUDIO=1` turns on the dev-server settings it needs (`vite.config.ts`). If the
-proxy ever drops the hot-reload websocket, `STUDIO_HMR=0` turns it off and the
-preview reloads itself after each save instead. `CMS_TOKEN`, when set, is required
+`STUDIO=1` turns on the dev-server settings it needs (`vite.config.ts`). Cosmos
+closes every connection after 30 seconds, so the studio's own sync reconnects and
+resyncs, and hot reload is off (a dropped Vite websocket reloads the page): the
+preview reloads itself out of sight after each save. If the route's timeout is
+ever lifted, `STUDIO_HMR=1` turns hot reload back on. `CMS_TOKEN`, when set, is required
 as a cookie (`?token=` once) or a bearer token.
 
 To run it locally: `bun run dev` and open `localhost:5173/cms`. It edits the posts

@@ -63,10 +63,15 @@ export default defineConfig({
 		...(studio && {
 			host: "0.0.0.0",
 			allowedHosts: true,
-			// Writing a draft triggers a reload; the studio shows its own errors.
-			// STUDIO_HMR=0 turns hot reload off if the proxy drops its websocket;
-			// the preview then reloads itself after each save.
-			hmr: process.env.STUDIO_HMR === "0" ? false : { overlay: false },
+			// No hot reload, and no websocket at all, behind the home server's
+			// proxy: it closes every connection after 30 seconds, and Vite answers
+			// a dropped websocket by reloading the page, which would reload the
+			// studio twice a minute.
+			// The preview reloads itself out of sight after each save instead.
+			// STUDIO_HMR=1 turns it back on (if the proxy's timeout is lifted).
+			...(process.env.STUDIO_HMR === "1"
+				? { hmr: { overlay: false } }
+				: { hmr: false, ws: false as const }),
 			warmup: {
 				clientFiles: [
 					"./src/routes/cms/**/*.svelte",
