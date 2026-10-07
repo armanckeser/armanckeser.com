@@ -39,4 +39,11 @@ if ! cmp -s bun.lock /app/bun.lock; then
 	echo "studio: bun.lock differs from the image's; rebuild the image if something fails to resolve"
 fi
 
+# The first page render compiles most of the site, which on the Pi takes longer
+# than the proxy waits. Render the studio and a post once in the background so
+# the first real visit is quick.
+(sleep 10 && node --input-type=module -e '
+for (const path of ["/cms", "/writing/sixth-year"]) await fetch("http://localhost:" + (process.env.PORT || 3000) + path).catch(() => {})
+' >/dev/null 2>&1) &
+
 exec "$@"

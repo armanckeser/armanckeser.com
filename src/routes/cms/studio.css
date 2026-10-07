@@ -288,3 +288,10 @@ kbd {
 .studio-handle[data-dragging="true"] {
 	background: hsl(var(--ring));
 }
+
+/* The site's focus ring would frame the whole draft; the caret already says
+   where focus is. */
+.studio .cm-editor :focus-visible {
+	box-shadow: none;
+	outline: none;
+}
