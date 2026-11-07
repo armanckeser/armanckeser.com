@@ -1,7 +1,8 @@
-<!-- AI repos with 300+ stars created 2023-2025, one panel per type, all panels
-     on the same scale (Observable Plot facets). Bars are new repos per month:
+<!-- AI repos with 300+ stars created 2023-2026, one panel per type, all panels
+     on the same scale (Observable Plot facets). Bars are new repos per quarter:
      the ones still active in the accent, the ones that went quiet (archived, or
-     no commit in six months) in gray. Drawn in the browser; the table under the
+     no commit in six months) in gray, repos too young to tell in a
+     light accent. Drawn in the browser; the table under the
      chart carries the same numbers without JavaScript. -->
 <script lang="ts">
 import * as Plot from "@observablehq/plot"
@@ -11,8 +12,11 @@ type Type = {
 	name: string
 	total: number
 	active: number
-	counts: [number, number][]
+	quiet: number
+	counts: [number, number, number][]
+	top: [string, number][][][]
 }
+const STATUS = ["active", "quiet", "new"]
 const quarters = (waves.months as string[]).map(
 	m => new Date(`${m}-01T00:00:00Z`)
 )
@@ -26,28 +30,23 @@ const events = (waves.events as { month: string; label: string }[]).map(e => ({
 
 const PANEL = 70
 const height = types.length * PANEL + 56
-const pct = (t: Type) => Math.round((t.active / t.total) * 100)
+const pct = (t: Type) => Math.round((t.active / (t.active + t.quiet)) * 100)
 
 const bars = types.flatMap(t =>
-	t.counts.flatMap(([active, quiet], i) => [
-		{
+	t.counts.flatMap((c, i) =>
+		STATUS.map((status, k) => ({
 			type: t.name,
 			start: quarters[i],
 			end: quarterEnd(quarters[i]),
-			status: "active",
-			n: active,
-		},
-		{
-			type: t.name,
-			start: quarters[i],
-			end: quarterEnd(quarters[i]),
-			status: "quiet",
-			n: quiet,
-		},
-	])
+			status,
+			n: c[k],
+		}))
+	)
 )
-const perQuarter = types.flatMap(t =>
-	t.counts.map(([active, quiet], i) => ({
+const perQuarter = types.flatMap((t, ti) =>
+	t.counts.map(([active, quiet, fresh], i) => ({
+		ti,
+		qi: i,
 		type: t.name,
 		mid: new Date(
 			(quarters[i].getTime() + quarterEnd(quarters[i]).getTime()) / 2
@@ -55,12 +54,22 @@ const perQuarter = types.flatMap(t =>
 		label: `Q${quarters[i].getUTCMonth() / 3 + 1} ${quarters[i].getUTCFullYear()}`,
 		active,
 		quiet,
-		n: active + quiet,
+		fresh,
+		n: active + quiet + fresh,
 	}))
 )
 
 let el: HTMLDivElement
 let width = $state(640)
+const biggest = perQuarter
+	.filter(d => d.type !== "Other")
+	.reduce((a, b) => (b.n > a.n ? b : a))
+let selected = $state(biggest)
+const picked = $derived({
+	...selected,
+	top: types[selected.ti].top[selected.qi],
+})
+const fmt = (n: number) => n.toLocaleString("en-US")
 
 function color(name: string, alpha = 1) {
 	const v = getComputedStyle(document.documentElement)
@@ -88,7 +97,7 @@ function draw() {
 		},
 		x: {
 			type: "utc",
-			domain: [quarters[0], new Date("2026-01-01T00:00:00Z")],
+			domain: [quarters[0], new Date("2027-01-01T00:00:00Z")],
 			ticks: "year",
 			tickFormat: "%Y",
 			label: null,
@@ -97,8 +106,12 @@ function draw() {
 		y: { axis: null },
 		fy: { domain: types.map(t => t.name), axis: null, padding: 0.42 },
 		color: {
-			domain: ["active", "quiet"],
-			range: [color("--accent"), color("--ink", 0.2)],
+			domain: STATUS,
+			range: [
+				color("--accent"),
+				color("--ink", 0.2),
+				color("--accent", 0.35),
+			],
 		},
 		marks: [
 			Plot.ruleX(events, { x: "date", stroke: color("--ink", 0.12) }),
@@ -119,7 +132,19 @@ function draw() {
 				fy: "type",
 				insetLeft: 2,
 				insetRight: 2,
-				order: ["active", "quiet"],
+				order: ["active", "new", "quiet"],
+			}),
+			Plot.rect([selected], {
+				x1: d => quarters[d.qi],
+				x2: d => quarterEnd(quarters[d.qi]),
+				y1: 0,
+				y2: "n",
+				fy: "type",
+				insetLeft: 0.5,
+				insetRight: 0.5,
+				fill: "none",
+				stroke: ink,
+				strokeWidth: 1.5,
 			}),
 			Plot.text(types, {
 				fy: "name",
@@ -146,12 +171,17 @@ function draw() {
 					y: "n",
 					fy: "type",
 					title: d =>
-						`${d.type}, ${d.label}\n${d.n} new · ${d.active} active · ${d.quiet} quiet`,
+						`${d.type}, ${d.label}\n${d.n} new · ${d.active} active · ${d.quiet} quiet${d.fresh ? ` · ${d.fresh} too new to tell` : ""}`,
 					fill: color("--paper"),
 					stroke: color("--ink", 0.18),
 				})
 			),
 		],
+	})
+	chart.style.cursor = "pointer"
+	chart.addEventListener("click", () => {
+		const v = (chart as unknown as { value?: typeof selected }).value
+		if (v) selected = v
 	})
 	el.replaceChildren(chart)
 }
@@ -169,21 +199,44 @@ $effect(() => {
 </script>
 
 <figure class="waves not-prose">
+	<p class="hint font-mono">Click a bar to see its biggest repos.</p>
 	<div class="chart font-mono" bind:this={el} bind:clientWidth={width} style:min-height="{height}px"></div>
+
+	<div class="pick font-mono" aria-live="polite">
+		<p><b>{picked.type}, {picked.label}</b>: {fmt(picked.n)} new repos</p>
+		<div class="lists">
+			{#each [["Biggest still active", 0], ["Biggest gone quiet", 1], ["Too new to tell", 2]] as const as [title, k]}
+				{#if picked.top[k].length}
+					<div>
+						<h4><i class={["active", "quiet", "new"][k]}></i>{title}</h4>
+						<ol>
+							{#each picked.top[k] as [repo, stars]}
+								<li>
+									<a href="https://github.com/{repo}" target="_blank" rel="noopener noreferrer">{repo}</a>
+									<span>{fmt(stars)}</span>
+								</li>
+							{/each}
+						</ol>
+					</div>
+				{/if}
+			{/each}
+		</div>
+	</div>
 
 	<div class="key font-mono">
 		<span><i class="active"></i>still active</span>
 		<span><i class="quiet"></i>quiet: archived, or no commit in 6 months (as of {waves.asOf})</span>
-		<a href="/data/ai-repos-2023-2025.csv" download>Data (CSV)</a>
+		<span><i class="new"></i>too new to tell: created after {waves.newAfter}</span>
+		<a href="/data/ai-repos-2023-2026.csv" download>Data (CSV)</a>
 	</div>
 
 	<details class="font-mono">
 		<summary>Table</summary>
 		<table>
-			<thead><tr><th>Type</th><th>Repos</th><th>Still active</th></tr></thead>
+			<thead><tr><th>Type</th><th>Repos</th><th>Still active</th><th>Too new to tell</th></tr></thead>
 			<tbody>
 				{#each types as t}
-					<tr><td>{t.name}</td><td>{t.total}</td><td>{t.active} ({pct(t)}%)</td></tr>
+					<tr><td>{t.name}</td><td>{t.total}</td><td>{t.active} ({pct(t)}%)</td><td>{t.total - t.active - t.quiet}</td></tr>
 				{/each}
 			</tbody>
 		</table>
@@ -193,6 +246,88 @@ $effect(() => {
 <style>
 	.waves {
 		margin-block: 2rem;
+	}
+
+	.hint {
+		margin-bottom: 0.25rem;
+		color: hsl(var(--ink-soft));
+		font-size: 0.6875rem;
+	}
+
+	.pick {
+		margin-top: 0.75rem;
+		padding: 0.75rem 0.9rem;
+		border: 1px solid hsl(var(--ink) / 0.12);
+		border-radius: 6px;
+		font-size: 0.75rem;
+		color: hsl(var(--ink-soft));
+	}
+
+	.pick b {
+		color: hsl(var(--ink));
+		font-weight: 600;
+	}
+
+	.lists {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+		gap: 0.75rem 1.5rem;
+		margin-top: 0.6rem;
+	}
+
+	.lists h4 {
+		font-family: inherit;
+		color: hsl(var(--ink-soft));
+		display: flex;
+		align-items: center;
+		gap: 0.4rem;
+		margin: 0 0 0.3rem;
+		font-size: 0.6875rem;
+		font-weight: 400;
+	}
+
+	.lists ol {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	.lists li {
+		display: flex;
+		justify-content: space-between;
+		gap: 0.75rem;
+		padding: 0.15rem 0;
+	}
+
+	.lists li a {
+		overflow: hidden;
+		color: hsl(var(--ink));
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.lists li span {
+		font-variant-numeric: tabular-nums;
+	}
+
+	.pick i,
+	.key i {
+		display: inline-block;
+		width: 0.6rem;
+		height: 0.6rem;
+		border-radius: 2px;
+	}
+
+	.pick i.active {
+		background: hsl(var(--accent));
+	}
+
+	.pick i.quiet {
+		background: hsl(var(--ink) / 0.2);
+	}
+
+	.pick i.new {
+		background: hsl(var(--accent) / 0.35);
 	}
 
 	.key {
@@ -225,6 +360,10 @@ $effect(() => {
 
 	.key i.active {
 		background: hsl(var(--accent));
+	}
+
+	.key i.new {
+		background: hsl(var(--accent) / 0.35);
 	}
 
 	.key i.quiet {
