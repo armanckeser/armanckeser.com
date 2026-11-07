@@ -1,0 +1,25 @@
+---
+title: "AI repo waves on GitHub since 2023, and what is left of them"
+date: "2026-11-07"
+published: true
+description: "8,092 AI repos from 2023 to 2026 with 300+ stars, by type, and how many still get commits"
+tags: ["GitHub", "AI"]
+---
+
+<script lang="ts">
+  import AiWaves from "$lib/components/AiWaves.svelte"
+</script>
+
+Every few months there is a new kind of AI repo everyone is starring, ChatGPT wrappers in 2023, RAG and agent frameworks after that, MCP servers and coding agents in 2025, skills and agent managers in 2026, and I have starred a good chunk of all of them, so I got curious which ones are still alive. I pulled every repo created since January 2023 with more than 300 stars and one of the usual AI topics, 8,092 of them, had a model sort each one into a type from its name and description, and checked the last commit on each default branch as of November 7.
+
+<AiWaves />
+
+201 of the 668 chat apps came out in the first half of 2023 and 269 of the 563 MCP servers in the first half of 2025. 2026 is the year of skills, memory and agent managers: 409 of the 593 skill repos, 202 of the 313 memory ones and 182 of the 236 agent managers came out this year. Repos created after May 7 are too new to call quiet yet, so they get their own color.
+
+Only 39% of the repos that came out in 2023 are still active as opposed to 72% of the 2025 repos. Even so, the 2023 chat apps are down to 33% and the 2023 model and training repos to 30%.
+
+opencode-ai/opencode (14k stars) is archived and its README says the project moved to charmbracelet/crush, so if you starred opencode you would never know crush exists unless you went back to the repo page. Some of these repos are finished essays or lists so "dead" is not a fair way to describe them, but if you starred a pile of AI tools in the last few years, odds are a good chunk of them are now abandoned. 
+
+That is part of why I built [Stars Organizer](https://github.com/armanckeser/github-stars-organizer). The [demo](https://stars-demo.armanckeser.com/) if you are interested. Explore tab shows how many of my stars are active, aging or dormant. Running Stars Organizer locally with `npx github-stars-organizer` adds a health score for every repo and active alternatives. 
+
+Topics searched: llm, ai, ai-agents, ai-agent, agents, mcp, mcp-server, llm-agent, rag, generative-ai, chatgpt, claude, agent, openai, large-language-models, gpt, langchain. GitHub search returns at most 1,000 results per query, so I searched each topic one quarter at a time. The types come from a small model and were right for about 9 in 10 of 50 I checked by hand.
