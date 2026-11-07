@@ -1,7 +1,7 @@
 ---
 title: "Three years of AI repo waves on GitHub, and what is left of them"
 date: "2026-11-07"
-published: true
+published: false
 description: "5,069 AI repos from 2023 to 2025 with 300+ stars, by type, and how many still get commits"
 tags: ["GitHub", "AI"]
 ---
