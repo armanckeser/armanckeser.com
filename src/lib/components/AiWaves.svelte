@@ -61,14 +61,14 @@ const perQuarter = types.flatMap((t, ti) =>
 
 let el: HTMLDivElement
 let width = $state(640)
-const biggest = perQuarter
-	.filter(d => d.type !== "Other")
-	.reduce((a, b) => (b.n > a.n ? b : a))
-let selected = $state(biggest)
-const picked = $derived({
-	...selected,
-	top: types[selected.ti].top[selected.qi],
-})
+type Pick = (typeof perQuarter)[number]
+let selected = $state<Pick | null>(null)
+const picked = $derived(
+	selected && { ...selected, top: types[selected.ti].top[selected.qi] }
+)
+// The card sits right under the tapped panel, scrolled into view if needed.
+let cardTop = $state(0)
+let card = $state<HTMLDivElement>()
 const fmt = (n: number) => n.toLocaleString("en-US")
 
 function color(name: string, alpha = 1) {
@@ -134,7 +134,8 @@ function draw() {
 				insetRight: 2,
 				order: ["active", "new", "quiet"],
 			}),
-			Plot.rect([selected], {
+			Plot.rect(selected ? [selected] : [], {
+				className: "picked-bar",
 				x1: d => quarters[d.qi],
 				x2: d => quarterEnd(quarters[d.qi]),
 				y1: 0,
@@ -164,8 +165,9 @@ function draw() {
 						: `${t.total.toLocaleString("en-US")} repos · ${pct(t)}% still active`,
 				fill: soft,
 			}),
+			// The card replaces the tip while it is open.
 			Plot.tip(
-				perQuarter,
+				selected ? [] : perQuarter,
 				Plot.pointerX({
 					x: "mid",
 					y: "n",
@@ -180,10 +182,34 @@ function draw() {
 	})
 	chart.style.cursor = "pointer"
 	chart.addEventListener("click", () => {
-		const v = (chart as unknown as { value?: typeof selected }).value
-		if (v) selected = v
+		const v = (chart as unknown as { value?: Pick }).value
+		selected =
+			!v || (selected && v.ti === selected.ti && v.qi === selected.qi)
+				? null
+				: v
 	})
 	el.replaceChildren(chart)
+	place()
+}
+
+function place() {
+	const bar = el?.querySelector(".picked-bar rect")
+	if (!bar) return
+	cardTop =
+		bar.getBoundingClientRect().bottom - el.getBoundingClientRect().top + 8
+}
+
+$effect(() => {
+	if (!card || !cardTop) return
+	const c = card
+	// After the new top is laid out.
+	requestAnimationFrame(() =>
+		c.scrollIntoView({ block: "nearest", behavior: "smooth" })
+	)
+})
+
+function onKey(e: KeyboardEvent) {
+	if (e.key === "Escape") selected = null
 }
 
 $effect(() => {
@@ -198,11 +224,16 @@ $effect(() => {
 })
 </script>
 
+<svelte:window onkeydown={onKey} />
+
 <figure class="waves not-prose">
-	<p class="hint font-mono">Click a bar to see its biggest repos.</p>
+	<p class="hint font-mono">Tap a bar to see its biggest repos.</p>
+	<div class="stage">
 	<div class="chart font-mono" bind:this={el} bind:clientWidth={width} style:min-height="{height}px"></div>
 
-	<div class="pick font-mono" aria-live="polite">
+	{#if picked}
+	<div class="pick font-mono" aria-live="polite" style:top="{cardTop}px" bind:this={card}>
+		<button class="close" type="button" aria-label="Close" onclick={() => (selected = null)}>×</button>
 		<p><b>{picked.type}, {picked.label}</b>: {fmt(picked.n)} new repos</p>
 		<div class="lists">
 			{#each [["Biggest still active", 0], ["Biggest gone quiet", 1], ["Too new to tell", 2]] as const as [title, k]}
@@ -221,6 +252,8 @@ $effect(() => {
 				{/if}
 			{/each}
 		</div>
+	</div>
+	{/if}
 	</div>
 
 	<div class="key font-mono">
@@ -254,13 +287,35 @@ $effect(() => {
 		font-size: 0.6875rem;
 	}
 
+	.stage {
+		position: relative;
+	}
+
 	.pick {
-		margin-top: 0.75rem;
-		padding: 0.75rem 0.9rem;
+		position: absolute;
+		left: 0;
+		right: 0;
+		z-index: 2;
+		padding: 0.75rem 2rem 0.75rem 0.9rem;
+		background: hsl(var(--paper));
+		box-shadow: 0 6px 24px hsl(var(--ink) / 0.12);
 		border: 1px solid hsl(var(--ink) / 0.12);
 		border-radius: 6px;
 		font-size: 0.75rem;
 		color: hsl(var(--ink-soft));
+	}
+
+	.close {
+		position: absolute;
+		top: 0.35rem;
+		right: 0.5rem;
+		padding: 0.25rem 0.5rem;
+		color: hsl(var(--ink-soft));
+		font-size: 1rem;
+		line-height: 1;
+		background: none;
+		border: 0;
+		cursor: pointer;
 	}
 
 	.pick b {
