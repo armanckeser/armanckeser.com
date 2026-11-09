@@ -20,6 +20,6 @@ Only 39% of the repos that came out in 2023 are still active as opposed to 72% o
 
 opencode-ai/opencode (14k stars) is archived and its README says the project moved to charmbracelet/crush, so if you starred opencode you would never know crush exists unless you went back to the repo page. Some of these repos are finished essays or lists so "dead" is not a fair way to describe them, but if you starred a pile of AI tools in the last few years, odds are a good chunk of them are now abandoned. 
 
-That is part of why I built [Stars Organizer](https://github.com/armanckeser/github-stars-organizer). The [demo](https://stars-demo.armanckeser.com/) if you are interested. Explore tab shows how many of my stars are active, aging or dormant. Running Stars Organizer locally with `npx github-stars-organizer` adds a health score for every repo and active alternatives. 
+If you want to learn more about your starred repos, you can run [`npx github-stars-organizer`](https://github.com/armanckeser/github-stars-organizer). 
 
 Topics searched: llm, ai, ai-agents, ai-agent, agents, mcp, mcp-server, llm-agent, rag, generative-ai, chatgpt, claude, agent, openai, large-language-models, gpt, langchain. GitHub search returns at most 1,000 results per query, so I searched each topic one quarter at a time. The types come from a small model and were right for about 9 in 10 of 50 I checked by hand.
