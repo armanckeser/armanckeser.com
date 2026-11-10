@@ -1,0 +1,37 @@
+---
+title: "Every AI word of 2026, month by month"
+date: "2026-11-10"
+published: true
+description: "19 AI engineering words on Hacker News, GitHub and AI Engineer talks since 2023, and which ones are still growing"
+tags: ["AI", "Hacker News", "GitHub"]
+---
+
+<script lang="ts">
+  import AiTrends from "$lib/components/AiTrends.svelte"
+</script>
+
+Every few months the AI crowd gets a new word, prompt engineering, RAG, MCP, vibe coding, skills, and in 2026 there has been a new one every couple of weeks, harnesses, loops, personal agents, autoresearch, tokenmaxxing, software factories. I wanted to know which of these are still going, so for 19 of them I counted Hacker News stories and comments every month since January 2023, new GitHub repos with 10+ stars that use the word in their name or description, and talks at this year's two AI Engineer conferences, World's Fair in July and Code Summit this week.
+
+<AiTrends view="timeline" />
+
+Pretty much every 2026 word peaked by April. Personal agents (OpenClaw, Grok Bot, Meta's Muse, ChatGPT's dot, Hermes Agent) went from 2,963 Hacker News mentions in February to 400 to 450 a month since August, and the mix changed a lot underneath, OpenClaw went from 2,747 mentions to 143 while Grok Bot went from none to 128, and Muse and dot showed up in October. New personal agent repos went from 938 in February to 126 in October, which looks like people stopped building their own once the labs shipped one. Autoresearch peaked in March when Karpathy put out his repo, agent loops in January, agent managers in February and tokenmaxxing in June. The only words that peaked in the last few months are subagents (July), harness (August), sandboxes (September), evals and software factory (October).
+
+<AiTrends view="pairs" />
+
+Talking about a word and building with it don't happen at the same time. Repos that call themselves a harness went from 73 in January to 311 in April, right after Mitchell Hashimoto and OpenAI started using the term in February, and Hacker News caught up later with 250 mentions in August. DeepSeek Harness came out in August and got about 1,100 plugin repos that month alone, so I left those out of the harness count. Software factory goes the other way, 190 Hacker News mentions in October, four times what it had in May, and only 14 new repos. Tons of people are writing about factories and very few are open sourcing one, the ones that exist are things like fabro, Fusion and vercel-labs/eve-software-factory-template.
+
+<AiTrends view="conf" />
+
+The conferences moved the same way. At World's Fair in July, 14% of talks mentioned verification or trust in the title, abstract or track, at Code Summit 21% do, agent teams went from 7% to 14% and software factories from 7% to 11%, while MCP went from 7% to 4% personal agents from 7% to 2% and autoresearch from 4% to none. Code Summit is a coding conference so coding agents jumping from 8% to 24% is not a surprise, and evals is the weird one, down from 9% to 2% at the conference while Hacker News talks about evals more than ever. The rest of the list reads like the Hacker News chart, people went from getting one agent to work to running a bunch of them without watching, with talks like "Building a Safe Software Factory", "12-Factor-Factories", "Code review without reviewing code" and "Sandboxes are dead".
+
+<AiTrends view="momentum" />
+
+Putting the last three months next to the three before, software factory is the only word clearly growing on both, 3x the Hacker News mentions and 1.8x the repos. Sandboxes are up 1.6x on Hacker News. Pretty much everything else is flat or falling, and personal agent repos are at 0.7x.
+
+<AiTrends view="video" />
+
+The one thing in the repos that Hacker News barely talks about is video. I went through the descriptions of the 8,088 AI repos with 300+ stars from the [last post](/writing/ai-repo-waves), and the share of new ones that make videos, animations or motion graphics went from 5% for the first five months of 2026 to 13% and 12% in September and October. Most of them are skills that get Claude Code or Codex to make videos in code with Remotion, three.js or ffmpeg. Hacker News mentions Remotion about 10 times a month and Bluesky about 150, and I keep seeing these videos on Instagram and X all the time.
+
+If you want to learn more about your starred repos, you can run [`npx github-stars-organizer`](https://github.com/armanckeser/github-stars-organizer).
+
+Hacker News counts are stories and comments from the Algolia API that contain the exact phrase. GitHub counts are repos created that month with 10+ stars and the word in their name or description, so the last couple of months are a bit low since new repos haven't had time to get 10 stars. Personal agents is OpenClaw (and its old names clawdbot and moltbot), Grok Bot, Muse, ChatGPT dot, Hermes Agent and the phrases personal agent and autonomous agent. Counts as of November 8.
