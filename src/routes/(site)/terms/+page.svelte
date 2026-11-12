@@ -11,11 +11,11 @@ import Seo from "$lib/components/Seo.svelte"
 
 <div class="mx-auto max-w-[46rem] pb-16 sm:px-6">
   <PostSheet title="Terms of Service" plain>
-      <p><em>Last updated: October 2, 2026</em></p>
+      <p><em>Last updated: November 12, 2026</em></p>
       
       <h2>1. Introduction</h2>
       
-      <p>Welcome to armanckeser.com ("the Website"). This personal blog is operated by Armanc Keser ("I", "me", or "my"). By accessing or using the Website, you agree to be bound by these Terms of Service ("Terms").</p>
+      <p>Welcome to armanckeser.com ("the Website"). This personal blog is operated by Armanc Keser ("I", "me", or "my"). By accessing or using the Website, you agree to be bound by these Terms of Service ("Terms"). These Terms also cover the demos I host alongside the Website, including Stard, which are provided "as is" in the same way.</p>
       
       <h2>2. Acceptance of Terms</h2>
       
