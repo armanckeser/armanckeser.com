@@ -18,19 +18,19 @@ import { buttondown } from "$lib/config"
 
       <h2>The short version</h2>
 
-      <p>There are no accounts, no cookies, no ads, and nothing is sold or shared. Two parties can tell that a page was visited: GitHub, which hosts everything here, and GoatCounter, which counts visits on some pages.</p>
+      <p>There are no accounts, no cookies, no ads, and nothing is sold or shared. Three parties can tell that a page was visited: GitHub, which hosts everything here, GoatCounter, which counts visits on some pages, and Cloudflare, which carries Stard's pages and counts visits to them.</p>
 
       <h2>Visit counts</h2>
 
       <p>armanckeser.com and Four Quarters use <a href="https://www.goatcounter.com" rel="noopener">GoatCounter</a> to count visits. GoatCounter records the page, the site that linked to it, the browser and operating system, the screen size and the country, and keeps them as totals. GoatCounter sets no cookies and does not store IP addresses. I use the numbers to see which posts and projects get read.</p>
 
-      <p>The Kumbara demo, USCIS Tracker and Stard load no analytics at all.</p>
+      <p>Stard's pages load Cloudflare Web Analytics, which counts page views, the referring site, the browser, the country and how long pages take to load. It sets no cookies. The Kumbara demo and USCIS Tracker load no analytics at all.</p>
 
       <h2>Hosting</h2>
 
       <p>Every page here is served by GitHub Pages. GitHub receives your IP address when your browser asks for a page, the way any web host does, and may log it for security. The <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement" rel="noopener">GitHub privacy statement</a> covers what GitHub does with it. I cannot see those logs.</p>
 
-      <p>Stard's game requests go to a Cloudflare Worker of mine, so Cloudflare receives your IP address for those, the way GitHub does for pages. The <a href="https://www.cloudflare.com/privacypolicy/" rel="noopener">Cloudflare privacy policy</a> covers what Cloudflare does with it. My code doesn't record IP addresses.</p>
+      <p>Stard's pages and game requests pass through Cloudflare, and the game's requests are answered by a Cloudflare Worker of mine, so Cloudflare receives your IP address for those, the way GitHub does for pages. The <a href="https://www.cloudflare.com/privacypolicy/" rel="noopener">Cloudflare privacy policy</a> covers what Cloudflare does with it. My code doesn't record IP addresses.</p>
 
       <h2 id="demos">What the demos keep</h2>
 
