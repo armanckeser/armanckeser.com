@@ -99,29 +99,3 @@ Nitter mostly died in early 2024 when X removed guest accounts, which is what th
 xcancel is the most active survivor and it is in LibRedirect's default instance list. [twiiit.com](https://twiiit.com/) is a different thing, a meta-redirector that pings instances every few minutes and forwards you to one that is up, preserving the path, so `twiiit.com/user/status/123` lands you on the same tweet wherever it sends you. It is not in LibRedirect's default list, so add it as a custom rule there, or type it into Sidestep's instance field as described in the Android section, if you would rather have round-robin than a fixed instance.
 
 If you pin xcancel and it goes down, you find out by tapping a link and getting nothing, then you go and edit config. With twiiit you mostly just notice that a page took an extra second.
-
-## xcancel questions
-
-### What is xcancel?
-
-[xcancel.com](https://xcancel.com) is a public Nitter instance: a website that shows tweets, profiles and threads from X as plain pages, with no account, no app prompt and no tracking scripts. Nitter is the open-source Twitter frontend it forks.
-
-### How do I use xcancel?
-
-Take any x.com or twitter.com link and change the domain to xcancel.com, keeping everything after it. `x.com/user/status/123` becomes `xcancel.com/user/status/123`. By hand, that means typing `cancel` after the `x` in the address bar. To do it automatically, use Sidestep on Android or Finicky on macOS, as set up above.
-
-### How does xcancel work?
-
-The xcancel server logs in to X with its own accounts, fetches the tweet you asked for, and sends you a plain HTML page. You never talk to X, so X never asks you to log in. Because X bans those accounts, the operator has to keep replacing them, which is why instances go down.
-
-### What is twiiit?
-
-[twiiit.com](https://twiiit.com) is a redirector, not a Nitter instance. twiiit checks which instances are up every few minutes and forwards you to one of them, keeping the path. Use twiiit in place of xcancel when you would rather not pin one instance.
-
-### Which xcancel domains and alternatives work?
-
-xcancel.com is the main one. Other live instances change often, so check the [Nitter instance list](https://github.com/zedeus/nitter/wiki/Instances) instead of trusting any list in a blog post, including this one. Sidestep's instance picker reads a live list too.
-
-### What is the x-safari-https://redirect.x.com link?
-
-On iPhone, X sends links opened in other browsers or in-app browsers through `redirect.x.com`, which forwards to `x-safari-https://`, an iOS address that forces the page open in Safari or the X app. Swapping the domain to xcancel.com avoids it, because the link never touches x.com.
